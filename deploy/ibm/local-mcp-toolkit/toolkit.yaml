@@ -4,21 +4,21 @@
 #   bash deploy/ibm/local-mcp-toolkit/register-toolkit.sh
 #
 # The register script builds a minimal, self-contained staging directory with a
-# FLATTENED layout — `example_server/` and `server.py` sit directly at
+# FLATTENED layout — `lrl_reservoirs/` and `server.py` sit directly at
 # package_root (no src/ prefix), plus a pinned requirements.txt — then rewrites
 # `package_root` to point at it before calling `orchestrate toolkits import`.
 # This keeps the upload tiny, avoids a 413 "Request Entity Too Large" from
-# uploading the whole repo, and makes `example_server` importable at runtime.
+# uploading the whole repo, and makes `lrl_reservoirs` importable at runtime.
 #
 # Orchestrate uploads package_root, installs requirements.txt, and runs `command`
-# over stdio. `python server.py` imports `example_server.app:mcp` and runs it.
+# over stdio. `python server.py` imports `lrl_reservoirs.app:mcp` and runs it.
 #
-# This template's server needs NO credentials, so no `connections` are declared.
+# This server needs NO credentials, so no `connections` are declared.
 # If your server needs secrets, add a connection (see README) and list it here.
 spec_version: v1
 kind: mcp
-name: example_mcp_local
-description: "Example MCP server (local stdio). Replace name/description with your own server."
+name: lrl_reservoirs_moreno
+description: "MCP server for USACE Louisville District (LRL) reservoir conditions. Exposes get_lake_conditions (single lake) and summarize_district_lakes (district-wide snapshot) backed by the CWMS Data API. Data matches the LRL Daily Lake Report."
 command: python server.py
 env: []
 tools:

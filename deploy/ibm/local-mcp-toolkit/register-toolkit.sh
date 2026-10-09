@@ -28,9 +28,8 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../../.." && pwd)"
 STAGE_DIR="${SCRIPT_DIR}/_stage"
 TOOLKIT_YAML="${SCRIPT_DIR}/_toolkit.generated.yaml"
 
-# The package to ship. If you renamed `example_server`, set PACKAGE_NAME to match
-# (or export it before running).
-PACKAGE_NAME="${PACKAGE_NAME:-example_server}"
+# The package to ship. Override by exporting PACKAGE_NAME before running.
+PACKAGE_NAME="${PACKAGE_NAME:-lrl_reservoirs}"
 
 echo "=== Target ==="
 echo "  env name:      ${WXO_ENV_NAME}"
@@ -77,6 +76,12 @@ echo "=== Staging minimal package_root at ${STAGE_DIR} ==="
 rm -rf "${STAGE_DIR}"
 mkdir -p "${STAGE_DIR}"
 cp -R "${REPO_ROOT}/src/${PACKAGE_NAME}" "${STAGE_DIR}/${PACKAGE_NAME}"
+# Ensure the bundled CSV data file is present (it may be absent from __pycache__
+# copies but must travel with the package for lakes.py to locate it at runtime).
+if [[ -d "${REPO_ROOT}/src/${PACKAGE_NAME}/data" ]]; then
+  mkdir -p "${STAGE_DIR}/${PACKAGE_NAME}/data"
+  cp -R "${REPO_ROOT}/src/${PACKAGE_NAME}/data/." "${STAGE_DIR}/${PACKAGE_NAME}/data/"
+fi
 cp "${SCRIPT_DIR}/server.py" "${STAGE_DIR}/server.py"
 cp "${SCRIPT_DIR}/requirements.txt" "${STAGE_DIR}/requirements.txt"
 # Drop caches that may have been copied from src/.

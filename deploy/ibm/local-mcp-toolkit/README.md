@@ -20,14 +20,14 @@ for a novice to get a Python MCP server into Orchestrate.
 ## How it reuses this template
 
 `server.py` in this folder is a tiny stdio entrypoint that imports the existing
-FastMCP app (`example_server.app:mcp`) and runs it over stdio. The register
+FastMCP app (`lrl_reservoirs.app:mcp`) and runs it over stdio. The register
 script stages a **flattened** copy of the package so **you do not duplicate or
-rewrite any tool code** — edits in `src/example_server/` are picked up on the
+rewrite any tool code** — edits in `src/lrl_reservoirs/` are picked up on the
 next import.
 
 ```
 deploy/ibm/local-mcp-toolkit/
-├── server.py           # stdio entrypoint: `from example_server.app import mcp; mcp.run(transport="stdio")`
+├── server.py           # stdio entrypoint: `from lrl_reservoirs.app import mcp; mcp.run(transport="stdio")`
 ├── requirements.txt    # pinned runtime deps staged next to the package
 ├── toolkit.yaml        # import config template (kind: mcp, command: python server.py, tools: *)
 ├── register-toolkit.sh # stage flattened package_root + activate ADK env + import (idempotent)
@@ -38,11 +38,12 @@ deploy/ibm/local-mcp-toolkit/
 > **How the register script assembles the upload:** Orchestrate uploads
 > `package_root`, installs a `requirements.txt` found there, then runs `command`
 > over stdio. The script builds a small **staging** dir (`_stage/`, git-ignored)
-> containing a **flattened** copy of the package — `example_server/` and
-> `server.py` at the top level (no `src/` prefix) plus the pinned
-> `requirements.txt` — and points `package_root` at it. This avoids a 413
-> (uploading the whole repo), a `ModuleNotFoundError` (src-layout not importable
-> at runtime), and a missing-deps error (the ADK reads `requirements.txt`).
+> containing a **flattened** copy of the package — `lrl_reservoirs/` (including
+> `data/lrl_lakes.csv`) and `server.py` at the top level (no `src/` prefix) plus
+> the pinned `requirements.txt` — and points `package_root` at it. This avoids a
+> 413 (uploading the whole repo), a `ModuleNotFoundError` (src-layout not
+> importable at runtime), and a missing-deps error (the ADK reads
+> `requirements.txt`).
 
 ---
 
@@ -82,8 +83,8 @@ The script activates the ADK env, stages a minimal flattened `package_root`,
 imports the toolkit, lists toolkits to confirm, and cleans up. It is idempotent
 (re-runs pick up code/dependency changes).
 
-> **If you renamed the package** from `example_server`, run with
-> `PACKAGE_NAME=<your_pkg>` exported (and update `server.py`'s import).
+> **PACKAGE_NAME** defaults to `lrl_reservoirs`. Override by exporting it before
+> running (e.g. `PACKAGE_NAME=other_pkg bash register-toolkit.sh`).
 
 ### 2.2a Corporate TLS interception (Zscaler / GSA network) — may be required
 
@@ -149,7 +150,7 @@ done
 ## Teardown
 
 ```bash
-orchestrate toolkits remove --name example_mcp_local
+orchestrate toolkits remove --name lrl_reservoirs_moreno
 ```
 
 ---
