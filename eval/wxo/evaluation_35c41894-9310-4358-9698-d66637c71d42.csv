@@ -1,0 +1,3 @@
+﻿test_case_id,test_case,average_agent_response_time,correct_tool_calls,expected_tool_calls,is_success,journey_completion,keyword_match,llm_steps,missed_tool_calls,orchestrate_agent_routing_accuracy,relevant_tool_calls,semantic_match,text_match,tool_call_precision,tool_call_recall,tool_calls_with_incorrect_parameter,tool_match_success,total_steps,total_tool_calls
+a3246700-907b-4f21-b303-c015865bea84,Show me the Green River lakes.,5.069,1,1,True,1.0,False,2,0,1,1,False,NA,1.0,1.0,0,True,4,1
+,Summary (Average),5.07,1.00,1.00,1.00,1.00,0.00,2.00,0.00,1.00,1.00,0.00,,1.00,1.00,0.00,1.00,4.00,1.00
