@@ -28,13 +28,13 @@ from lrl_reservoirs import utils
         "",
     ],
 )
-def test_validate_relative_path_rejects_destination_override(path: str) -> None:
-    with pytest.raises(ValueError, match="relative API path"):
-        utils._validate_relative_path(path)
+def test_validate_cwms_path_rejects_destination_override(path: str) -> None:
+    with pytest.raises(ValueError, match="relative CWMS path"):
+        utils._validate_cwms_path(path)
 
 
-def test_validate_relative_path_accepts_expected_api_path() -> None:
-    assert utils._validate_relative_path("datasets/search") == "datasets/search"
+def test_validate_cwms_path_accepts_expected_api_path() -> None:
+    assert utils._validate_cwms_path("datasets/search") == "datasets/search"
 
 
 class _FakeClient:
@@ -121,3 +121,55 @@ async def test_501_error_message_indicates_request_format(monkeypatch) -> None:
 
     assert "501" in str(captured.value)
     assert "request format" in str(captured.value).lower()
+
+
+# ── cwms_get path-rejection tests ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        # Full URLs must never reach the network
+        "http://169.254.169.254/latest/meta-data",
+        "https://evil.example.com/steal",
+        # Protocol-relative (//host) — treated as netloc by urlsplit
+        "//127.0.0.1/admin",
+        "//cwms-data.usace.army.mil.evil.com/x",
+        # Dot-dot traversal (plain, single-encoded, double-encoded)
+        "../admin",
+        "timeseries/../../etc/passwd",
+        "%2e%2e/admin",
+        "%252e%252e/admin",
+        # Backslash traversal
+        "timeseries\\..\\admin",
+        # Absolute paths
+        "/timeseries",
+        # Query strings and fragments
+        "timeseries?name=x&target=http://127.0.0.1",
+        "timeseries#fragment",
+        # Empty string
+        "",
+    ],
+)
+@pytest.mark.asyncio
+async def test_cwms_get_rejects_bad_path_before_network(path: str) -> None:
+    """cwms_get must raise ValueError for hostile paths without creating an HTTP client.
+
+    The validation must fire before any AsyncClient is instantiated — confirmed
+    by replacing AsyncClient with a class that raises AssertionError on __init__.
+    """
+
+    class _ShouldNotBeCreated:
+        def __init__(self, **_kwargs: Any) -> None:
+            raise AssertionError(
+                f"HTTP client must not be created for rejected path {path!r}"
+            )
+
+    utils_copy = utils  # reference to avoid closure issue with monkeypatch
+    original = utils_copy.httpx.AsyncClient
+    utils_copy.httpx.AsyncClient = _ShouldNotBeCreated  # type: ignore[assignment]
+    try:
+        with pytest.raises(ValueError, match="relative CWMS path"):
+            await utils.cwms_get(path, {})
+    finally:
+        utils_copy.httpx.AsyncClient = original  # type: ignore[assignment]

@@ -6,6 +6,7 @@ I/O and formatting here keeps each tool file focused on its own logic.
 
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any
 from urllib.parse import unquote, urlsplit
@@ -27,72 +28,111 @@ CWMS_BASE_URL = "https://cwms-data.usace.army.mil/cwms-data/"
 # The endpoint does not issue redirects; follow_redirects=False is correct.
 CWMS_ACCEPT = "application/json;version=2"
 
+# Official USACE LRL Daily Lake Report URL — used in tool data_note strings.
+LAKE_REPORT_URL = "https://www.lrl-wc.usace.army.mil/reports/lkreport.html"
+
+# Cap concurrent outbound HTTP requests so a district-wide fan-out (17 lakes ×
+# 5 sub-requests each) cannot open hundreds of connections simultaneously.
+_CWMS_SEMAPHORE = asyncio.Semaphore(8)
+
 
 class UpstreamServiceError(RuntimeError):
     """Sanitized external-service failure safe to return to an MCP client."""
 
 
-def _validate_relative_path(path: str) -> str:
-    """Reject paths that could select or escape the configured API origin."""
+_BAD_PATH_MSG = "path must be a relative CWMS path without a query or fragment"
+
+
+def _validate_cwms_path(path: str) -> str:
+    """Reject path segments that could escape or override CWMS_BASE_URL.
+
+    Accepts only non-empty relative paths with no scheme, authority, query,
+    fragment, leading slash, backslash, or dot-dot traversal — including
+    percent-encoded and double-encoded variants.
+
+    Raises:
+        ValueError: with a message containing "relative CWMS path".
+    """
+    if not path:
+        raise ValueError(_BAD_PATH_MSG)
+
     parsed = urlsplit(path)
-    decoded_path = parsed.path
+
+    # Reject anything with a scheme (http://, https://) or authority (//host).
+    if parsed.scheme or parsed.netloc:
+        raise ValueError(_BAD_PATH_MSG)
+
+    # Reject query strings and fragments.
+    if parsed.query or parsed.fragment:
+        raise ValueError(_BAD_PATH_MSG)
+
+    # Iteratively percent-decode the path portion up to 3 times to catch
+    # double-encoding tricks (%252e%252e → %2e%2e → ..).
+    decoded = parsed.path
     for _ in range(3):
-        decoded = unquote(decoded_path)
-        if decoded == decoded_path:
+        next_decoded = unquote(decoded)
+        if next_decoded == decoded:
             break
-        decoded_path = decoded
-    segments = decoded_path.replace("\\", "/").split("/")
-    if (
-        not path
-        or parsed.scheme
-        or parsed.netloc
-        or parsed.query
-        or parsed.fragment
-        or decoded_path.startswith(("/", "\\"))
-        or any(segment in {".", ".."} for segment in segments)
-    ):
-        raise ValueError("path must be a relative API path without a query or fragment")
+        decoded = next_decoded
+
+    # Normalise backslashes and check each segment.
+    segments = decoded.replace("\\", "/").split("/")
+    if decoded.startswith(("/", "\\")):
+        raise ValueError(_BAD_PATH_MSG)
+    if any(seg in {".", ".."} for seg in segments):
+        raise ValueError(_BAD_PATH_MSG)
+
     return path
 
 
 async def cwms_get(path: str, params: dict[str, str]) -> Any:
     """GET a CWMS Data API path and return parsed JSON.
 
-    path must be a relative path segment (no leading slash, no scheme/host).
-    Raises UpstreamServiceError with a sanitized message on any failure.
+    path must be a relative path segment (no leading slash, no scheme/host,
+    no dot-dot traversal).  The path is validated before any HTTP client is
+    created, so invalid inputs are rejected without making a network call.
+
+    Uses a module-level asyncio.Semaphore(8) to cap concurrent HTTP requests.
+
+    Raises:
+        ValueError: if path could escape or override the CWMS base URL.
+        UpstreamServiceError: with a sanitized message for any network or
+            HTTP-level failure.
     """
-    try:
-        async with httpx.AsyncClient(
-            base_url=CWMS_BASE_URL,
-            follow_redirects=False,
-            timeout=DEFAULT_TIMEOUT,
-            trust_env=False,
-            headers={"Accept": CWMS_ACCEPT},
-        ) as client:
-            async with client.stream("GET", path, params=params) as response:
-                response.raise_for_status()
-                content = bytearray()
-                async for chunk in response.aiter_bytes():
-                    content.extend(chunk)
-                    if len(content) > MAX_RESPONSE_BYTES:
-                        raise UpstreamServiceError(
-                            "Upstream response exceeded the size limit."
-                        )
-                return json.loads(content)
-    except UpstreamServiceError:
-        raise
-    except httpx.HTTPStatusError as exc:
-        status = exc.response.status_code
-        if status == 501:
-            raise UpstreamServiceError(
-                f"CWMS API returned status {status}: request format not accepted "
-                f"(check Accept header and query parameters)."
-            ) from None
-        raise UpstreamServiceError(f"CWMS API returned status {status}.") from None
-    except (httpx.DecodingError, json.JSONDecodeError, UnicodeDecodeError):
-        raise UpstreamServiceError("CWMS API returned invalid JSON.") from None
-    except httpx.RequestError:
-        raise UpstreamServiceError("CWMS API request failed.") from None
+    _validate_cwms_path(path)
+    async with _CWMS_SEMAPHORE:
+        try:
+            async with httpx.AsyncClient(
+                base_url=CWMS_BASE_URL,
+                follow_redirects=False,
+                timeout=DEFAULT_TIMEOUT,
+                trust_env=False,
+                headers={"Accept": CWMS_ACCEPT},
+            ) as client:
+                async with client.stream("GET", path, params=params) as response:
+                    response.raise_for_status()
+                    content = bytearray()
+                    async for chunk in response.aiter_bytes():
+                        content.extend(chunk)
+                        if len(content) > MAX_RESPONSE_BYTES:
+                            raise UpstreamServiceError(
+                                "Upstream response exceeded the size limit."
+                            )
+                    return json.loads(content)
+        except UpstreamServiceError:
+            raise
+        except httpx.HTTPStatusError as exc:
+            status = exc.response.status_code
+            if status == 501:
+                raise UpstreamServiceError(
+                    f"CWMS API returned status {status}: request format not accepted "
+                    f"(check Accept header and query parameters)."
+                ) from None
+            raise UpstreamServiceError(f"CWMS API returned status {status}.") from None
+        except (httpx.DecodingError, json.JSONDecodeError, UnicodeDecodeError):
+            raise UpstreamServiceError("CWMS API returned invalid JSON.") from None
+        except httpx.RequestError:
+            raise UpstreamServiceError("CWMS API request failed.") from None
 
 
 def paginate(items: list[Any], limit: int, offset: int) -> dict[str, Any]:

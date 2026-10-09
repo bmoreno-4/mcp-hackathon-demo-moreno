@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastmcp import FastMCP
 
+from lrl_reservoirs.lakes import LAKES
 from lrl_reservoirs.tools import summarize_district_lakes as sdl_mod
-from lrl_reservoirs.tools.lake_conditions import _LAKES
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ def _make_lake_result(
     error: str | None = None,
 ) -> dict:
     """Build a minimal get_lake_conditions-style result dict for mocking."""
-    meta = _LAKES[lake_id]
+    meta = LAKES[lake_id]
     result: dict = {
         "lake_id": lake_id,
         "public_name": meta["public_name"],
@@ -57,7 +57,7 @@ def _make_lake_result(
 @pytest.mark.asyncio
 async def test_summarize_returns_all_17_lakes():
     """Result contains an entry for every lake in the district."""
-    fake_results = [_make_lake_result(lid) for lid in _LAKES]
+    fake_results = [_make_lake_result(lid) for lid in LAKES]
 
     with patch.object(
         sdl_mod,
@@ -80,7 +80,7 @@ async def test_summarize_counts_are_correct():
         + ["at_or_above_flood"] * 1
         + ["no_data"] * 4
     )
-    lake_ids = list(_LAKES.keys())
+    lake_ids = list(LAKES.keys())
     fake_results = [
         _make_lake_result(lid, pool_status=st) for lid, st in zip(lake_ids, statuses)
     ]
@@ -103,7 +103,7 @@ async def test_summarize_counts_are_correct():
 @pytest.mark.asyncio
 async def test_summarize_sorted_by_basin_then_name():
     """Lakes list is sorted by basin then public_name."""
-    fake_results = [_make_lake_result(lid) for lid in _LAKES]
+    fake_results = [_make_lake_result(lid) for lid in LAKES]
 
     with patch.object(
         sdl_mod,
@@ -120,7 +120,7 @@ async def test_summarize_sorted_by_basin_then_name():
 @pytest.mark.asyncio
 async def test_summarize_includes_error_lakes_in_no_data_count():
     """Lakes with errors are included in the list and counted as no_data."""
-    lake_ids = list(_LAKES.keys())
+    lake_ids = list(LAKES.keys())
     fake_results = [
         _make_lake_result(lid, error="CWMS API returned status 503.")
         if i == 0
@@ -145,7 +145,7 @@ async def test_summarize_includes_error_lakes_in_no_data_count():
 @pytest.mark.asyncio
 async def test_summarize_has_as_of_utc_field():
     """Result includes a top-level as_of_utc ISO timestamp."""
-    fake_results = [_make_lake_result(lid) for lid in _LAKES]
+    fake_results = [_make_lake_result(lid) for lid in LAKES]
 
     with patch.object(
         sdl_mod,

@@ -43,6 +43,7 @@ from fastmcp import FastMCP
 
 from lrl_reservoirs.lakes import LAKES, LakeName
 from lrl_reservoirs.tools.lake_conditions import get_lake_conditions
+from lrl_reservoirs.utils import LAKE_REPORT_URL
 
 # Status values that count as "no real data"
 _NO_DATA_STATUSES = {"no_data"}
@@ -152,19 +153,11 @@ async def summarize_district_lakes(
 
     now_utc = datetime.datetime.now(datetime.timezone.utc)
 
-    # Limit concurrency to avoid saturating the CWMS API.
-    # Each per-lake call itself issues up to 5 sub-requests in parallel, so
-    # 8 concurrent lake calls ≈ up to 40 concurrent HTTP connections at peak.
-    _sem = asyncio.Semaphore(8)
-
-    async def _fetch(ln) -> dict[str, Any]:
-        async with _sem:
-            return await get_lake_conditions(lake=ln)
-
-    # Fetch all lakes concurrently — LakeName is a dynamic Enum
+    # Fetch all lakes concurrently — concurrency is capped by the module-level
+    # asyncio.Semaphore(8) inside cwms_get, so no per-call wrapper is needed.
     lake_names = [LakeName(lid) for lid in LAKES]  # type: ignore[call-arg]
     results: list[dict[str, Any]] = await asyncio.gather(
-        *[_fetch(ln) for ln in lake_names],
+        *[get_lake_conditions(lake=ln) for ln in lake_names],
         return_exceptions=False,
     )
 
@@ -205,7 +198,8 @@ async def summarize_district_lakes(
             "All status counts use today's live guide curve (Bottom of Flood Control); "
             "summer/winter pool are reference-only; always cite as_of_utc; "
             "report factually without operational judgments; "
-            "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
+            f"direct users to {LAKE_REPORT_URL} "
+            "(LRL Daily Lake Report) for official information."
         ),
         "lakes": filtered,
     }

@@ -93,7 +93,7 @@ async def test_percent_util_matches_lrl_report(lake_id: str, fixtures: dict):
         data["flood_level_response"],  # stor @ flood pool    (parallel slot 4)
     ]
 
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(side_effect=side_effects)):
+    with patch.object(lc_mod, "cwms_get", new=AsyncMock(side_effect=side_effects)):
         result = await lc_mod.get_lake_conditions(lake=LakeName(lake_id))  # type: ignore[call-arg]
 
     report_pct = REPORT_PERCENT_UTIL[lake_id]

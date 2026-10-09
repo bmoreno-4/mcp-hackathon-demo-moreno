@@ -43,7 +43,7 @@ from fastmcp import FastMCP
 
 from lrl_reservoirs.guide_curve import interpolate_guide_curve
 from lrl_reservoirs.lakes import LAKES, LakeName
-from lrl_reservoirs.utils import UpstreamServiceError, cwms_get
+from lrl_reservoirs.utils import LAKE_REPORT_URL, UpstreamServiceError, cwms_get
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -54,8 +54,14 @@ LOOKBACK_HOURS = 6
 # Tolerance used for "at_guide" status (±0.05 ft ≈ reporting precision).
 AT_GUIDE_TOLERANCE_FT = 0.05
 
-# Keep a module-level alias so existing tests that patch lc_mod._cwms_get still work.
-_cwms_get = cwms_get
+# Standard one-line data note returned in every response dict.
+_DATA_NOTE = (
+    "guide_curve_ft is the operative seasonal target; "
+    "summer/winter pool are reference-only; "
+    "always cite as_of; report factually without operational judgments; "
+    f"direct users to {LAKE_REPORT_URL} (LRL Daily Lake Report) "
+    "for official information."
+)
 
 
 # ── Pool-status helpers ───────────────────────────────────────────────────────
@@ -120,7 +126,7 @@ async def _fetch_guide_curve(lake_id: str, at: datetime.datetime) -> float | Non
     """
     level_id = f"{lake_id}.Elev.Inst.0.Bottom of Flood Control"
     try:
-        data = await _cwms_get(
+        data = await cwms_get(
             f"levels/{level_id}",
             params={
                 "office": OFFICE,
@@ -150,7 +156,7 @@ async def _fetch_storage(stor_ts_id: str, begin: str, end: str) -> float | None:
     failure or missing data.
     """
     try:
-        ts_data = await _cwms_get(
+        ts_data = await cwms_get(
             "timeseries",
             params={
                 "name": stor_ts_id,
@@ -184,7 +190,7 @@ async def _fetch_storage_level(
     """
     level_id = f"{lake_id}.Stor.Inst.0.{level_name}"
     try:
-        data = await _cwms_get(
+        data = await cwms_get(
             f"levels/{level_id}",
             params={
                 "office": OFFICE,
@@ -208,9 +214,6 @@ async def _fetch_storage_level(
 
 
 # ── Tool implementation ───────────────────────────────────────────────────────
-
-# Back-compat alias so tests that import _LAKES from this module still work.
-_LAKES = LAKES
 
 
 async def get_lake_conditions(
@@ -304,7 +307,7 @@ async def get_lake_conditions(
 
     # ── 1. Fetch current elevation ─────────────────────────────────────────────
     try:
-        ts_data = await _cwms_get(
+        ts_data = await cwms_get(
             "timeseries",
             params={
                 "name": meta["elev_ts_id"],
@@ -331,11 +334,7 @@ async def get_lake_conditions(
             "storage_at_flood_pool_acre_ft": None,
             "percent_util": None,
             "reference_levels": ref,
-            "data_note": (
-                "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
-                "always cite as_of; report factually without operational judgments; "
-                "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
-            ),
+            "data_note": _DATA_NOTE,
             "error": str(exc),
         }
 
@@ -357,11 +356,7 @@ async def get_lake_conditions(
             "storage_at_flood_pool_acre_ft": None,
             "percent_util": None,
             "reference_levels": ref,
-            "data_note": (
-                "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
-                "always cite as_of; report factually without operational judgments; "
-                "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
-            ),
+            "data_note": _DATA_NOTE,
             "error": "No observations returned for the lookback window.",
         }
 
@@ -438,11 +433,7 @@ async def get_lake_conditions(
         "storage_at_flood_pool_acre_ft": stor_at_flood,
         "percent_util": percent_util,
         "reference_levels": ref,
-        "data_note": (
-            "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
-            "always cite as_of; report factually without operational judgments; "
-            "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
-        ),
+        "data_note": _DATA_NOTE,
     }
 
 

@@ -20,14 +20,14 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastmcp import FastMCP
 
+from lrl_reservoirs.guide_curve import interpolate_guide_curve
+from lrl_reservoirs.lakes import LAKES
 from lrl_reservoirs.tools import lake_conditions as lc_mod
 from lrl_reservoirs.tools.lake_conditions import (
-    _LAKES,
     AT_GUIDE_TOLERANCE_FT,
     LakeName,
     _pool_status,
     _pool_status_vs_guide,
-    interpolate_guide_curve,
 )
 from lrl_reservoirs.utils import UpstreamServiceError
 
@@ -187,40 +187,40 @@ class TestInterpolateGuideCurve:
 class TestLakeTable:
     def test_all_17_lakes_loaded(self):
         """JERoush, Mississinewa and Salamonie were removed; 17 lakes remain."""
-        assert len(_LAKES) == 17
+        assert len(LAKES) == 17
 
     def test_removed_lakes_absent(self):
         for lid in ("JERoush", "Mississinewa", "Salamonie"):
-            assert lid not in _LAKES
+            assert lid not in LAKES
 
     def test_known_lake_present(self):
-        assert "Barren" in _LAKES
+        assert "Barren" in LAKES
         # summer_pool_ft → top_of_conservation_ft (552.0 from report)
-        assert _LAKES["Barren"]["top_of_conservation_ft"] == 552.0
+        assert LAKES["Barren"]["top_of_conservation_ft"] == 552.0
         # winter_pool_ft → top_of_normal_ft (528.0 fixed per report)
-        assert _LAKES["Barren"]["top_of_normal_ft"] == 528.0
-        assert _LAKES["Barren"]["top_of_flood_ft"] == 590.0
-        assert _LAKES["Barren"]["basin"] == "Green River"
+        assert LAKES["Barren"]["top_of_normal_ft"] == 528.0
+        assert LAKES["Barren"]["top_of_flood_ft"] == 590.0
+        assert LAKES["Barren"]["basin"] == "Green River"
 
     def test_corrected_values(self):
         """Spot-check all values that were fixed per the LRL Daily Lake Report."""
-        assert _LAKES["Buckhorn"]["top_of_normal_ft"] == 757.0
-        assert _LAKES["Nolin"]["top_of_normal_ft"] == 492.0
-        assert _LAKES["Rough"]["top_of_conservation_ft"] == 490.0
-        assert _LAKES["Patoka"]["top_of_normal_ft"] == 532.0
-        assert _LAKES["Patoka"]["top_of_conservation_ft"] == 536.0
+        assert LAKES["Buckhorn"]["top_of_normal_ft"] == 757.0
+        assert LAKES["Nolin"]["top_of_normal_ft"] == 492.0
+        assert LAKES["Rough"]["top_of_conservation_ft"] == 490.0
+        assert LAKES["Patoka"]["top_of_normal_ft"] == 532.0
+        assert LAKES["Patoka"]["top_of_conservation_ft"] == 536.0
 
     def test_patoka_has_conservation_level(self):
         """Patoka now has a summer_pool_ft of 536.0 from the LRL report."""
-        assert _LAKES["Patoka"]["top_of_conservation_ft"] == 536.0
-        assert _LAKES["Patoka"]["top_of_normal_ft"] == 532.0
+        assert LAKES["Patoka"]["top_of_conservation_ft"] == 536.0
+        assert LAKES["Patoka"]["top_of_normal_ft"] == 532.0
 
     def test_basin_column_populated(self):
-        assert _LAKES["Taylorsville"]["basin"] == "Salt River"
-        assert _LAKES["CaesarCreek"]["basin"] == "Little Miami"
+        assert LAKES["Taylorsville"]["basin"] == "Salt River"
+        assert LAKES["CaesarCreek"]["basin"] == "Little Miami"
 
     def test_lake_name_enum_contains_all_lakes(self):
-        for lid in _LAKES:
+        for lid in LAKES:
             assert LakeName(lid).value == lid  # type: ignore[call-arg]
 
 
@@ -277,7 +277,7 @@ async def test_get_lake_conditions_normal_pool():
 
     with patch.object(
         lc_mod,
-        "_cwms_get",
+        "cwms_get",
         new=AsyncMock(
             side_effect=[
                 fake_ts,
@@ -327,7 +327,7 @@ async def test_get_lake_conditions_above_guide():
 
     with patch.object(
         lc_mod,
-        "_cwms_get",
+        "cwms_get",
         new=AsyncMock(
             side_effect=[
                 fake_ts,
@@ -360,7 +360,7 @@ async def test_get_lake_conditions_at_guide():
 
     with patch.object(
         lc_mod,
-        "_cwms_get",
+        "cwms_get",
         new=AsyncMock(
             side_effect=[
                 fake_ts,
@@ -387,7 +387,7 @@ async def test_get_lake_conditions_guide_fetch_fails_falls_back():
 
     with patch.object(
         lc_mod,
-        "_cwms_get",
+        "cwms_get",
         new=AsyncMock(
             side_effect=[
                 fake_ts,
@@ -418,7 +418,7 @@ async def test_get_lake_conditions_guide_fetch_fails_falls_back():
 async def test_get_lake_conditions_no_data_when_values_empty():
     fake = {"name": "Barren.Elev.Inst.0.0.lrldlb-rev", "units": "ft", "values": []}
 
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(return_value=fake)):
+    with patch.object(lc_mod, "cwms_get", new=AsyncMock(return_value=fake)):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Barren"),  # type: ignore[call-arg]
         )
@@ -432,7 +432,7 @@ async def test_get_lake_conditions_no_data_when_values_empty():
 @pytest.mark.asyncio
 async def test_get_lake_conditions_upstream_error_returns_error_dict():
     err = UpstreamServiceError("CWMS API returned status 503.")
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(side_effect=err)):
+    with patch.object(lc_mod, "cwms_get", new=AsyncMock(side_effect=err)):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Barren"),  # type: ignore[call-arg]
         )
@@ -444,7 +444,7 @@ async def test_get_lake_conditions_upstream_error_returns_error_dict():
 
 @pytest.mark.asyncio
 async def test_cwms_get_sends_versioned_accept_header():
-    """_cwms_get must send Accept: application/json;version=2.
+    """cwms_get must send Accept: application/json;version=2.
 
     Without this header the CWMS API returns 501 Not Implemented.
     The test intercepts the outgoing httpx request and asserts the header
@@ -472,7 +472,7 @@ async def test_cwms_get_sends_versioned_accept_header():
 
     with patch.object(utils_mod.httpx, "AsyncClient", side_effect=patched_client):
         try:
-            await lc_mod._cwms_get(
+            await lc_mod.cwms_get(
                 "timeseries",
                 {
                     "name": "Barren.Elev.Inst.0.0.lrldlb-rev",
@@ -515,7 +515,7 @@ async def test_cwms_get_does_not_follow_redirects():
 
     with patch.object(utils_mod.httpx, "AsyncClient", side_effect=patched_client):
         try:
-            await lc_mod._cwms_get("timeseries", {"name": "x"})
+            await lc_mod.cwms_get("timeseries", {"name": "x"})
         except Exception:
             pass
 
@@ -549,7 +549,7 @@ async def test_cwms_get_501_error_message_indicates_request_format():
 
     with patch.object(utils_mod.httpx, "AsyncClient", side_effect=patched_client):
         with pytest.raises(UpstreamServiceError) as exc_info:
-            await lc_mod._cwms_get(
+            await lc_mod.cwms_get(
                 "timeseries",
                 {"name": "Taylorsville.Elev.Inst.0.0.lrldlb-rev"},
             )
@@ -568,7 +568,7 @@ async def test_get_lake_conditions_patoka_with_conservation_level():
 
     with patch.object(
         lc_mod,
-        "_cwms_get",
+        "cwms_get",
         new=AsyncMock(
             side_effect=[
                 fake_ts,
