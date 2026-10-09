@@ -27,9 +27,9 @@ API:
 
 - *"How is Barren River Lake doing compared to its guide curve?"*
 - *"Which lakes are currently below their guide curve?"*
-- *"Show me a district summary — how many lakes are above guide?"*
+- *"Show me a district summary - how many lakes are above guide?"*
 - *"What is the Percent Util for Patoka Lake right now?"*
-- *"Compare the storage utilisation for all Green River basin lakes."*
+- *"Compare the storage utilization for all Green River basin lakes."*
 
 ### Fields returned per lake
 
