@@ -24,10 +24,13 @@ What "501 Not Implemented" means:
 
 Static pool levels (winter_pool_ft, summer_pool_ft, flood_pool_ft) come from
 the LRL Daily Lake Report 2026-10-08 and are baked into data/lrl_lakes.csv.
-They change only with dam-pool schedule amendments.
+They change only with dam-pool schedule amendments.  These are REFERENCE values
+only.  Do NOT use them to characterise the current pool as "below summer pool"
+or "below conservation pool" — such language is misleading during seasonal fill
+and drawdown periods when the pool is expected to differ from the static target.
 
-Pool status is classified relative to the live guide curve, not the static
-pools (which bound the normal operating range):
+Pool status is classified relative to the live guide curve (Bottom of Flood
+Control), not the static pools:
   - below_guide:       elevation < guide_curve_ft
   - at_guide:          elevation == guide_curve_ft  (within 0.05 ft)
   - above_guide:       guide_curve_ft < elevation < flood_pool_ft
@@ -40,6 +43,21 @@ Formula: (current_storage - storage_at_guide)
          / (storage_at_flood - storage_at_guide) * 100
   - Negative when pool is below guide curve.
   - Both bounds are fetched live from CWMS storage location levels.
+
+Interpretation guidance for AI assistants
+------------------------------------------
+- The guide curve (Bottom of Flood Control) is the operative seasonal target
+  for the current date.  Use it — not summer_pool or winter_pool — to assess
+  whether the pool is high, low, or on target.
+- summer_pool_ft and winter_pool_ft are static reference values only.  Do not
+  describe a pool as "below summer pool" or "below conservation pool" as a
+  shortfall; doing so is incorrect during drawdown or pre-fill periods.
+- Always report the observation timestamp (as_of) when stating pool conditions.
+- Report conditions factually (elevation, deviation, pool_status, percent_util).
+  Do not make operational judgments or flood risk assessments such as "no
+  concern" or "normal conditions".
+- For official water control information, direct users to the LRL Water Control
+  website: https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/
 """
 
 from __future__ import annotations
@@ -421,12 +439,15 @@ async def get_lake_conditions(
       - basin (str): River basin (e.g. "Salt River")
       - elevation_ft (float | null): Latest pool elevation in feet
       - vertical_datum (str | null): Datum of the elevation reading (e.g. "NGVD-29")
-      - as_of (str | null): ISO-8601 UTC timestamp of the observation
+      - as_of (str | null): ISO-8601 UTC timestamp of the observation —
+          ALWAYS include this when reporting conditions to users.
       - guide_curve_ft (float | null): Today's seasonal Bottom of Flood Control
-          elevation — the value the LRL Daily Lake Report calls "Pool" and
-          measures "Dev. from Pool" against
+          elevation — the operative target for the current date.  The LRL Daily
+          Lake Report calls this "Pool" and measures "Dev. from Pool" against it.
+          This is the primary reference for assessing whether the pool is
+          high, low, or on target — NOT summer_pool or winter_pool.
       - deviation_from_guide_curve_ft (float | null): elevation minus guide_curve_ft;
-          negative = pool is below guide curve
+          negative = pool is below today's guide curve
       - pool_status (str): Status relative to guide curve — one of:
           below_guide | at_guide | above_guide | at_or_above_flood | no_guide |
           unknown | no_data
@@ -448,7 +469,15 @@ async def get_lake_conditions(
               / (storage_at_flood - storage_at_guide) * 100.
           Negative when pool is below guide curve.
       - reference_levels (dict): Static pool schedule —
-          winter_pool_ft, summer_pool_ft, flood_pool_ft
+          winter_pool_ft, summer_pool_ft, flood_pool_ft.
+          These are reference values only; do not use them to assess whether
+          the pool is "below summer pool" or "below conservation pool" —
+          deviations from these static targets are expected and normal during
+          seasonal fill and drawdown operations.
+      - data_note (str): One-line guidance reminding the caller that guide_curve_ft
+          is the operative seasonal target; summer/winter pool are reference-only;
+          always cite as_of; report factually without operational judgments; and
+          direct users to the LRL Water Control website for official information.
       - error (str): present only when the elevation API call failed
     """
     lake_id: str = lake.value  # type: ignore[union-attr]
@@ -495,6 +524,11 @@ async def get_lake_conditions(
             "storage_at_flood_pool_acre_ft": None,
             "percent_util": None,
             "reference_levels": ref,
+            "data_note": (
+                "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
+                "always cite as_of; report factually without operational judgments; "
+                "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+            ),
             "error": str(exc),
         }
 
@@ -516,6 +550,11 @@ async def get_lake_conditions(
             "storage_at_flood_pool_acre_ft": None,
             "percent_util": None,
             "reference_levels": ref,
+            "data_note": (
+                "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
+                "always cite as_of; report factually without operational judgments; "
+                "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+            ),
             "error": "No observations returned for the lookback window.",
         }
 
@@ -594,6 +633,11 @@ async def get_lake_conditions(
         "storage_at_flood_pool_acre_ft": stor_at_flood,
         "percent_util": percent_util,
         "reference_levels": ref,
+        "data_note": (
+            "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
+            "always cite as_of; report factually without operational judgments; "
+            "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+        ),
     }
 
 
