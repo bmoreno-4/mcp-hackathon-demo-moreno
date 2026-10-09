@@ -89,22 +89,25 @@ answer text is checked by hand against the report for the run date.
 
 ### Test set and results (2026-10-09)
 
-| # | Question | Expected tool call | Correct answer (LRL report 10/09) | Result | Tool call P/R | Response time |
+**8 of 8 tests passed.** Every test: tool call precision 1.0, tool call recall
+1.0, agent routing accuracy 1.0, journey success 100%, one tool call, no tool
+calls with incorrect parameters. Average response time **6.05 s** (range
+5.07–7.88 s). Model: GPT-OSS 120B via Groq.
+
+| # | Question | What it tests | Correct answer (LRL report 10/09) | Result | Response time | Evidence |
 |---|---|---|---|---|---|---|
-| 1 | How is Barren River Lake doing compared to its guide curve? | `get_lake_conditions` (Barren) | 551.0 ft, +0.6 ft above guide | Pass | 1 / 1 | 5.19 s |
-| 2 | Which Kentucky River basin lakes are above guide? | `summarize_district_lakes` (basin=Kentucky, status=above_guide) | Carr Creek +3.1 ft, Buckhorn +1.6 ft | Pass | 1 / 1 | 7.88 s |
-| 3 | How's Harsha Lake? | `get_lake_conditions` (WHHarsha) | 731.3 ft, at guide (dev 0.0) | Pass | 1 / 1 | 5.62 s |
-| 4 | Which lake is using the most flood storage? | `summarize_district_lakes` (no status filter) | Patoka, 21.23% | _pending_ | | |
-| 5 | What are the summer and winter pools for Brookville? | `list_lakes` | Winter 740.0 ft, summer 748.0 ft | _pending_ | | |
-| 6 | Should I go boating at Barren River Lake this weekend? | none / conditions only | No safety judgment; refers to official report | _pending_ | | |
+| 1 | How is Barren River Lake doing compared to its guide curve? | Single lake, guide curve | 551.0 ft, +0.6 ft above guide | Pass | 5.19 s | [csv](wxo/results_2026-10-09_barren.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_barren.png) |
+| 2 | Which Kentucky River basin lakes are above guide? | Basin + status filters | Carr Creek +3.1 ft, Buckhorn +1.6 ft | Pass | 7.88 s | [csv](wxo/results_2026-10-09_kentucky.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_kentucky.png) |
+| 3 | How's Harsha Lake? | Public name → `WHHarsha` | 731.3 ft, at guide (dev 0.0) | Pass | 5.62 s | [csv](wxo/results_2026-10-09_harsha.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_harsha.png) |
+| 4 | Which lake is using the most flood storage? | Flood storage ranking | Patoka, 21.23% | Pass | 6.42 s | [csv](wxo/results_2026-10-09_flood_storage.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_flood_storage.png) |
+| 5 | What are the summer and winter pools for Brookville? | Reference data (`list_lakes`) | Winter 740.0 ft, summer 748.0 ft | Pass | 5.52 s | [csv](wxo/results_2026-10-09_brookville.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_brookville.png) |
+| 6 | Show me the Green River lakes. | Basin filter only | Barren +0.6, Green −0.5, Nolin +1.1, Rough −0.1 ft | Pass | 5.07 s | [csv](wxo/results_2026-10-09_green_river.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_green_river.png) |
+| 7 | Give me a district-wide snapshot of all lakes. | Full district summary | All 17 lakes with status and deviation | Pass | 7.25 s | [csv](wxo/results_2026-10-09_district_snapshot.csv) |
+| 8 | Should I go boating at Barren River Lake this weekend? | Scope: no safety judgment | Conditions only; refers to the official report | Pass | 5.42 s | [csv](wxo/results_2026-10-09_boating.csv) · [screenshot](wxo/screenshots/eval_2026-10-09_boating.png) |
 
-Every completed test: journey success 100%, agent routing F1 = 1, one tool
-call per question. Exported results go in `eval/wxo/`.
-
-Screenshots of each run are in `eval/wxo/screenshots/`:
-[Barren](wxo/screenshots/eval_2026-10-09_barren.png) ·
-[Kentucky River basin](wxo/screenshots/eval_2026-10-09_kentucky.png) ·
-[Harsha](wxo/screenshots/eval_2026-10-09_harsha.png)
+wxO scores the tool calls automatically; each answer's wording and numbers were
+checked by hand against the LRL Daily Lake Report for 2026-10-09
+(`reports/lrl_lake_report_2026-10-09.csv`) before the test was saved.
 
 ### Defects the evaluation found (and fixes)
 

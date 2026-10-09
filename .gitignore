@@ -40,3 +40,6 @@ htmlcov/
 .zed/
 *.swp
 
+
+# macOS
+.DS_Store
