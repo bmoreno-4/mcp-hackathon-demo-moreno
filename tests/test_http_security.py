@@ -1,4 +1,4 @@
-"""Regression tests for the starter's outbound request boundary."""
+"""Regression tests for the CWMS outbound request boundary."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ class _FakeClient:
     """Capture client policy while returning a controlled upstream response."""
 
     init_kwargs: dict[str, Any] = {}
-    response = httpx.Response(200, json={"results": []})
+    response = httpx.Response(200, json={"values": []})
 
     def __init__(self, **kwargs: Any) -> None:
         type(self).init_kwargs = kwargs
@@ -64,31 +64,21 @@ class _FakeClient:
 
     def stream(self, method: str, path: str, **kwargs: Any) -> _Stream:
         self.response.request = httpx.Request(
-            method, f"https://api.example.gov/v1/{path}"
+            method, f"https://cwms-data.usace.army.mil/cwms-data/{path}"
         )
         return self._Stream(self.response)
 
 
 @pytest.mark.asyncio
-async def test_fetch_json_uses_fixed_origin_and_safe_client_policy(monkeypatch) -> None:
+async def test_cwms_get_uses_fixed_origin_and_safe_client_policy(monkeypatch) -> None:
     monkeypatch.setattr(utils.httpx, "AsyncClient", _FakeClient)
 
-    assert await utils.fetch_json("datasets", params={"q": "health"}) == {"results": []}
-    assert _FakeClient.init_kwargs["base_url"] == utils.API_BASE_URL
+    ts_id = "Barren.Elev.Inst.0.0.lrldlb-rev"
+    assert await utils.cwms_get("timeseries", {"name": ts_id}) == {"values": []}
+    assert _FakeClient.init_kwargs["base_url"] == utils.CWMS_BASE_URL
     assert _FakeClient.init_kwargs["follow_redirects"] is False
     assert _FakeClient.init_kwargs["trust_env"] is False
-
-
-@pytest.mark.asyncio
-async def test_fetch_json_does_not_send_rejected_path(monkeypatch) -> None:
-    class UnexpectedClient:
-        def __init__(self, **kwargs: Any) -> None:
-            raise AssertionError("HTTP client must not be created for rejected input")
-
-    monkeypatch.setattr(utils.httpx, "AsyncClient", UnexpectedClient)
-
-    with pytest.raises(ValueError, match="relative API path"):
-        await utils.fetch_json("http://169.254.169.254/latest/meta-data")
+    assert _FakeClient.init_kwargs["headers"]["Accept"] == utils.CWMS_ACCEPT
 
 
 @pytest.mark.asyncio
@@ -100,10 +90,10 @@ async def test_upstream_error_does_not_expose_sensitive_response(
     monkeypatch.setattr(utils.httpx, "AsyncClient", _FakeClient)
 
     with pytest.raises(utils.UpstreamServiceError) as captured:
-        await utils.fetch_json("datasets")
+        await utils.cwms_get("timeseries", {"name": "x"})
 
     message = str(captured.value)
-    assert message == "Upstream service returned status 500."
+    assert message == "CWMS API returned status 500."
     assert sensitive not in message
     assert sensitive not in caplog.text
 
@@ -115,7 +105,19 @@ async def test_invalid_json_is_sanitized(monkeypatch) -> None:
     monkeypatch.setattr(utils.httpx, "AsyncClient", _FakeClient)
 
     with pytest.raises(utils.UpstreamServiceError) as captured:
-        await utils.fetch_json("datasets")
+        await utils.cwms_get("timeseries", {"name": "x"})
 
-    assert str(captured.value) == "Upstream service returned invalid JSON."
+    assert str(captured.value) == "CWMS API returned invalid JSON."
     assert sensitive not in str(captured.value)
+
+
+@pytest.mark.asyncio
+async def test_501_error_message_indicates_request_format(monkeypatch) -> None:
+    _FakeClient.response = httpx.Response(501, json={"message": "Not Implemented"})
+    monkeypatch.setattr(utils.httpx, "AsyncClient", _FakeClient)
+
+    with pytest.raises(utils.UpstreamServiceError) as captured:
+        await utils.cwms_get("timeseries", {"name": "x"})
+
+    assert "501" in str(captured.value)
+    assert "request format" in str(captured.value).lower()

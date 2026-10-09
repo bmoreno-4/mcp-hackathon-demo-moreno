@@ -452,8 +452,8 @@ async def test_cwms_get_sends_versioned_accept_header():
     """
     import httpx
 
-    import lrl_reservoirs.tools.lake_conditions as lc_mod2
-    from lrl_reservoirs.tools.lake_conditions import CWMS_ACCEPT
+    import lrl_reservoirs.utils as utils_mod
+    from lrl_reservoirs.utils import CWMS_ACCEPT
 
     captured_headers: dict[str, str] = {}
 
@@ -470,9 +470,9 @@ async def test_cwms_get_sends_versioned_accept_header():
         kw["transport"] = transport
         return real_client_cls(**kw)
 
-    with patch.object(lc_mod2.httpx, "AsyncClient", side_effect=patched_client):
+    with patch.object(utils_mod.httpx, "AsyncClient", side_effect=patched_client):
         try:
-            await lc_mod2._cwms_get(
+            await lc_mod._cwms_get(
                 "timeseries",
                 {
                     "name": "Barren.Elev.Inst.0.0.lrldlb-rev",
@@ -496,7 +496,7 @@ async def test_cwms_get_does_not_follow_redirects():
     """
     import httpx
 
-    import lrl_reservoirs.tools.lake_conditions as lc_mod2
+    import lrl_reservoirs.utils as utils_mod
 
     captured_kwargs: dict = {}
 
@@ -513,9 +513,9 @@ async def test_cwms_get_does_not_follow_redirects():
         kw["transport"] = httpx.MockTransport(mock_send)
         return real_client_cls(**kw)
 
-    with patch.object(lc_mod2.httpx, "AsyncClient", side_effect=patched_client):
+    with patch.object(utils_mod.httpx, "AsyncClient", side_effect=patched_client):
         try:
-            await lc_mod2._cwms_get("timeseries", {"name": "x"})
+            await lc_mod._cwms_get("timeseries", {"name": "x"})
         except Exception:
             pass
 
@@ -531,7 +531,7 @@ async def test_cwms_get_501_error_message_indicates_request_format():
     not a generic 'service offline' message."""
     import httpx
 
-    import lrl_reservoirs.tools.lake_conditions as lc_mod2
+    import lrl_reservoirs.utils as utils_mod
     from lrl_reservoirs.utils import UpstreamServiceError
 
     async def mock_send(request: httpx.Request, **_kwargs):
@@ -547,9 +547,9 @@ async def test_cwms_get_501_error_message_indicates_request_format():
         kw["transport"] = transport
         return real_client_cls(**kw)
 
-    with patch.object(lc_mod2.httpx, "AsyncClient", side_effect=patched_client):
+    with patch.object(utils_mod.httpx, "AsyncClient", side_effect=patched_client):
         with pytest.raises(UpstreamServiceError) as exc_info:
-            await lc_mod2._cwms_get(
+            await lc_mod._cwms_get(
                 "timeseries",
                 {"name": "Taylorsville.Elev.Inst.0.0.lrldlb-rev"},
             )
@@ -601,11 +601,7 @@ def _parse_lrl_report() -> list[tuple[str, float, float]]:
     lakes in the report.  'Dev. from Pool' is positive when above guide curve.
     """
     report_path = (
-        pathlib.Path(__file__).parent.parent
-        / "src"
-        / "lrl_reservoirs"
-        / "data"
-        / "lrl_lake_report_2026-10-08.txt"
+        pathlib.Path(__file__).parent / "fixtures" / "lrl_lake_report_2026-10-08.txt"
     )
     # Mapping from the report's project names to our lake_id keys
     NAME_MAP = {

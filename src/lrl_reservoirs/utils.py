@@ -1,4 +1,4 @@
-"""Shared helpers: HTTP client, response formatting, and pagination.
+"""Shared helpers: CWMS HTTP client, response formatting, and pagination.
 
 Import these from your tool modules instead of re-implementing them. Keeping
 I/O and formatting here keeps each tool file focused on its own logic.
@@ -14,12 +14,18 @@ import httpx
 
 # Federal APIs can be slow or intermittently unresponsive — always use an
 # explicit timeout. Bump this for large exports.
-DEFAULT_TIMEOUT = 30.0
-MAX_RESPONSE_BYTES = 5_000_000
+DEFAULT_TIMEOUT = 20.0
+MAX_RESPONSE_BYTES = 1_000_000
 
-# Keep outbound origins operator-controlled. Do not replace this with a tool
-# argument; add another narrowly scoped client when integrating another API.
-API_BASE_URL = "https://api.example.gov/v1/"
+# CWMS Data API base URL — keep outbound origins operator-controlled.
+# Do not replace with a tool argument; add another narrowly scoped client
+# when integrating another API.
+CWMS_BASE_URL = "https://cwms-data.usace.army.mil/cwms-data/"
+
+# CWMS Data API requires this header to negotiate the v2 JSON response format.
+# Without it (or with Accept: */*), the server returns HTTP 501 Not Implemented.
+# The endpoint does not issue redirects; follow_redirects=False is correct.
+CWMS_ACCEPT = "application/json;version=2"
 
 
 class UpstreamServiceError(RuntimeError):
@@ -49,29 +55,21 @@ def _validate_relative_path(path: str) -> str:
     return path
 
 
-async def fetch_json(
-    path: str,
-    params: dict[str, Any] | None = None,
-    headers: dict[str, str] | None = None,
-    timeout: float = DEFAULT_TIMEOUT,
-) -> Any:
-    """GET a path from the fixed API origin and return parsed JSON.
+async def cwms_get(path: str, params: dict[str, str]) -> Any:
+    """GET a CWMS Data API path and return parsed JSON.
 
-    Raises:
-        ValueError: if path could select or escape the configured API origin.
-        UpstreamServiceError: with a sanitized message for external failures.
+    path must be a relative path segment (no leading slash, no scheme/host).
+    Raises UpstreamServiceError with a sanitized message on any failure.
     """
-    safe_path = _validate_relative_path(path)
     try:
         async with httpx.AsyncClient(
-            base_url=API_BASE_URL,
+            base_url=CWMS_BASE_URL,
             follow_redirects=False,
-            timeout=timeout,
+            timeout=DEFAULT_TIMEOUT,
             trust_env=False,
+            headers={"Accept": CWMS_ACCEPT},
         ) as client:
-            async with client.stream(
-                "GET", safe_path, params=params, headers=headers
-            ) as response:
+            async with client.stream("GET", path, params=params) as response:
                 response.raise_for_status()
                 content = bytearray()
                 async for chunk in response.aiter_bytes():
@@ -84,13 +82,17 @@ async def fetch_json(
     except UpstreamServiceError:
         raise
     except httpx.HTTPStatusError as exc:
-        raise UpstreamServiceError(
-            f"Upstream service returned status {exc.response.status_code}."
-        ) from None
+        status = exc.response.status_code
+        if status == 501:
+            raise UpstreamServiceError(
+                f"CWMS API returned status {status}: request format not accepted "
+                f"(check Accept header and query parameters)."
+            ) from None
+        raise UpstreamServiceError(f"CWMS API returned status {status}.") from None
     except (httpx.DecodingError, json.JSONDecodeError, UnicodeDecodeError):
-        raise UpstreamServiceError("Upstream service returned invalid JSON.") from None
+        raise UpstreamServiceError("CWMS API returned invalid JSON.") from None
     except httpx.RequestError:
-        raise UpstreamServiceError("Upstream service request failed.") from None
+        raise UpstreamServiceError("CWMS API request failed.") from None
 
 
 def paginate(items: list[Any], limit: int, offset: int) -> dict[str, Any]:

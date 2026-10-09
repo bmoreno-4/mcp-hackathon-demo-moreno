@@ -17,18 +17,6 @@ Data source: CWMS Data API (https://cwms-data.usace.army.mil/cwms-data)
   - Vertical datum info  : embedded in the timeseries response
   - Update cadence       : typically every hour via lrldlb-comp.
 
-What "501 Not Implemented" means:
-  The CWMS Data API requires the header  Accept: application/json;version=2.
-  Without it the server returns HTTP 501.  The follow_redirects setting has no
-  effect; this endpoint does not issue redirects.
-
-Static pool levels (winter_pool_ft, summer_pool_ft, flood_pool_ft) come from
-the LRL Daily Lake Report 2026-10-08 and are baked into data/lrl_lakes.csv.
-They change only with dam-pool schedule amendments.  These are REFERENCE values
-only.  Do NOT use them to characterise the current pool as "below summer pool"
-or "below conservation pool" — such language is misleading during seasonal fill
-and drawdown periods when the pool is expected to differ from the static target.
-
 Pool status is classified relative to the live guide curve (Bottom of Flood
 Control), not the static pools:
   - below_guide:       elevation < guide_curve_ft
@@ -43,175 +31,31 @@ Formula: (current_storage - storage_at_guide)
          / (storage_at_flood - storage_at_guide) * 100
   - Negative when pool is below guide curve.
   - Both bounds are fetched live from CWMS storage location levels.
-
-Interpretation guidance for AI assistants
-------------------------------------------
-- The guide curve (Bottom of Flood Control) is the operative seasonal target
-  for the current date.  Use it — not summer_pool or winter_pool — to assess
-  whether the pool is high, low, or on target.
-- summer_pool_ft and winter_pool_ft are static reference values only.  Do not
-  describe a pool as "below summer pool" or "below conservation pool" as a
-  shortfall; doing so is incorrect during drawdown or pre-fill periods.
-- Always report the observation timestamp (as_of) when stating pool conditions.
-- Report conditions factually (elevation, deviation, pool_status, percent_util).
-  Do not make operational judgments or flood risk assessments such as "no
-  concern" or "normal conditions".
-- For official lake conditions, direct users to the LRL Daily Lake Report:
-  https://www.lrl-wc.usace.army.mil/reports/lkreport.html
 """
 
 from __future__ import annotations
 
-import calendar
-import csv
+import asyncio
 import datetime
-import importlib.resources
-from enum import Enum
 from typing import Annotated, Any
 
-import httpx
 from fastmcp import FastMCP
 
-from lrl_reservoirs.utils import UpstreamServiceError
+from lrl_reservoirs.guide_curve import interpolate_guide_curve
+from lrl_reservoirs.lakes import LAKES, LakeName
+from lrl_reservoirs.utils import UpstreamServiceError, cwms_get
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
-CWMS_BASE = "https://cwms-data.usace.army.mil/cwms-data/"
 OFFICE = "LRL"
 # Look back up to 6 hours to find the most recent elevation value.
 LOOKBACK_HOURS = 6
-DEFAULT_TIMEOUT = 20.0
-MAX_RESPONSE_BYTES = 1_000_000
 
 # Tolerance used for "at_guide" status (±0.05 ft ≈ reporting precision).
 AT_GUIDE_TOLERANCE_FT = 0.05
 
-
-# ── Lookup table ──────────────────────────────────────────────────────────────
-
-
-def _load_lake_table() -> dict[str, dict[str, Any]]:
-    """Load the LRL lakes CSV shipped with the package into a keyed dict."""
-    table: dict[str, dict[str, Any]] = {}
-    pkg = importlib.resources.files("lrl_reservoirs").joinpath("data/lrl_lakes.csv")
-    with importlib.resources.as_file(pkg) as path:
-        with open(path, newline="") as fh:
-            for row in csv.DictReader(fh):
-                lid = row["lake_id"]
-                table[lid] = {
-                    "lake_id": lid,
-                    "public_name": row["public_name"],
-                    "basin": row["basin"],
-                    "elev_ts_id": row["elev_ts_id"],
-                    "stor_ts_id": row["stor_ts_id"],
-                    "inflow_ts_id": row["inflow_ts_id"],
-                    "outflow_ts_id": row["outflow_ts_id"],
-                    # CSV columns from the LRL Daily Lake Report (2026-10-08):
-                    #   winter_pool_ft  → maps to internal top_of_normal_ft
-                    #   summer_pool_ft  → maps to internal top_of_conservation_ft
-                    #   flood_pool_ft   → maps to internal top_of_flood_ft
-                    "top_of_conservation_ft": float(row["summer_pool_ft"])
-                    if row["summer_pool_ft"]
-                    else None,
-                    "top_of_normal_ft": float(row["winter_pool_ft"])
-                    if row["winter_pool_ft"]
-                    else None,
-                    "top_of_flood_ft": float(row["flood_pool_ft"])
-                    if row["flood_pool_ft"]
-                    else None,
-                }
-    return table
-
-
-_LAKES: dict[str, dict[str, Any]] = _load_lake_table()
-
-
-# ── Enum (one member per lake, validated at call time) ────────────────────────
-
-LakeName = Enum(  # type: ignore[misc]
-    "LakeName",
-    {lid: lid for lid in _LAKES},
-    type=str,
-)
-LakeName.__doc__ = (
-    "USACE Louisville District (LRL) reservoir project identifier. "
-    "Each value is the CWMS location ID used in timeseries names."
-)
-
-
-# ── Guide-curve interpolation (stdlib only — no dateutil) ─────────────────────
-
-
-def _add_months(dt: datetime.datetime, months: int) -> datetime.datetime:
-    """Add a whole number of months to a datetime, clamping the day."""
-    m = dt.month - 1 + months
-    year = dt.year + m // 12
-    month = m % 12 + 1
-    day = min(dt.day, calendar.monthrange(year, month)[1])
-    return dt.replace(year=year, month=month, day=day)
-
-
-def _resolve_anchor(
-    origin: datetime.datetime,
-    cycle_offset_months: int,
-    sv_offset_months: int,
-    sv_offset_minutes: int,
-) -> datetime.datetime:
-    """Convert a seasonal-value anchor to an absolute datetime."""
-    base = _add_months(origin, cycle_offset_months + sv_offset_months)
-    return base + datetime.timedelta(minutes=sv_offset_minutes)
-
-
-def interpolate_guide_curve(
-    seasonal_values: list[dict[str, Any]],
-    interval_origin_str: str,
-    interval_months: int,
-    query: datetime.datetime,
-) -> float:
-    """Linearly interpolate CWMS seasonal values at *query*.
-
-    The CWMS "Bottom of Flood Control" level is defined as a set of
-    (offset-months, offset-minutes, value) anchors relative to an
-    interval-origin that repeats every interval-months (always 12).
-    interpolate-string="T" means linear interpolation between anchors.
-
-    Args:
-        seasonal_values: list of dicts with keys offset-months, offset-minutes, value.
-        interval_origin_str: ISO-8601 UTC string of the cycle origin.
-        interval_months: cycle length in months (always 12 for LRL lakes).
-        query: tz-aware UTC datetime to evaluate.
-
-    Returns:
-        Interpolated elevation in feet, rounded to 2 decimal places.
-    """
-    origin = datetime.datetime.fromisoformat(interval_origin_str.replace("Z", "+00:00"))
-    # Build anchors for three consecutive cycles to ensure the query is bracketed.
-    year_diff = query.year - origin.year
-    start_cycle = max(0, year_diff - 1)
-    anchors: list[tuple[datetime.datetime, float]] = []
-    for n in range(start_cycle, start_cycle + 4):
-        cycle_off = interval_months * n
-        for sv in seasonal_values:
-            t = _resolve_anchor(
-                origin, cycle_off, sv["offset-months"], sv["offset-minutes"]
-            )
-            anchors.append((t, sv["value"]))
-    anchors.sort()
-
-    for i in range(len(anchors) - 1):
-        t0, v0 = anchors[i]
-        t1, v1 = anchors[i + 1]
-        if t0 <= query <= t1:
-            span = (t1 - t0).total_seconds()
-            if span == 0:
-                return v0
-            frac = (query - t0).total_seconds() / span
-            return round(v0 + frac * (v1 - v0), 2)
-
-    # Fallback: closest anchor (should not be reached for well-formed data).
-    return round(
-        min(anchors, key=lambda tv: abs((tv[0] - query).total_seconds()))[1], 2
-    )
+# Keep a module-level alias so existing tests that patch lc_mod._cwms_get still work.
+_cwms_get = cwms_get
 
 
 # ── Pool-status helpers ───────────────────────────────────────────────────────
@@ -265,58 +109,7 @@ def _pool_status(
     return "below_normal"
 
 
-# ── HTTP helper ───────────────────────────────────────────────────────────────
-
-# CWMS Data API requires this header to negotiate the v2 JSON response format.
-# Without it (or with Accept: */*), the server returns HTTP 501 Not Implemented.
-# The endpoint does not issue redirects; follow_redirects=False is correct.
-CWMS_ACCEPT = "application/json;version=2"
-
-
-async def _cwms_get(path: str, params: dict[str, str]) -> Any:
-    """GET a CWMS Data API path and return parsed JSON.
-
-    path must be a relative path segment (no leading slash, no scheme/host).
-    Raises UpstreamServiceError with a sanitized message on any failure.
-    """
-    import json
-
-    try:
-        async with httpx.AsyncClient(
-            base_url=CWMS_BASE,
-            follow_redirects=False,
-            timeout=DEFAULT_TIMEOUT,
-            trust_env=False,
-            headers={"Accept": CWMS_ACCEPT},
-        ) as client:
-            async with client.stream("GET", path, params=params) as response:
-                response.raise_for_status()
-                content = bytearray()
-                async for chunk in response.aiter_bytes():
-                    content.extend(chunk)
-                    if len(content) > MAX_RESPONSE_BYTES:
-                        raise UpstreamServiceError(
-                            "Upstream response exceeded the size limit."
-                        )
-                return json.loads(content)
-    except UpstreamServiceError:
-        raise
-    except httpx.HTTPStatusError as exc:
-        status = exc.response.status_code
-        if status == 501:
-            raise UpstreamServiceError(
-                f"CWMS API returned status {status}: request format not accepted "
-                f"(check Accept header and query parameters)."
-            ) from None
-        raise UpstreamServiceError(f"CWMS API returned status {status}.") from None
-    except (
-        httpx.DecodingError,
-        __import__("json").JSONDecodeError,
-        UnicodeDecodeError,
-    ):
-        raise UpstreamServiceError("CWMS API returned invalid JSON.") from None
-    except httpx.RequestError:
-        raise UpstreamServiceError("CWMS API request failed.") from None
+# ── CWMS fetch helpers ────────────────────────────────────────────────────────
 
 
 async def _fetch_guide_curve(lake_id: str, at: datetime.datetime) -> float | None:
@@ -352,9 +145,6 @@ async def _fetch_guide_curve(lake_id: str, at: datetime.datetime) -> float | Non
 
 async def _fetch_storage(stor_ts_id: str, begin: str, end: str) -> float | None:
     """Fetch the most recent storage observation (acre-feet) from *stor_ts_id*.
-
-    Uses the lrldlb-comp (computed) timeseries — the lrldlb-rev series is
-    present in the CWMS catalog but returns no values.
 
     Returns the latest non-null value in the lookback window, or None on any
     failure or missing data.
@@ -418,6 +208,9 @@ async def _fetch_storage_level(
 
 
 # ── Tool implementation ───────────────────────────────────────────────────────
+
+# Back-compat alias so tests that import _LAKES from this module still work.
+_LAKES = LAKES
 
 
 async def get_lake_conditions(
@@ -495,7 +288,7 @@ async def get_lake_conditions(
         https://www.lrl-wc.usace.army.mil/reports/lkreport.html
     """
     lake_id: str = lake.value  # type: ignore[union-attr]
-    meta = _LAKES[lake_id]
+    meta = LAKES[lake_id]
 
     now_utc = datetime.datetime.now(datetime.timezone.utc)
     begin = (now_utc - datetime.timedelta(hours=LOOKBACK_HOURS)).strftime(
@@ -584,8 +377,6 @@ async def get_lake_conditions(
     vertical_datum: str | None = vd_info.get("native-datum") or None
 
     # ── 2. Fetch guide curve, storage, and storage bounds in parallel ─────────
-    import asyncio
-
     guide_ft, storage_af, stor_at_guide, stor_at_flood = await asyncio.gather(
         _fetch_guide_curve(lake_id, obs_utc),
         _fetch_storage(meta["stor_ts_id"], begin, end),

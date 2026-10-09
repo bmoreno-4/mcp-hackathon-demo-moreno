@@ -22,7 +22,7 @@ def register_routes(mcp: FastMCP) -> None:
 
     @mcp.custom_route("/health", methods=["GET"])
     async def health_check(request: Request) -> JSONResponse:
-        return JSONResponse({"status": "healthy", "service": "example-mcp-server"})
+        return JSONResponse({"status": "healthy", "service": "lrl-reservoirs"})
 
     @mcp.custom_route("/version", methods=["GET"])
     async def version(request: Request) -> JSONResponse:

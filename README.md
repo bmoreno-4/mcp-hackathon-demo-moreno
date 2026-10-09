@@ -65,22 +65,27 @@ lrl-reservoirs/
 │   └── lrl_reservoirs/
 │       ├── app.py             # FastMCP instance; picks stdio vs HTTP transport
 │       ├── config.py          # Settings loaded from env / .env
+│       ├── guide_curve.py     # CWMS seasonal guide-curve interpolation
+│       ├── lakes.py           # Lake metadata table and LakeName enum
 │       ├── models.py          # Pydantic models & enums for tool params
-│       ├── utils.py           # HTTP client, security helpers, pagination
+│       ├── utils.py           # CWMS HTTP client, security helpers, pagination
 │       ├── routes.py          # /health and /version endpoints
 │       ├── tools/
 │       │   ├── lake_conditions.py          # get_lake_conditions tool
-│       │   └── summarize_district_lakes.py # summarize_district_lakes tool
+│       │   └── summarize_district_lakes.py # summarize_district_lakes tool (basin/status filters)
+│       ├── resources/
+│       │   └── lakes.py                    # lrl://lakes resource (lake directory)
 │       └── data/
-│           ├── lrl_lakes.csv               # Lake metadata + CWMS timeseries IDs
-│           └── lrl_lake_report_2026-10-08.txt  # Reference report for validation
+│           └── lrl_lakes.csv               # Lake metadata + CWMS timeseries IDs
 ├── tests/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
 │   ├── test_percent_util_lrl_report.py   # Deterministic validation vs. report
 │   ├── test_http_security.py
 │   ├── test_server.py
-│   └── fixtures/lrl_oct8_2026/           # Saved CWMS responses for offline tests
+│   └── fixtures/
+│       ├── lrl_oct8_2026/                # Saved CWMS responses for offline tests
+│       └── lrl_lake_report_2026-10-08.txt  # Reference report for validation
 ├── eval/
 │   └── lrl_percent_util_validation.py    # Live CWMS validation script
 └── deploy/
@@ -112,7 +117,7 @@ is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
 
 ### Connect a client
 
-**IBM Bob** — create or edit `.mcp.json` in the repo root:
+**IBM Bob** — add the server to `.bob/mcp.json` in the repo root:
 
 ```json
 {
@@ -193,8 +198,11 @@ and eval script use 10:00 UTC as the reference time.
 The 17-lake Percent Util values computed by this server were validated against the
 LRL Daily Lake Report for **2026-10-08** using storage data fetched at the report's
 publication time (10:00 UTC). Largest deviation was **−0.08** (Barren and
-CarrCreek). 15 of 17 lakes matched exactly at the reported 2-decimal-place
-precision.
+CarrCreek), which is within 0.08% of the reported value. 15 of 17 lakes matched
+at the reported 2-decimal-place precision.
+
+Guide curve elevations for all 17 lakes were validated against the report's
+"Pool" column for the same date. All 17 lakes matched within **0.07 ft**.
 
 | Lake | Report % | Calc % | Δ |
 |---|---:|---:|---:|

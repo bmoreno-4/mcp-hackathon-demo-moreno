@@ -9,10 +9,12 @@ them into `register_resources(mcp)`.
 
 from __future__ import annotations
 
+from lrl_reservoirs.resources import lakes
+
 
 def register_resources(mcp) -> None:
     """Register all resources with the MCP server."""
-    # No resources registered yet — add imports and calls here.
+    lakes.register(mcp)
 
 
 __all__ = ["register_resources"]
