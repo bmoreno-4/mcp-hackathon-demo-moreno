@@ -11,13 +11,18 @@ To add a tool:
 
 from __future__ import annotations
 
-from lrl_reservoirs.tools import lake_conditions, summarize_district_lakes
+from lrl_reservoirs.tools import (
+    lake_conditions,
+    list_lakes,
+    summarize_district_lakes,
+)
 
 
 def register_tools(mcp) -> None:
     """Register all tools with the MCP server."""
     lake_conditions.register(mcp)
     summarize_district_lakes.register(mcp)
+    list_lakes.register(mcp)
 
 
 __all__ = ["register_tools"]

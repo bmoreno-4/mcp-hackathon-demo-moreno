@@ -299,7 +299,8 @@ async def get_lake_conditions(
           flood pool is full.
       - reference_levels (dict): Static pool schedule —
           winter_pool_ft, summer_pool_ft, flood_pool_ft.
-          These are reference values only; do not use them to assess whether
+          Report them when asked (list_lakes also has them for every lake).
+          They are reference values; do not use them to assess whether
           the pool is "below summer pool" or "below conservation pool" —
           deviations from these static targets are expected and normal during
           seasonal fill and drawdown operations.
