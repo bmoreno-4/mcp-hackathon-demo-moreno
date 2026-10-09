@@ -148,6 +148,30 @@ Before publishing your server, rename `example_server` to your service (e.g. `ce
 - **Treat redirects and DNS as security boundaries.** Redirects are disabled by default. A server that must fetch caller-supplied URLs needs connection-time IP validation on every hop plus network egress controls; a one-time DNS check is not sufficient.
 - **Keep sensitive data out of errors and logs.** Do not expose or log upstream bodies, headers, full URLs, query strings, credentials, stack traces, SSNs, dates of birth, or addresses.
 
+### LRL lake data — storage-based Percent Util
+
+`get_lake_conditions` and `summarize_district_lakes` report a `percent_util` field that matches
+the **Percent Util** column in the USACE LRL Daily Lake Report.
+The formula is `(current_storage − storage_at_guide_curve) / (storage_at_flood_pool − storage_at_guide_curve) × 100`.
+
+**Report time zone:** The LRL Daily Lake Report is published at **06:00 US/Eastern (EDT, UTC−4)**,
+which is **10:00 UTC** in October. The eval script and test fixtures use 10:00 UTC as the
+reference time for Oct 8 2026. (US/Central would be 11:00 UTC; using Eastern gives materially
+smaller differences against the report — mean |Δ| 0.009 vs 0.013.)
+
+The required data sources are:
+
+| Series | Role |
+|---|---|
+| `<lake>.Stor.Inst.1Hour.0.lrldlb-comp` | Current storage (acre-ft), hourly |
+| `<lake>.Stor.Inst.0.Bottom of Flood Control` | Storage at today's guide curve — seasonal level |
+| `<lake>.Stor.Inst.0.Top of Flood` | Storage at flood pool — constant level |
+
+The `lrldlb-rev` variant of the storage timeseries exists in the CWMS catalog but returns no
+values through the public API; `lrldlb-comp` (computed) is the only variant with live data.
+Storage-to-elevation rating tables and instantaneous elevation-derived storage are not
+available through the public CWMS Data API for LRL reservoirs.
+
 ---
 
 ## Deploying

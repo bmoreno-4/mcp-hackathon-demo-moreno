@@ -1,0 +1,3313 @@
+{
+  "CaesarCreek": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "CaesarCreek.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          98701.43699550105,
+          0
+        ],
+        [
+          1791450000000,
+          98696.8069956423,
+          0
+        ],
+        [
+          1791453600000,
+          98692.17699578326,
+          0
+        ],
+        [
+          1791457200000,
+          98692.17699578326,
+          0
+        ],
+        [
+          1791460800000,
+          98692.17699578326,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaesarCreek.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 93701.99999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 93701.99999999999,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 102033.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 102033.0,
+          "offset-months": 8,
+          "offset-minutes": 0
+        },
+        {
+          "value": 93701.99999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaesarCreek.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 242199.99999999997
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "CaesarCreek.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          847.81,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "CaesarCreek",
+        "native-datum": "NGVD-29",
+        "elevation": 846.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.6007
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaesarCreek.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 846.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 846.0,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 849.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 849.0,
+          "offset-months": 8,
+          "offset-minutes": 0
+        },
+        {
+          "value": 846.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "WHHarsha": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "WHHarsha.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          86933.07068706717,
+          0
+        ],
+        [
+          1791450000000,
+          86929.61402050575,
+          0
+        ],
+        [
+          1791453600000,
+          86926.15735394429,
+          0
+        ],
+        [
+          1791457200000,
+          86919.24402082142,
+          0
+        ],
+        [
+          1791460800000,
+          86912.3306876983,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "WHHarsha.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 82159.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 82159.0,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 90398.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 90398.0,
+          "offset-months": 8,
+          "offset-minutes": 0
+        },
+        {
+          "value": 82159.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "WHHarsha.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 284500.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "WHHarsha.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          731.34,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "WHHarsha",
+        "native-datum": "NGVD-29",
+        "elevation": 729.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.6104
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "WHHarsha.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 729.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 729.0,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 733.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 733.0,
+          "offset-months": 8,
+          "offset-minutes": 0
+        },
+        {
+          "value": 729.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "WestFork": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "WestFork.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          938.9266380854417,
+          0
+        ],
+        [
+          1791450000000,
+          938.6033047619732,
+          0
+        ],
+        [
+          1791453600000,
+          938.2799714384824,
+          0
+        ],
+        [
+          1791457200000,
+          937.9566381149918,
+          0
+        ],
+        [
+          1791460800000,
+          937.6333047915011,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "WestFork.Stor.Inst.0.Bottom of Flood Control",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 914.9999999999999
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "WestFork.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 10721.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "WestFork.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          675.1199999999999,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "WestFork",
+        "native-datum": "NGVD-29",
+        "elevation": 675.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.574
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "WestFork.Elev.Inst.0.Bottom of Flood Control",
+      "level-units-id": "ft",
+      "level-date": "2017-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "constant-value": 675.0
+    }
+  },
+  "CJBrown": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "CJBrown.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          35329.96559121275,
+          0
+        ],
+        [
+          1791450000000,
+          35326.487257985056,
+          0
+        ],
+        [
+          1791453600000,
+          35323.00892475784,
+          0
+        ],
+        [
+          1791457200000,
+          35326.487257985056,
+          0
+        ],
+        [
+          1791460800000,
+          35329.96559121275,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CJBrown.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 30847.999999999996,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 30847.999999999996,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 36930.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 36930.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 30847.999999999996,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CJBrown.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 63699.99999999999
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "CJBrown.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          1011.23,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "CJBrown",
+        "native-datum": "NGVD-29",
+        "elevation": 1009.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.5972
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CJBrown.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 1008.9999999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 1008.9999999999999,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 1011.9999999999999,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 1011.9999999999999,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 1008.9999999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "Brookville": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Brookville.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          184874.96770568783,
+          0
+        ],
+        [
+          1791450000000,
+          184866.1210392905,
+          0
+        ],
+        [
+          1791453600000,
+          184857.27437289315,
+          0
+        ],
+        [
+          1791457200000,
+          184866.1210392905,
+          0
+        ],
+        [
+          1791460800000,
+          184874.96770568783,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Brookville.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 144944.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 144944.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 184008.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 184008.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 144944.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 144944.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Brookville.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 359599.99999999994
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Brookville.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          748.1599999999997,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Brookville",
+        "native-datum": "NGVD-29",
+        "elevation": 595.71,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.5699
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Brookville.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 740.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 740.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 748.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 748.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 740.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 740.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    }
+  },
+  "CaveRun": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "CaveRun.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          219084.45999767675,
+          0
+        ],
+        [
+          1791450000000,
+          219070.8016647592,
+          0
+        ],
+        [
+          1791453600000,
+          219057.14333184162,
+          0
+        ],
+        [
+          1791457200000,
+          219043.48499892317,
+          0
+        ],
+        [
+          1791460800000,
+          219029.82666600563,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaveRun.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 175620.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 175620.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 222580.99999999997,
+          "offset-months": 3,
+          "offset-minutes": 41760
+        },
+        {
+          "value": 222580.99999999997,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 175620.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 175620.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaveRun.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 614100.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "CaveRun.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          729.57,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "CaveRun",
+        "native-datum": "NGVD-29",
+        "elevation": 724.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.495
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaveRun.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 724.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 724.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 730.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 730.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 724.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "CarrCreek": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "CarrCreek.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          22020.479329690723,
+          0
+        ],
+        [
+          1791450000000,
+          22020.479329690723,
+          0
+        ],
+        [
+          1791453600000,
+          22020.479329690723,
+          0
+        ],
+        [
+          1791457200000,
+          22020.479329690723,
+          0
+        ],
+        [
+          1791460800000,
+          22020.479329690723,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CarrCreek.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 15278.999999999998,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 15278.999999999998,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 22277.999999999996,
+          "offset-months": 3,
+          "offset-minutes": 41760
+        },
+        {
+          "value": 22277.999999999996,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 15278.999999999998,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CarrCreek.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 46167.99999999999
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "CarrCreek.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          1027.63,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "CarrCreek",
+        "native-datum": "NGVD-29",
+        "elevation": 1017.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.5245
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CarrCreek.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 1016.9999999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 1016.9999999999999,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 1028.0,
+          "offset-months": 3,
+          "offset-minutes": 41760
+        },
+        {
+          "value": 1028.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 1016.9999999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "Buckhorn": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Buckhorn.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          19959.41103315397,
+          0
+        ],
+        [
+          1791450000000,
+          19955.317615049044,
+          0
+        ],
+        [
+          1791453600000,
+          19951.224196943986,
+          0
+        ],
+        [
+          1791457200000,
+          19945.09911223397,
+          0
+        ],
+        [
+          1791460800000,
+          19938.97402752422,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Buckhorn.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2024-09-26T14:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2024-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 2179.9999999999995,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 2179.9999999999995,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 20559.999999999996,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 20559.999999999996,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 18199.999999999996,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 2179.9999999999995,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 2179.9999999999995,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Buckhorn.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 147633.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Buckhorn.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8Mnx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 2,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          782.02,
+          3
+        ],
+        [
+          1791460800000,
+          782.01,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Buckhorn",
+        "native-datum": "NGVD-29",
+        "elevation": 757.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.5465
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Buckhorn.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 757.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 757.0,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 781.9999999999999,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 781.9999999999999,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 779.9999999999999,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 757.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 757.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    }
+  },
+  "Taylorsville": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Taylorsville.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          85057.16407750275,
+          0
+        ],
+        [
+          1791450000000,
+          85052.08074432415,
+          0
+        ],
+        [
+          1791453600000,
+          85046.99741114592,
+          0
+        ],
+        [
+          1791457200000,
+          85036.83074478873,
+          0
+        ],
+        [
+          1791460800000,
+          85026.66407843154,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Taylorsville.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 80467.5,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 80467.5,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 86449.99999999997,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 86449.99999999997,
+          "offset-months": 10,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 80467.5,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Taylorsville.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 291670.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Taylorsville.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          546.5399999999998,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Taylorsville",
+        "native-datum": "NGVD-29",
+        "elevation": 466.85,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.5402
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Taylorsville.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 545.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 545.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 547.0,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 547.0,
+          "offset-months": 10,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 545.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "Green": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Green.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          238047.08608711464,
+          0
+        ],
+        [
+          1791450000000,
+          238033.53942086126,
+          0
+        ],
+        [
+          1791453600000,
+          238019.99275460697,
+          0
+        ],
+        [
+          1791457200000,
+          237992.8994220984,
+          0
+        ],
+        [
+          1791460800000,
+          237965.80608958984,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Green.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 190274.99999999997,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 190274.99999999997,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 228013.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 244115.99999999997,
+          "offset-months": 4,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 244115.99999999997,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 240051.99999999997,
+          "offset-months": 10,
+          "offset-minutes": 0
+        },
+        {
+          "value": 190274.99999999997,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Green.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 723199.9999999999
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Green.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          674.25,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Green",
+        "native-datum": "NGVD-29",
+        "elevation": 668.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.4868
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Green.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 668.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 668.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 673.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 675.0,
+          "offset-months": 4,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 675.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 674.5,
+          "offset-months": 10,
+          "offset-minutes": 0
+        },
+        {
+          "value": 668.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "Nolin": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Nolin.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Central",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          167374.39490507735,
+          0
+        ],
+        [
+          1791450000000,
+          167374.39490507735,
+          0
+        ],
+        [
+          1791453600000,
+          167374.39490507735,
+          0
+        ],
+        [
+          1791457200000,
+          167374.39490507735,
+          0
+        ],
+        [
+          1791460800000,
+          167364.736572038,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Nolin.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T06:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 69810.99999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 69810.99999999999,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 170156.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 170156.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 158846.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 69810.99999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 69810.99999999999,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Nolin.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T06:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 609399.9999999999
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T11:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T11:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Nolin.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1NzIwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Central",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791457200000,
+          514.5199999999999,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Nolin",
+        "native-datum": "NGVD-29",
+        "elevation": 490.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.3927
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Nolin.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "1900-01-01T06:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 491.99999999999994,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 491.99999999999994,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 515.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 515.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 513.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 491.99999999999994,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "Barren": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Barren.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Central",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          237674.9927651093,
+          0
+        ],
+        [
+          1791450000000,
+          237659.9927655659,
+          0
+        ],
+        [
+          1791453600000,
+          237644.9927660225,
+          0
+        ],
+        [
+          1791457200000,
+          237629.99276647915,
+          0
+        ],
+        [
+          1791460800000,
+          237599.99276739135,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Barren.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2019-10-25T04:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 79859.99999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 79859.99999999999,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 245999.99999999997,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 245999.99999999997,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 228000.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 79859.99999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 79859.99999999999,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Barren.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T06:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 872999.9999999999
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T11:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T11:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Barren.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1NzIwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Central",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791457200000,
+          551.07,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Barren",
+        "native-datum": "NGVD-29",
+        "elevation": 1640.42,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.4403
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Barren.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2019-10-24T04:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 528.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 528.0,
+          "offset-months": 2,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 552.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 552.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 550.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 528.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 528.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    }
+  },
+  "Rough": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Rough.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Central",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          95523.89709222659,
+          0
+        ],
+        [
+          1791450000000,
+          95516.5970924488,
+          0
+        ],
+        [
+          1791453600000,
+          95509.29709267078,
+          0
+        ],
+        [
+          1791457200000,
+          95501.997092893,
+          0
+        ],
+        [
+          1791460800000,
+          95501.997092893,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Rough.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2023-01-01T06:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2023-01-01T00:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 29800.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 29800.0,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 95940.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 95940.0,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 29800.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 29800.0,
+          "offset-months": 11,
+          "offset-minutes": 44639
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Rough.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T06:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 334379.99999999994
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T11:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T11:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Rough.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1NzIwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Central",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791457200000,
+          489.8999999999999,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Rough",
+        "native-datum": "NGVD-29",
+        "elevation": 470.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.473
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Rough.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2023-01-01T06:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2023-01-01T00:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 469.99999999999994,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 469.99999999999994,
+          "offset-months": 3,
+          "offset-minutes": 0
+        },
+        {
+          "value": 489.99999999999994,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 489.99999999999994,
+          "offset-months": 9,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 469.99999999999994,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 469.99999999999994,
+          "offset-months": 11,
+          "offset-minutes": 44639
+        }
+      ]
+    }
+  },
+  "CMHarden": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "CMHarden.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          51270.548439310216,
+          0
+        ],
+        [
+          1791450000000,
+          51267.073439416,
+          0
+        ],
+        [
+          1791453600000,
+          51263.598439521775,
+          0
+        ],
+        [
+          1791457200000,
+          51263.598439521775,
+          0
+        ],
+        [
+          1791460800000,
+          51263.598439521775,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CMHarden.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 16184.999999999998,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 16184.999999999998,
+          "offset-months": 2,
+          "offset-minutes": 0
+        },
+        {
+          "value": 51346.99999999999,
+          "offset-months": 3,
+          "offset-minutes": 44580
+        },
+        {
+          "value": 51346.99999999999,
+          "offset-months": 9,
+          "offset-minutes": 30180
+        },
+        {
+          "value": 16184.999999999998,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CMHarden.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 132800.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "CMHarden.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          661.9599999999998,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "CMHarden",
+        "native-datum": "NGVD-29",
+        "elevation": 640.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.3261
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CMHarden.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 639.9999999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 639.9999999999999,
+          "offset-months": 2,
+          "offset-minutes": 0
+        },
+        {
+          "value": 662.0,
+          "offset-months": 3,
+          "offset-minutes": 44580
+        },
+        {
+          "value": 662.0,
+          "offset-months": 9,
+          "offset-minutes": 30180
+        },
+        {
+          "value": 639.9999999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "CaglesMill": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "CaglesMill.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          28309.159138261515,
+          0
+        ],
+        [
+          1791450000000,
+          28304.149138413857,
+          0
+        ],
+        [
+          1791453600000,
+          28299.13913856653,
+          0
+        ],
+        [
+          1791457200000,
+          28294.129138719043,
+          0
+        ],
+        [
+          1791460800000,
+          28289.119138871556,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaglesMill.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 23985.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 23985.0,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 28479.499999999996,
+          "offset-months": 5,
+          "offset-minutes": 0
+        },
+        {
+          "value": 28479.499999999996,
+          "offset-months": 9,
+          "offset-minutes": 0
+        },
+        {
+          "value": 23985.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 23985.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaglesMill.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 224246.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "CaglesMill.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          639.38,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "CaglesMill",
+        "native-datum": "NGVD-29",
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.3904
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "CaglesMill.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 635.9999999999999,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 635.9999999999999,
+          "offset-months": 4,
+          "offset-minutes": 0
+        },
+        {
+          "value": 639.4999999999999,
+          "offset-months": 5,
+          "offset-minutes": 0
+        },
+        {
+          "value": 639.4999999999999,
+          "offset-months": 9,
+          "offset-minutes": 0
+        },
+        {
+          "value": 635.9999999999999,
+          "offset-months": 11,
+          "offset-minutes": 0
+        }
+      ]
+    }
+  },
+  "Monroe": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Monroe.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          181299.68448118816,
+          0
+        ],
+        [
+          1791450000000,
+          181299.68448118816,
+          0
+        ],
+        [
+          1791453600000,
+          181299.68448118816,
+          0
+        ],
+        [
+          1791457200000,
+          181282.08614839055,
+          0
+        ],
+        [
+          1791460800000,
+          181264.48781559174,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Monroe.Stor.Inst.0.Bottom of Flood Control",
+      "level-units-id": "ac-ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 182249.99999999997
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Monroe.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 440999.99999999994
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Monroe.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          537.91,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Monroe",
+        "native-datum": "NGVD-29",
+        "elevation": 538.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.4127
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Monroe.Elev.Inst.0.Bottom of Flood Control",
+      "level-units-id": "ft",
+      "level-date": "2018-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "constant-value": 538.0
+    }
+  },
+  "Patoka": {
+    "stor_ts_response": {
+      "begin": "2026-10-08T08:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T12:00:00Z",
+      "interval": "PT1H",
+      "interval-offset": 0,
+      "name": "Patoka.Stor.Inst.1Hour.0.lrldlb-comp",
+      "office-id": "LRL",
+      "page": "MTc5MTQ0NjQwMDAwMHx8NXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 5,
+      "units": "ac-ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791446400000,
+          202823.32715933598,
+          0
+        ],
+        [
+          1791450000000,
+          202792.21049361656,
+          0
+        ],
+        [
+          1791453600000,
+          202761.09382789713,
+          0
+        ],
+        [
+          1791457200000,
+          202729.9771621766,
+          0
+        ],
+        [
+          1791460800000,
+          202698.86049645822,
+          0
+        ]
+      ]
+    },
+    "gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Patoka.Stor.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 153419.99999999997,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 145230.0,
+          "offset-months": 0,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 145230.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 178729.99999999997,
+          "offset-months": 5,
+          "offset-minutes": 0
+        },
+        {
+          "value": 178729.99999999997,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 170170.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 153419.99999999997,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    },
+    "flood_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Patoka.Stor.Inst.0.Top of Flood",
+      "level-units-id": "ac-ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ac-ft",
+      "constant-value": 298380.0
+    },
+    "elev_ts_response": {
+      "begin": "2026-10-08T10:00:00Z",
+      "date-version-type": "UNVERSIONED",
+      "end": "2026-10-08T10:00:00Z",
+      "interval": "PT0S",
+      "interval-offset": -2147483648,
+      "name": "Patoka.Elev.Inst.0.0.lrldlb-rev",
+      "office-id": "LRL",
+      "page": "MTc5MTQ1MzYwMDAwMHx8MXx8NTAw",
+      "page-size": 500,
+      "time-zone": "US/Eastern",
+      "total": 1,
+      "units": "ft",
+      "value-columns": [
+        {
+          "name": "date-time",
+          "ordinal": 1,
+          "datatype": "java.sql.Timestamp"
+        },
+        {
+          "name": "value",
+          "ordinal": 2,
+          "datatype": "java.lang.Double"
+        },
+        {
+          "name": "quality-code",
+          "ordinal": 3,
+          "datatype": "int"
+        }
+      ],
+      "values": [
+        [
+          1791453600000,
+          538.66,
+          3
+        ]
+      ],
+      "vertical-datum-info": {
+        "office": "LRL",
+        "unit": "ft",
+        "location": "Patoka",
+        "native-datum": "NGVD-29",
+        "elevation": 536.0,
+        "offsets": [
+          {
+            "estimate": true,
+            "to-datum": "NAVD-88",
+            "value": -0.3848
+          }
+        ]
+      }
+    },
+    "elev_gc_level_response": {
+      "office-id": "LRL",
+      "location-level-id": "Patoka.Elev.Inst.0.Bottom of Flood Control",
+      "interpolate-string": "T",
+      "level-units-id": "ft",
+      "level-date": "1900-01-01T05:00:00Z",
+      "attribute-units-id": "ft",
+      "interval-origin": "2018-01-01T05:00:00Z",
+      "interval-months": 12,
+      "seasonal-values": [
+        {
+          "value": 533.0,
+          "offset-months": 0,
+          "offset-minutes": 0
+        },
+        {
+          "value": 532.0,
+          "offset-months": 0,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 532.0,
+          "offset-months": 3,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 536.0,
+          "offset-months": 5,
+          "offset-minutes": 0
+        },
+        {
+          "value": 536.0,
+          "offset-months": 8,
+          "offset-minutes": 20160
+        },
+        {
+          "value": 535.0,
+          "offset-months": 11,
+          "offset-minutes": 0
+        },
+        {
+          "value": 533.0,
+          "offset-months": 11,
+          "offset-minutes": 43200
+        }
+      ]
+    }
+  }
+}

@@ -228,6 +228,18 @@ def _fake_guide(guide_ft: float) -> dict:
     return {"constant-value": guide_ft}
 
 
+def _fake_stor(storage_af: float, ts_ms: int = 1791435600000) -> dict:
+    """Minimal CWMS timeseries response for a storage observation (acre-feet)."""
+    return {
+        "values": [[ts_ms, storage_af, 3]],
+    }
+
+
+def _fake_stor_level(value_af: float) -> dict:
+    """Minimal CWMS location-level response for a storage level (acre-feet)."""
+    return {"constant-value": value_af}
+
+
 # ── Mocked integration tests ──────────────────────────────────────────────────
 
 @pytest.mark.asyncio
@@ -236,7 +248,15 @@ async def test_get_lake_conditions_normal_pool():
     fake_ts = _fake_ts(elev_ft=540.0)
     fake_guide = _fake_guide(guide_ft=550.0)
 
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(side_effect=[fake_ts, fake_guide])):
+    # gc_stor=80000, flood_stor=873000 → percent_util = (350000-80000)/(873000-80000)*100
+    fake_stor_val = _fake_stor(storage_af=350000.0)
+    fake_gc_stor = _fake_stor_level(80000.0)
+    fake_flood_stor = _fake_stor_level(873000.0)
+
+    with patch.object(
+        lc_mod, "_cwms_get",
+        new=AsyncMock(side_effect=[fake_ts, fake_guide, fake_stor_val, fake_gc_stor, fake_flood_stor]),
+    ):
         mcp = FastMCP("test")
         lc_mod.register(mcp)
         tools = {t.name: t for t in await mcp.list_tools()}
@@ -259,6 +279,10 @@ async def test_get_lake_conditions_normal_pool():
     assert result["reference_levels"]["winter_pool_ft"] == 528.0
     assert result["reference_levels"]["summer_pool_ft"] == 552.0
     assert result["reference_levels"]["flood_pool_ft"] == 590.0
+    assert result["storage_acre_ft"] == 350000.0
+    assert result["storage_at_guide_curve_acre_ft"] == 80000.0
+    assert result["storage_at_flood_pool_acre_ft"] == 873000.0
+    assert result["percent_util"] == round((350000.0 - 80000.0) / (873000.0 - 80000.0) * 100, 1)
     assert "error" not in result
 
 
@@ -268,7 +292,10 @@ async def test_get_lake_conditions_above_guide():
     fake_ts = _fake_ts(elev_ft=560.0)
     fake_guide = _fake_guide(guide_ft=552.0)
 
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(side_effect=[fake_ts, fake_guide])):
+    with patch.object(
+        lc_mod, "_cwms_get",
+        new=AsyncMock(side_effect=[fake_ts, fake_guide, _fake_stor(400000.0), _fake_stor_level(232000.0), _fake_stor_level(873000.0)]),
+    ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Barren"),  # type: ignore[call-arg]
         )
@@ -277,6 +304,7 @@ async def test_get_lake_conditions_above_guide():
     assert result["deviation_from_guide_curve_ft"] == 8.0
     # percent: (560-552)/(590-552)*100 = 8/38*100 ≈ 21.1
     assert result["percent_to_flood_pool"] == round(8 / 38 * 100, 1)
+    assert result["percent_util"] == round((400000.0 - 232000.0) / (873000.0 - 232000.0) * 100, 1)
 
 
 @pytest.mark.asyncio
@@ -286,7 +314,10 @@ async def test_get_lake_conditions_at_guide():
     fake_ts = _fake_ts(elev_ft=round(guide + AT_GUIDE_TOLERANCE_FT - 0.01, 2))
     fake_guide = _fake_guide(guide_ft=guide)
 
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(side_effect=[fake_ts, fake_guide])):
+    with patch.object(
+        lc_mod, "_cwms_get",
+        new=AsyncMock(side_effect=[fake_ts, fake_guide, _fake_stor(200000.0), _fake_stor_level(86450.0), _fake_stor_level(291670.0)]),
+    ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Taylorsville"),  # type: ignore[call-arg]
         )
@@ -303,7 +334,7 @@ async def test_get_lake_conditions_guide_fetch_fails_falls_back():
 
     with patch.object(
         lc_mod, "_cwms_get",
-        new=AsyncMock(side_effect=[fake_ts, guide_err]),
+        new=AsyncMock(side_effect=[fake_ts, guide_err, _fake_stor(300000.0), _fake_stor_level(232000.0), _fake_stor_level(873000.0)]),
     ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Barren"),  # type: ignore[call-arg]
@@ -314,6 +345,9 @@ async def test_get_lake_conditions_guide_fetch_fails_falls_back():
     # 540 is between winter (528) and summer (552) → normal
     assert result["pool_status"] == "no_guide/normal"
     assert result["percent_to_flood_pool"] is None
+    assert result["storage_acre_ft"] == 300000.0
+    # percent_util still computable even without guide curve elevation
+    assert result["percent_util"] == round((300000.0 - 232000.0) / (873000.0 - 232000.0) * 100, 1)
 
 
 @pytest.mark.asyncio
@@ -466,7 +500,10 @@ async def test_get_lake_conditions_patoka_with_conservation_level():
     fake_ts = _fake_ts(elev_ft=538.7)
     fake_guide = _fake_guide(guide_ft=535.7)
 
-    with patch.object(lc_mod, "_cwms_get", new=AsyncMock(side_effect=[fake_ts, fake_guide])):
+    with patch.object(
+        lc_mod, "_cwms_get",
+        new=AsyncMock(side_effect=[fake_ts, fake_guide, _fake_stor(50000.0), _fake_stor_level(176141.0), _fake_stor_level(298380.0)]),
+    ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Patoka"),  # type: ignore[call-arg]
         )

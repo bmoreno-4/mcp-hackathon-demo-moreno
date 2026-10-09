@@ -11,13 +11,14 @@ To add a tool:
 
 from __future__ import annotations
 
-from example_server.tools import example_tool, lake_conditions
+from example_server.tools import example_tool, lake_conditions, summarize_district_lakes
 
 
 def register_tools(mcp) -> None:
     """Register all tools with the MCP server."""
     example_tool.register(mcp)
     lake_conditions.register(mcp)
+    summarize_district_lakes.register(mcp)
 
 
 __all__ = ["register_tools"]

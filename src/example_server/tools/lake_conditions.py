@@ -6,10 +6,16 @@ pool compares to both the guide curve and the static pool schedule.
 
 Data source: CWMS Data API (https://cwms-data.usace.army.mil/cwms-data)
   - Elevation timeseries : <lake>.Elev.Inst.0.0.lrldlb-rev
-  - Guide curve          : <lake>.Elev.Inst.0.Bottom of Flood Control
+  - Storage timeseries   : <lake>.Stor.Inst.1Hour.0.lrldlb-comp
+                           (LRL Data Lab computed; lrldlb-rev is empty)
+  - Guide curve (elev)   : <lake>.Elev.Inst.0.Bottom of Flood Control
                            (seasonal, interpolated; same as report "Dev. from Pool")
+  - Storage at guide     : <lake>.Stor.Inst.0.Bottom of Flood Control
+                           (seasonal; lower bound for Percent Util denominator)
+  - Storage at flood     : <lake>.Stor.Inst.0.Top of Flood
+                           (constant; upper bound for Percent Util denominator)
   - Vertical datum info  : embedded in the timeseries response
-  - Update cadence       : typically every 15–60 minutes; may lag by 1–2 hours.
+  - Update cadence       : typically every hour via lrldlb-comp.
 
 What "501 Not Implemented" means:
   The CWMS Data API requires the header  Accept: application/json;version=2.
@@ -28,6 +34,11 @@ pools (which bound the normal operating range):
   - at_or_above_flood: elevation >= flood_pool_ft
   - no_guide:          guide curve fetch failed; falls back to static pools
   - unknown:           flood_pool_ft missing
+
+Percent Util (storage-based) matches the USACE LRL Daily Lake Report column.
+Formula: (current_storage - storage_at_guide) / (storage_at_flood - storage_at_guide) * 100
+  - Negative when pool is below guide curve.
+  - Both bounds are fetched live from CWMS storage location levels.
 """
 
 from __future__ import annotations
@@ -321,6 +332,75 @@ async def _fetch_guide_curve(lake_id: str, at: datetime.datetime) -> float | Non
     return interpolate_guide_curve(sv, origin, int(months), at)
 
 
+async def _fetch_storage(
+    stor_ts_id: str, begin: str, end: str
+) -> float | None:
+    """Fetch the most recent storage observation (acre-feet) from *stor_ts_id*.
+
+    Uses the lrldlb-comp (computed) timeseries — the lrldlb-rev series is
+    present in the CWMS catalog but returns no values.
+
+    Returns the latest non-null value in the lookback window, or None on any
+    failure or missing data.
+    """
+    try:
+        ts_data = await _cwms_get(
+            "timeseries",
+            params={
+                "name": stor_ts_id,
+                "office": OFFICE,
+                "unit": "ac-ft",
+                "begin": begin,
+                "end": end,
+            },
+        )
+    except UpstreamServiceError:
+        return None
+
+    values: list[list[Any]] = ts_data.get("values") or []
+    if not values:
+        return None
+    last = values[-1]
+    raw = last[1]
+    if raw is None:
+        return None
+    return round(float(raw), 0)
+
+
+async def _fetch_storage_level(
+    lake_id: str, level_name: str, at: datetime.datetime
+) -> float | None:
+    """Fetch a CWMS storage location level (acre-feet) for *lake_id* at *at*.
+
+    Handles both constant-value and seasonal (interpolated) levels.
+    Used for 'Bottom of Flood Control' and 'Top of Flood' storage bounds.
+    Returns None if the level is unavailable.
+    """
+    level_id = f"{lake_id}.Stor.Inst.0.{level_name}"
+    try:
+        data = await _cwms_get(
+            f"levels/{level_id}",
+            params={
+                "office": OFFICE,
+                "unit": "ac-ft",
+                "effective-date": at.strftime("%Y-%m-%dT%H:%M:%S"),
+            },
+        )
+    except UpstreamServiceError:
+        return None
+
+    if "constant-value" in data:
+        return round(float(data["constant-value"]), 0)
+
+    sv = data.get("seasonal-values")
+    origin = data.get("interval-origin")
+    months = data.get("interval-months")
+    if not sv or not origin or not months:
+        return None
+
+    return round(interpolate_guide_curve(sv, origin, int(months), at), 0)
+
+
 # ── Tool implementation ───────────────────────────────────────────────────────
 
 async def get_lake_conditions(
@@ -332,9 +412,9 @@ async def get_lake_conditions(
     """Return the latest pool elevation for a USACE Louisville District reservoir,
     today's seasonal guide curve, and how the current pool compares to both.
 
-    Data source: CWMS Data API lrldlb-rev timeseries (LRL Data Lab, revised).
-    Observations are typically recorded every 15–60 minutes. The tool looks
-    back up to 6 hours to find the most recent value.
+    Data source: CWMS Data API lrldlb-comp timeseries (LRL Data Lab, computed).
+    Observations are typically recorded every hour. The tool looks back up to
+    6 hours to find the most recent value.
 
     Returns a dict with:
       - lake_id (str): CWMS location ID
@@ -354,10 +434,19 @@ async def get_lake_conditions(
           Falls back to static-pool classification (below_normal | normal |
           above_conservation | at_or_above_flood | unknown) when guide curve
           fetch fails (pool_status will be prefixed "no_guide/").
-      - percent_to_flood_pool (float | null): How far the current elevation is
-          through the flood-control buffer as a percentage.
-          0 % = at guide curve, 100 % = at flood pool.
+      - percent_to_flood_pool (float | null): Elevation-based position through
+          the flood-control buffer. 0 % = at guide curve, 100 % = at flood pool.
           Negative = below guide curve.
+      - storage_acre_ft (float | null): Current conservation pool storage in
+          acre-feet (lrldlb-comp timeseries).
+      - storage_at_guide_curve_acre_ft (float | null): Storage in acre-feet at
+          today's guide curve elevation (Bottom of Flood Control storage level).
+      - storage_at_flood_pool_acre_ft (float | null): Storage in acre-feet at
+          the top of flood pool (Top of Flood storage level).
+      - percent_util (float | null): Storage-based utilisation matching the
+          "Percent Util" column in the USACE LRL Daily Lake Report.
+          Formula: (storage - storage_at_guide) / (storage_at_flood - storage_at_guide) * 100.
+          Negative when pool is below guide curve.
       - reference_levels (dict): Static pool schedule —
           winter_pool_ft, summer_pool_ft, flood_pool_ft
       - error (str): present only when the elevation API call failed
@@ -401,6 +490,10 @@ async def get_lake_conditions(
             "deviation_from_guide_curve_ft": None,
             "pool_status": "no_data",
             "percent_to_flood_pool": None,
+            "storage_acre_ft": None,
+            "storage_at_guide_curve_acre_ft": None,
+            "storage_at_flood_pool_acre_ft": None,
+            "percent_util": None,
             "reference_levels": ref,
             "error": str(exc),
         }
@@ -418,6 +511,10 @@ async def get_lake_conditions(
             "deviation_from_guide_curve_ft": None,
             "pool_status": "no_data",
             "percent_to_flood_pool": None,
+            "storage_acre_ft": None,
+            "storage_at_guide_curve_acre_ft": None,
+            "storage_at_flood_pool_acre_ft": None,
+            "percent_util": None,
             "reference_levels": ref,
             "error": "No observations returned for the lookback window.",
         }
@@ -433,8 +530,15 @@ async def get_lake_conditions(
     vd_info = ts_data.get("vertical-datum-info") or {}
     vertical_datum: str | None = vd_info.get("native-datum") or None
 
-    # ── 2. Fetch today's guide curve ──────────────────────────────────────────
-    guide_ft = await _fetch_guide_curve(lake_id, obs_utc)
+    # ── 2. Fetch guide curve, storage, and storage bounds in parallel ─────────
+    import asyncio
+
+    guide_ft, storage_af, stor_at_guide, stor_at_flood = await asyncio.gather(
+        _fetch_guide_curve(lake_id, obs_utc),
+        _fetch_storage(meta["stor_ts_id"], begin, end),
+        _fetch_storage_level(lake_id, "Bottom of Flood Control", obs_utc),
+        _fetch_storage_level(lake_id, "Top of Flood", obs_utc),
+    )
 
     # ── 3. Derive status and deviation ───────────────────────────────────────
     flood_pool = meta["top_of_flood_ft"]
@@ -442,7 +546,7 @@ async def get_lake_conditions(
     if guide_ft is not None:
         pool_status = _pool_status_vs_guide(elev_ft, guide_ft, flood_pool)
         deviation = round(elev_ft - guide_ft, 2)
-        if guide_ft is not None and flood_pool is not None:
+        if flood_pool is not None:
             buffer = flood_pool - guide_ft
             pct = round((elev_ft - guide_ft) / buffer * 100, 1) if buffer != 0 else None
         else:
@@ -459,6 +563,21 @@ async def get_lake_conditions(
         deviation = None
         pct = None
 
+    # ── 4. Compute storage-based Percent Util (matches USACE LRL report) ──────
+    # Formula: (cur - gc_stor) / (flood_stor - gc_stor) * 100
+    # Both bounds come from live CWMS storage location levels.
+    if (
+        storage_af is not None
+        and stor_at_guide is not None
+        and stor_at_flood is not None
+        and stor_at_flood != stor_at_guide
+    ):
+        percent_util: float | None = round(
+            (storage_af - stor_at_guide) / (stor_at_flood - stor_at_guide) * 100, 1
+        )
+    else:
+        percent_util = None
+
     return {
         "lake_id": lake_id,
         "public_name": meta["public_name"],
@@ -470,6 +589,10 @@ async def get_lake_conditions(
         "deviation_from_guide_curve_ft": deviation,
         "pool_status": pool_status,
         "percent_to_flood_pool": pct,
+        "storage_acre_ft": storage_af,
+        "storage_at_guide_curve_acre_ft": stor_at_guide,
+        "storage_at_flood_pool_acre_ft": stor_at_flood,
+        "percent_util": percent_util,
         "reference_levels": ref,
     }
 
