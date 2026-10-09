@@ -167,3 +167,96 @@ async def test_summarize_tool_is_discoverable():
     sdl_mod.register(mcp)
     tools = {t.name: t for t in await mcp.list_tools()}
     assert "summarize_district_lakes" in tools
+
+
+# ── Filter tests (regression: wxO answered "none above guide" for Kentucky) ──
+
+
+def _mock_by_lake(statuses: dict[str, str], errors: dict[str, str] | None = None):
+    """AsyncMock whose result depends on the lake requested (default below_guide)."""
+    errors = errors or {}
+
+    async def _fake(lake):
+        lid = lake.value
+        if lid in errors:
+            return _make_lake_result(lid, error=errors[lid])
+        return _make_lake_result(lid, pool_status=statuses.get(lid, "below_guide"))
+
+    return AsyncMock(side_effect=_fake)
+
+
+@pytest.mark.asyncio
+async def test_kentucky_basin_above_guide_returns_both_lakes():
+    """LRL report 2026-10-09: Carr Creek +3.1 ft and Buckhorn +1.6 ft above guide."""
+    mock = _mock_by_lake({"CarrCreek": "above_guide", "Buckhorn": "above_guide"})
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes(
+            basin=sdl_mod.BasinName("Kentucky"),
+            status=sdl_mod.PoolStatusFilter("above_guide"),
+        )
+
+    assert {r["lake_id"] for r in result["lakes"]} == {"CarrCreek", "Buckhorn"}
+    assert result["lakes_in_scope"] == 2
+    assert result["matched_lakes"] == 2
+    assert result["unevaluated_lakes"] == []
+    assert result["filter_note"] is None
+    assert result["filters"] == {"basin": "Kentucky", "status": "above_guide"}
+
+
+@pytest.mark.asyncio
+async def test_basin_filter_only_returns_basin_lakes():
+    mock = _mock_by_lake({})
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes(
+            basin=sdl_mod.BasinName("Green River")
+        )
+
+    assert {r["lake_id"] for r in result["lakes"]} == {
+        "Barren",
+        "Green",
+        "Nolin",
+        "Rough",
+    }
+    assert result["total_lakes"] == 17  # counts still cover the whole district
+
+
+@pytest.mark.asyncio
+async def test_status_filter_reports_unevaluated_lakes_instead_of_dropping():
+    """A lake with no data must be reported as unknown, never as 'not matching'."""
+    mock = _mock_by_lake(
+        {"Buckhorn": "above_guide"},
+        errors={"CarrCreek": "CWMS request timed out."},
+    )
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes(
+            basin=sdl_mod.BasinName("Kentucky"),
+            status=sdl_mod.PoolStatusFilter("above_guide"),
+        )
+
+    assert [r["lake_id"] for r in result["lakes"]] == ["Buckhorn"]
+    assert [u["lake_id"] for u in result["unevaluated_lakes"]] == ["CarrCreek"]
+    assert "timed out" in result["unevaluated_lakes"][0]["reason"]
+    assert "Carr Creek Lake" in result["filter_note"]
+
+
+@pytest.mark.asyncio
+async def test_no_data_status_filter_has_no_unevaluated_list():
+    mock = _mock_by_lake({}, errors={"CarrCreek": "boom"})
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes(
+            status=sdl_mod.PoolStatusFilter("no_data")
+        )
+
+    assert [r["lake_id"] for r in result["lakes"]] == ["CarrCreek"]
+    assert result["unevaluated_lakes"] == []
+
+
+@pytest.mark.asyncio
+async def test_basin_parameter_description_names_values_and_lakes():
+    """The agent sees exact basin values with their lakes in the tool schema."""
+    mcp = FastMCP("test")
+    sdl_mod.register(mcp)
+    tool = {t.name: t for t in await mcp.list_tools()}["summarize_district_lakes"]
+    schema_text = str(tool.parameters)
+    assert "'Kentucky' (Buckhorn Lake, Carr Creek Lake)" in schema_text
+    assert "Kentucky River basin" in schema_text

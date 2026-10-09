@@ -52,6 +52,11 @@ _NO_DATA_STATUSES = {"no_data"}
 
 # Build basin enum dynamically from the lake table.
 _BASINS = sorted({meta["basin"] for meta in LAKES.values()})
+_BASIN_LAKES: dict[str, list[str]] = {
+    b: sorted(m["public_name"] for m in LAKES.values() if m["basin"] == b)
+    for b in _BASINS
+}
+_BASIN_GUIDE = "; ".join(f"'{b}' ({', '.join(_BASIN_LAKES[b])})" for b in _BASINS)
 BasinName = Enum(  # type: ignore[misc]
     "BasinName",
     {b.replace(" ", "_").replace(".", ""): b for b in _BASINS},
@@ -60,7 +65,7 @@ BasinName = Enum(  # type: ignore[misc]
 BasinName.__doc__ = (
     "River basin served by one or more LRL reservoirs. "
     "Use to filter summarize_district_lakes to a single basin. "
-    f"Values: {', '.join(_BASINS)}."
+    f"Exact values and their lakes: {_BASIN_GUIDE}."
 )
 
 PoolStatusFilter = Enum(  # type: ignore[misc]
@@ -100,8 +105,9 @@ def _status_bucket(pool_status: str) -> str:
 async def summarize_district_lakes(
     basin: Annotated[
         BasinName | None,  # type: ignore[valid-type]
-        "Optional: restrict results to a single river basin "
-        "(e.g. 'Green River', 'Salt River').",
+        "Optional: restrict results to a single river basin. Use the exact value "
+        f"(lakes in parentheses): {_BASIN_GUIDE}. "
+        "Example: 'Kentucky River basin' -> 'Kentucky'.",
     ] = None,
     status: Annotated[
         PoolStatusFilter | None,  # type: ignore[valid-type]
@@ -134,6 +140,14 @@ async def summarize_district_lakes(
           (including observation_age_hours, stale, and data_note per lake).
           Sorted by basin then public_name.
           Lakes with fetch errors include an "error" key; all other fields are null.
+      - filters (dict): the basin/status filters applied.
+      - lakes_in_scope (int): lakes in the requested basin (17 when no basin).
+      - matched_lakes (int): lakes returned after the status filter.
+      - unevaluated_lakes (list): lakes in scope with no usable data, so they could
+          not be checked against a status filter. Never report these as "not
+          matching"; report their status as unknown.
+      - filter_note (str | null): plain-language warning when unevaluated_lakes
+          is non-empty.
 
     Interpretation guidance for AI assistants:
       - All status values (above_guide, below_guide, etc.) are relative to the live
@@ -181,15 +195,39 @@ async def summarize_district_lakes(
     basin_value: str | None = basin.value if basin is not None else None  # type: ignore[union-attr]
     status_value: str | None = status.value if status is not None else None  # type: ignore[union-attr]
 
-    filtered = results
+    in_scope = results
     if basin_value is not None:
-        filtered = [r for r in filtered if r.get("basin") == basin_value]
+        in_scope = [r for r in in_scope if r.get("basin") == basin_value]
+    filtered = in_scope
+    unevaluated: list[dict[str, Any]] = []
     if status_value is not None:
         filtered = [
             r
-            for r in filtered
+            for r in in_scope
             if _status_bucket(r.get("pool_status", "no_data")) == status_value
         ]
+        # Lakes that could not be evaluated must never be silently dropped:
+        # "no data" is not the same as "does not match the status filter".
+        if status_value != "no_data":
+            unevaluated = [
+                {
+                    "lake_id": r.get("lake_id"),
+                    "public_name": r.get("public_name"),
+                    "pool_status": r.get("pool_status"),
+                    "reason": r.get("error") or "no usable elevation/guide curve data",
+                }
+                for r in in_scope
+                if _status_bucket(r.get("pool_status", "no_data")) == "no_data"
+            ]
+
+    filter_note = None
+    if unevaluated:
+        names = ", ".join(str(u["public_name"]) for u in unevaluated)
+        filter_note = (
+            f"{len(unevaluated)} lake(s) in scope could not be evaluated and are "
+            f"NOT included in the filtered results: {names}. Do not report them "
+            "as not matching the filter; say their status is unknown."
+        )
 
     return {
         "as_of_utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -202,6 +240,11 @@ async def summarize_district_lakes(
             f"direct users to {LAKE_REPORT_URL} "
             "(LRL Daily Lake Report) for official information."
         ),
+        "filters": {"basin": basin_value, "status": status_value},
+        "lakes_in_scope": len(in_scope),
+        "matched_lakes": len(filtered),
+        "unevaluated_lakes": unevaluated,
+        "filter_note": filter_note,
         "lakes": filtered,
     }
 
