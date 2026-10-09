@@ -821,3 +821,108 @@ async def test_lake_conditions_tool_is_discoverable():
     tools = await mcp.list_tools()
     tool_names = {t.name for t in tools}
     assert "get_lake_conditions" in tool_names
+
+
+# ── observation_age_hours / stale tests ──────────────────────────────────────
+
+
+def _frozen_datetime_cls(frozen: datetime.datetime) -> type:
+    """Return a datetime subclass whose .now() always returns *frozen*.
+
+    Patching the whole `datetime` module would break fromtimestamp / fromisoformat
+    calls inside the tool.  Instead we patch only `datetime.datetime` with this
+    subclass so `.now()` is controlled while every other classmethod delegates to
+    the real implementation.
+    """
+
+    class _FrozenDatetime(datetime.datetime):
+        @classmethod
+        def now(cls, tz=None):  # type: ignore[override]
+            return frozen
+
+    return _FrozenDatetime
+
+
+@pytest.mark.asyncio
+async def test_get_lake_conditions_recent_reading_not_stale():
+    """A reading 7 hours old (beyond the old 6-h lookback but not stale):
+    observation_age_hours == 7.0, stale == False, data_note contains age.
+    """
+    frozen_now = datetime.datetime(2026, 10, 9, 12, 0, 0, tzinfo=datetime.timezone.utc)
+    obs_dt = frozen_now - datetime.timedelta(hours=7)
+    obs_ms = int(obs_dt.timestamp() * 1000)
+
+    fake_ts = _fake_ts(elev_ft=551.0, ts_ms=obs_ms)
+    fake_guide = _fake_guide(guide_ft=552.0)
+
+    with (
+        patch(
+            "lrl_reservoirs.tools.lake_conditions.datetime.datetime",
+            new=_frozen_datetime_cls(frozen_now),
+        ),
+        patch.object(
+            lc_mod,
+            "cwms_get",
+            new=AsyncMock(
+                side_effect=[
+                    fake_ts,
+                    fake_guide,
+                    _fake_stor(300000.0, ts_ms=obs_ms),
+                    _fake_stor_level(80000.0),
+                    _fake_stor_level(873000.0),
+                ]
+            ),
+        ),
+    ):
+        result = await lc_mod.get_lake_conditions(
+            lake=LakeName("Barren"),  # type: ignore[call-arg]
+        )
+
+    assert result["observation_age_hours"] == 7.0
+    assert result["stale"] is False
+    assert "7.0 hours" in result["data_note"]
+    assert "STALE" not in result["data_note"]
+    assert result["as_of"] == obs_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+@pytest.mark.asyncio
+async def test_get_lake_conditions_stale_reading():
+    """A reading 36 hours old: stale == True, data_note contains STALE warning."""
+    frozen_now = datetime.datetime(2026, 10, 9, 12, 0, 0, tzinfo=datetime.timezone.utc)
+    obs_dt = frozen_now - datetime.timedelta(hours=36)
+    obs_ms = int(obs_dt.timestamp() * 1000)
+
+    fake_ts = _fake_ts(elev_ft=550.5, ts_ms=obs_ms)
+    fake_guide = _fake_guide(guide_ft=552.0)
+
+    with (
+        patch(
+            "lrl_reservoirs.tools.lake_conditions.datetime.datetime",
+            new=_frozen_datetime_cls(frozen_now),
+        ),
+        patch.object(
+            lc_mod,
+            "cwms_get",
+            new=AsyncMock(
+                side_effect=[
+                    fake_ts,
+                    fake_guide,
+                    _fake_stor(310000.0, ts_ms=obs_ms),
+                    _fake_stor_level(80000.0),
+                    _fake_stor_level(873000.0),
+                ]
+            ),
+        ),
+    ):
+        result = await lc_mod.get_lake_conditions(
+            lake=LakeName("Barren"),  # type: ignore[call-arg]
+        )
+
+    assert result["observation_age_hours"] == 36.0
+    assert result["stale"] is True
+    assert "STALE" in result["data_note"]
+    assert "36.0 hours" in result["data_note"]
+    assert result["as_of"] == obs_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    # Pool status and deviation should still be computed correctly.
+    assert result["pool_status"] == "below_guide"
+    assert result["deviation_from_guide_curve_ft"] == round(550.5 - 552.0, 2)

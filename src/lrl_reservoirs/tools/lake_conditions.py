@@ -15,7 +15,10 @@ Data source: CWMS Data API (https://cwms-data.usace.army.mil/cwms-data)
   - Storage at flood     : <lake>.Stor.Inst.0.Top of Flood
                            (constant; upper bound for Percent Util denominator)
   - Vertical datum info  : embedded in the timeseries response
-  - Update cadence       : typically every hour via lrldlb-comp.
+  - Update cadence       : lrldlb-rev (elevation) updates every ~6 hours;
+                           lrldlb-comp (storage) updates every ~1 hour.
+                           The lookback window is 48 hours so the most recent
+                           value is always returned even on slow-updating lakes.
 
 Pool status is classified relative to the live guide curve (Bottom of Flood
 Control), not the static pools:
@@ -48,20 +51,42 @@ from lrl_reservoirs.utils import LAKE_REPORT_URL, UpstreamServiceError, cwms_get
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 OFFICE = "LRL"
-# Look back up to 6 hours to find the most recent elevation value.
-LOOKBACK_HOURS = 6
+# Look back up to 48 hours so we always find the most recent value even when
+# lrldlb-rev (elevation) only updates every ~6 hours.
+LOOKBACK_HOURS = 48
 
 # Tolerance used for "at_guide" status (±0.05 ft ≈ reporting precision).
 AT_GUIDE_TOLERANCE_FT = 0.05
 
-# Standard one-line data note returned in every response dict.
-_DATA_NOTE = (
-    "guide_curve_ft is the operative seasonal target; "
-    "summer/winter pool are reference-only; "
-    "always cite as_of; report factually without operational judgments; "
-    f"direct users to {LAKE_REPORT_URL} (LRL Daily Lake Report) "
-    "for official information."
-)
+# Readings older than this are flagged as stale.
+STALE_THRESHOLD_HOURS = 30
+
+
+# ── Data note builder ─────────────────────────────────────────────────────────
+
+
+def _build_data_note(age_hours: float | None, stale: bool) -> str:
+    """Build the per-response data_note string.
+
+    Includes observation age so the agent can phrase responses like
+    "as of 7:00 AM today (6.0 hours ago)".  Adds a staleness warning when
+    *stale* is True so the agent can disclose the data age to the user.
+    """
+    parts = [
+        "guide_curve_ft is the operative seasonal target; "
+        "summer/winter pool are reference-only; "
+        "always cite as_of; report factually without operational judgments; "
+        f"direct users to {LAKE_REPORT_URL} (LRL Daily Lake Report) "
+        "for official information.",
+    ]
+    if age_hours is not None:
+        parts.append(f"Observation age: {age_hours:.1f} hours.")
+    if stale:
+        parts.append(
+            f"STALE: reading is more than {STALE_THRESHOLD_HOURS} hours old — "
+            "disclose the data age to the user."
+        )
+    return " ".join(parts)
 
 
 # ── Pool-status helpers ───────────────────────────────────────────────────────
@@ -225,9 +250,9 @@ async def get_lake_conditions(
     """Return the latest pool elevation for a USACE Louisville District reservoir,
     today's seasonal guide curve, and how the current pool compares to both.
 
-    Data source: CWMS Data API lrldlb-comp timeseries (LRL Data Lab, computed).
-    Observations are typically recorded every hour. The tool looks back up to
-    6 hours to find the most recent value.
+    Data source: CWMS Data API lrldlb-rev (elevation) and lrldlb-comp (storage).
+    Elevation updates every ~6 hours; storage updates every ~1 hour.  The tool
+    looks back up to 48 hours and always uses the most recent value in that window.
 
     Returns a dict with:
       - lake_id (str): CWMS location ID
@@ -237,11 +262,16 @@ async def get_lake_conditions(
       - vertical_datum (str | null): Datum of the elevation reading (e.g. "NGVD-29")
       - as_of (str | null): ISO-8601 UTC timestamp of the observation —
           ALWAYS include this when reporting conditions to users.
-      - guide_curve_ft (float | null): Today's seasonal Bottom of Flood Control
-          elevation — the operative target for the current date.  The LRL Daily
-          Lake Report calls this "Pool" and measures "Dev. from Pool" against it.
-          This is the primary reference for assessing whether the pool is
-          high, low, or on target — NOT summer_pool or winter_pool.
+      - observation_age_hours (float | null): Age of the most recent elevation
+          reading in hours (rounded to one decimal place). Useful for phrasing
+          responses as "as of 7:00 AM today" or "last updated N hours ago".
+      - stale (bool): True when observation_age_hours > 30. A stale reading
+          should be disclosed to the user (e.g. "last updated X hours ago").
+      - guide_curve_ft (float | null): Seasonal Bottom of Flood Control elevation
+          at the observation's timestamp — the operative target for that date.
+          The LRL Daily Lake Report calls this "Pool" and measures "Dev. from Pool"
+          against it. This is the primary reference for assessing whether the pool
+          is high, low, or on target — NOT summer_pool or winter_pool.
       - deviation_from_guide_curve_ft (float | null): elevation minus guide_curve_ft;
           negative = pool is below today's guide curve
       - pool_status (str): Status relative to guide curve — one of:
@@ -270,10 +300,9 @@ async def get_lake_conditions(
           the pool is "below summer pool" or "below conservation pool" —
           deviations from these static targets are expected and normal during
           seasonal fill and drawdown operations.
-      - data_note (str): One-line guidance reminding the caller that guide_curve_ft
-          is the operative seasonal target; summer/winter pool are reference-only;
-          always cite as_of; report factually without operational judgments; and
-          direct users to the LRL Daily Lake Report for official information.
+      - data_note (str): Guidance for the AI assistant: cites as_of, states the
+          observation age, flags staleness, and directs users to the LRL Daily
+          Lake Report for official information.
       - error (str): present only when the elevation API call failed
 
     Interpretation guidance for AI assistants:
@@ -325,6 +354,8 @@ async def get_lake_conditions(
             "elevation_ft": None,
             "vertical_datum": None,
             "as_of": None,
+            "observation_age_hours": None,
+            "stale": False,
             "guide_curve_ft": None,
             "deviation_from_guide_curve_ft": None,
             "pool_status": "no_data",
@@ -334,7 +365,7 @@ async def get_lake_conditions(
             "storage_at_flood_pool_acre_ft": None,
             "percent_util": None,
             "reference_levels": ref,
-            "data_note": _DATA_NOTE,
+            "data_note": _build_data_note(None, False),
             "error": str(exc),
         }
 
@@ -347,6 +378,8 @@ async def get_lake_conditions(
             "elevation_ft": None,
             "vertical_datum": None,
             "as_of": None,
+            "observation_age_hours": None,
+            "stale": False,
             "guide_curve_ft": None,
             "deviation_from_guide_curve_ft": None,
             "pool_status": "no_data",
@@ -356,7 +389,7 @@ async def get_lake_conditions(
             "storage_at_flood_pool_acre_ft": None,
             "percent_util": None,
             "reference_levels": ref,
-            "data_note": _DATA_NOTE,
+            "data_note": _build_data_note(None, False),
             "error": "No observations returned for the lookback window.",
         }
 
@@ -367,11 +400,17 @@ async def get_lake_conditions(
     obs_utc = datetime.datetime.fromtimestamp(ts_ms / 1000, tz=datetime.timezone.utc)
     as_of = obs_utc.strftime("%Y-%m-%dT%H:%M:%SZ")
 
+    # Observation age and staleness flag.
+    age_hours: float = round((now_utc - obs_utc).total_seconds() / 3600, 1)
+    stale: bool = age_hours > STALE_THRESHOLD_HOURS
+
     # Extract vertical datum from the timeseries response.
     vd_info = ts_data.get("vertical-datum-info") or {}
     vertical_datum: str | None = vd_info.get("native-datum") or None
 
     # ── 2. Fetch guide curve, storage, and storage bounds in parallel ─────────
+    # Guide curve is evaluated at the observation's timestamp so that elevation
+    # and guide curve refer to the same point in time.
     guide_ft, storage_af, stor_at_guide, stor_at_flood = await asyncio.gather(
         _fetch_guide_curve(lake_id, obs_utc),
         _fetch_storage(meta["stor_ts_id"], begin, end),
@@ -424,6 +463,8 @@ async def get_lake_conditions(
         "elevation_ft": elev_ft,
         "vertical_datum": vertical_datum,
         "as_of": as_of,
+        "observation_age_hours": age_hours,
+        "stale": stale,
         "guide_curve_ft": guide_ft,
         "deviation_from_guide_curve_ft": deviation,
         "pool_status": pool_status,
@@ -433,7 +474,7 @@ async def get_lake_conditions(
         "storage_at_flood_pool_acre_ft": stor_at_flood,
         "percent_util": percent_util,
         "reference_levels": ref,
-        "data_note": _DATA_NOTE,
+        "data_note": _build_data_note(age_hours, stale),
     }
 
 

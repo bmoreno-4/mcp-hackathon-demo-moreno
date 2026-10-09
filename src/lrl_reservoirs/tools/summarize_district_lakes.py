@@ -3,10 +3,10 @@
 Fetches current conditions for every USACE Louisville District (LRL) reservoir
 in parallel and returns a district-wide summary sorted by basin then lake name.
 
-Each lake entry is the same shape as get_lake_conditions, so any field that
-would be null for a single lake is also null here.  Failed lakes include an
-"error" key and are still included in the list so callers can see which lakes
-had data problems.
+Each lake entry is the same shape as get_lake_conditions (including
+observation_age_hours and stale), so any field that would be null for a single
+lake is also null here.  Failed lakes include an "error" key and are still
+included in the list so callers can see which lakes had data problems.
 
 Aggregate counts (at the top level) give a quick district overview:
   - total_lakes          number of lakes in the district
@@ -131,7 +131,8 @@ async def summarize_district_lakes(
           and direct users to the LRL Daily Lake Report for official information.
       - lakes (list[dict]): One entry per lake (filtered when basin/status is set),
           each identical in shape to the dict returned by get_lake_conditions
-          (including a per-lake data_note). Sorted by basin then public_name.
+          (including observation_age_hours, stale, and data_note per lake).
+          Sorted by basin then public_name.
           Lakes with fetch errors include an "error" key; all other fields are null.
 
     Interpretation guidance for AI assistants:
