@@ -38,7 +38,8 @@ async def test_list_lakes_is_registered_with_reference_description():
 
     tools = {t.name: t for t in await mcp.list_tools()}
     assert "list_lakes" in tools
-    assert "summer and winter pools" in tools["list_lakes"].description
+    description = " ".join(tools["list_lakes"].description.split())
+    assert "summer and winter pools" in description
 
 
 @pytest.mark.asyncio
