@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
-"""Live percent_util validation against the USACE LRL Daily Lake Report.
+"""Validation against the USACE LRL Daily Lake Report.
 
-Fetches real CWMS data for a specified report date and computes percent_util
-for all 17 LRL lakes using the same formula as get_lake_conditions, then
-compares against the saved LRL Daily Lake Report values.
+Reads the matching CSV from eval/reports/ and validates two things for every
+lake against live CWMS data:
+
+  1. Percent Util  – computed from CWMS storage vs. the report value
+  2. Guide curve elevation – computed from CWMS seasonal level vs.
+     (todays_pool - dev_from_pool) from the report
 
 Usage:
-    # Compare against the bundled 2026-10-08 report (default):
-    python eval/lrl_percent_util_validation.py
+    uv run python eval/lrl_percent_util_validation.py --date 2026-10-09
 
-    # Compare against a different report date (must be a past date with CWMS data):
-    python eval/lrl_percent_util_validation.py --date 2026-10-01
+    # Refresh the test fixture (only works with --date 2026-10-08):
+    uv run python eval/lrl_percent_util_validation.py --save-fixtures --date 2026-10-08
 
-    # Refresh the test fixture with the default date's responses:
-    python eval/lrl_percent_util_validation.py --save-fixtures
-
-The script also optionally updates tests/fixtures/lrl_oct8_2026/cwms_responses.json
-when run with --save-fixtures, giving you a way to regenerate the deterministic
-test data if the formula or the CWMS response shape ever changes.
+Requires a downloaded report CSV in eval/reports/.  If it is missing, run:
+    uv run python eval/fetch_lake_report.py
 
 Exit code:
-    0  all 17 lakes within tolerance
+    0  all 17 lakes within tolerance on both checks
     1  one or more lakes outside tolerance, or fetch errors
 """
 
@@ -28,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import calendar
+import csv
 import datetime
 import json
 import pathlib
@@ -41,10 +40,13 @@ CWMS_BASE = "https://cwms-data.usace.army.mil/cwms-data"
 ACCEPT = "application/json;version=2"
 OFFICE = "LRL"
 
-# Allowed difference between computed and reported Percent Util.
-# The report rounds to 2 decimal places; the storage TS may lag the report
-# time by up to one hour, so 0.15 is a reasonable tolerance.
-TOLERANCE = 0.15
+# eval/reports/ directory (sibling of this script)
+REPORTS_DIR = pathlib.Path(__file__).parent / "reports"
+
+# Allowed difference between computed and reported values.
+# Storage TS may lag the report time by up to one hour.
+TOLERANCE_PCT_UTIL = 0.15   # percent-util points
+TOLERANCE_ELEV_FT = 0.10    # feet (guide curve elevation; report rounds dev to 1 dp)
 
 # Lake order matches the LRL Daily Lake Report
 LAKES = [
@@ -67,29 +69,38 @@ LAKES = [
     "Patoka",
 ]
 
-# Storage TS suffix — lrldlb-rev is in the catalog but returns no values
+# Storage TS suffix
 STOR_TS_SUFFIX = "lrldlb-comp"
 
-# Reported Percent Util from LRL Daily Lake Report 2026-10-08
-DEFAULT_REPORT_PERCENT_UTIL: dict[str, float] = {
-    "CaesarCreek": 0.05,
-    "WHHarsha": -0.05,
-    "WestFork": 0.24,
-    "CJBrown": 0.79,
-    "Brookville": 0.48,
-    "CaveRun": 2.62,
-    "CarrCreek": 7.20,
-    "Buckhorn": 0.94,
-    "Taylorsville": -0.68,
-    "Green": -0.85,
-    "Nolin": 1.33,
-    "Barren": 0.95,
-    "Rough": -0.18,
-    "CMHarden": -0.10,
-    "CaglesMill": 0.18,
-    "Monroe": -0.37,
-    "Patoka": 21.77,
-}
+# ── CSV loader ────────────────────────────────────────────────────────────────
+
+
+def load_report_csv(date_str: str) -> dict[str, dict[str, float]]:
+    """Load eval/reports/lrl_lake_report_YYYY-MM-DD.csv into a keyed dict.
+
+    Returns {lake_id: {percent_util, todays_pool, dev_from_pool}}.
+    Raises FileNotFoundError when the CSV does not exist.
+    """
+    csv_path = REPORTS_DIR / f"lrl_lake_report_{date_str}.csv"
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"No report CSV found for {date_str}. "
+            f"Run: uv run python eval/fetch_lake_report.py"
+        )
+    data: dict[str, dict[str, float]] = {}
+    with open(csv_path, newline="") as fh:
+        for row in csv.DictReader(fh):
+            lake = row["lake"]
+            try:
+                data[lake] = {
+                    "percent_util": float(row["percent_util"]),
+                    "todays_pool": float(row["todays_pool"]),
+                    "dev_from_pool": float(row["dev_from_pool"]),
+                }
+            except (KeyError, ValueError):
+                pass  # skip rows with missing/non-numeric values
+    return data
+
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -114,7 +125,7 @@ def add_months(dt: datetime.datetime, months: int) -> datetime.datetime:
 def resolve_level(
     data: dict, query: datetime.datetime
 ) -> tuple[float | None, str | None]:
-    """Extract a scalar storage level from a CWMS location-level response."""
+    """Extract a scalar storage or elevation level from a CWMS response."""
     if "_error" in data:
         return None, data["_error"]
     if "constant-value" in data:
@@ -145,20 +156,21 @@ def resolve_level(
     return anchors[-1][1], None
 
 
-def fetch_percent_util(
+def fetch_lake_data(
     lake: str,
     win_begin: str,
     win_end: str,
     level_date: str,
     query_utc: datetime.datetime,
-) -> tuple[float | None, dict, str]:
-    """Fetch storage data for *lake* and compute percent_util.
+) -> tuple[float | None, float | None, dict, str]:
+    """Fetch CWMS data for *lake* and compute percent_util and guide_curve_ft.
 
-    Returns (percent_util, raw_responses_dict, notes_string).
+    Returns (percent_util, guide_curve_elev_ft, raw_responses_dict, notes_string).
     """
     raw: dict = {}
+    notes_parts: list[str] = []
 
-    # 1. Current storage timeseries
+    # ── Storage timeseries ────────────────────────────────────────────────────
     ts_id = f"{lake}.Stor.Inst.1Hour.0.{STOR_TS_SUFFIX}"
     ts_url = (
         f"{CWMS_BASE}/timeseries?name={urllib.parse.quote(ts_id, safe='')}"
@@ -173,17 +185,17 @@ def fetch_percent_util(
         if best[1] is not None:
             cur_stor = float(best[1])
 
-    # 2. Storage at guide curve (Bottom of Flood Control)
-    gc_url = (
+    # ── Storage at guide curve (Bottom of Flood Control) ─────────────────────
+    gc_stor_url = (
         f"{CWMS_BASE}/levels/"
         f"{urllib.parse.quote(lake + '.Stor.Inst.0.Bottom of Flood Control', safe='')}"
         f"?office={OFFICE}&unit=ac-ft&effective-date={level_date}"
     )
-    gc_d = cwms_fetch(gc_url)
-    raw["gc_level_response"] = gc_d
-    gc_stor, gc_err = resolve_level(gc_d, query_utc)
+    gc_stor_d = cwms_fetch(gc_stor_url)
+    raw["gc_level_response"] = gc_stor_d
+    gc_stor, gc_err = resolve_level(gc_stor_d, query_utc)
 
-    # 3. Storage at flood pool (Top of Flood)
+    # ── Storage at flood pool (Top of Flood) ─────────────────────────────────
     fl_url = (
         f"{CWMS_BASE}/levels/"
         f"{urllib.parse.quote(lake + '.Stor.Inst.0.Top of Flood', safe='')}"
@@ -193,21 +205,32 @@ def fetch_percent_util(
     raw["flood_level_response"] = fl_d
     fl_stor, fl_err = resolve_level(fl_d, query_utc)
 
-    notes_parts = []
+    # ── Guide curve elevation (Bottom of Flood Control, in feet) ─────────────
+    gc_elev_url = (
+        f"{CWMS_BASE}/levels/"
+        f"{urllib.parse.quote(lake + '.Elev.Inst.0.Bottom of Flood Control', safe='')}"
+        f"?office={OFFICE}&unit=ft&effective-date={level_date}"
+    )
+    gc_elev_d = cwms_fetch(gc_elev_url)
+    raw["elev_gc_level_response"] = gc_elev_d
+    gc_elev, gc_elev_err = resolve_level(gc_elev_d, query_utc)
+
+    # ── Compute percent_util ──────────────────────────────────────────────────
     if cur_stor is None:
         notes_parts.append(f"no stor (vals={len(vals)})")
     if gc_stor is None:
-        notes_parts.append(f"gc_err={gc_err}")
+        notes_parts.append(f"gc_stor_err={gc_err}")
     if fl_stor is None:
         notes_parts.append(f"fl_err={fl_err}")
+    if gc_elev is None:
+        notes_parts.append(f"gc_elev_err={gc_elev_err}")
 
+    pct: float | None = None
     if cur_stor is not None and gc_stor is not None and fl_stor is not None:
         denom = fl_stor - gc_stor
         pct = round((cur_stor - gc_stor) / denom * 100, 2) if denom != 0 else None
-    else:
-        pct = None
 
-    return pct, raw, "; ".join(notes_parts)
+    return pct, gc_elev, raw, "; ".join(notes_parts)
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -217,15 +240,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--date",
-        default="2026-10-08",
-        help="Report date YYYY-MM-DD (default: 2026-10-08)",
+        required=True,
+        help="Report date YYYY-MM-DD (a matching CSV must exist in eval/reports/)",
     )
     parser.add_argument(
         "--save-fixtures",
         action="store_true",
         help=(
             "Overwrite tests/fixtures/lrl_oct8_2026/cwms_responses.json"
-            " with freshly fetched data"
+            " with freshly fetched data (only works with --date 2026-10-08)"
         ),
     )
     args = parser.parse_args()
@@ -234,6 +257,12 @@ def main() -> int:
         report_date = datetime.date.fromisoformat(args.date)
     except ValueError:
         print(f"ERROR: --date must be YYYY-MM-DD, got {args.date!r}", file=sys.stderr)
+        return 1
+
+    try:
+        report_data = load_report_csv(args.date)
+    except FileNotFoundError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
     # 06:00 US/Eastern = 10:00 UTC in October (EDT = UTC-4)
@@ -250,70 +279,100 @@ def main() -> int:
     win_end = (query_utc + datetime.timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%S")
     level_date = query_utc.strftime("%Y-%m-%dT%H:%M:%S")
 
-    report_pct = DEFAULT_REPORT_PERCENT_UTIL  # extend here for other dates
-
     print(
-        f"\nLRL Percent Util validation — report date {args.date}"
+        f"\nLRL validation — report date {args.date}"
         f" (query UTC: {query_utc.isoformat()})"
     )
     print(f"Storage window: {win_begin} → {win_end} UTC\n")
-    print(f"{'Lake':<14} {'Report%':>8} {'Calc%':>8} {'Δ':>7} {'Pass':>5}  Notes")
-    print("-" * 65)
+
+    # ── Percent Util table ────────────────────────────────────────────────────
+    print(f"{'Lake':<14} {'Rpt%':>7} {'Calc%':>7} {'ΔPct':>6} {'PctOK':>6}  "
+          f"{'RptGC':>8} {'CalcGC':>8} {'ΔElev':>6} {'ElevOK':>6}  Notes")
+    print("-" * 100)
 
     failures: list[str] = []
     all_raw: dict = {}
 
     for lake in LAKES:
-        calc, raw, notes = fetch_percent_util(
+        calc_pct, calc_gc, raw, notes = fetch_lake_data(
             lake, win_begin, win_end, level_date, query_utc
         )
         all_raw[lake] = raw
 
-        rpt = report_pct.get(lake)
-        if rpt is None:
-            print(
-                f"{lake:<14} {'N/A':>8} {'N/A':>8} {'N/A':>7} {'?':>5}  no report value"
-            )
+        row = report_data.get(lake)
+        if row is None:
+            print(f"{lake:<14}  {'N/A':>7} {'N/A':>7} {'N/A':>6} {'?':>6}  "
+                  f"{'N/A':>8} {'N/A':>8} {'N/A':>6} {'?':>6}  no report value")
             continue
 
-        if calc is None:
-            print(f"{lake:<14} {rpt:>8.2f} {'N/A':>8} {'N/A':>7} {'FAIL':>5}  {notes}")
-            failures.append(lake)
-            continue
+        rpt_pct = row.get("percent_util")
+        rpt_gc: float | None = None
+        todays_pool = row.get("todays_pool")
+        dev_from_pool = row.get("dev_from_pool")
+        if todays_pool is not None and dev_from_pool is not None:
+            # guide_curve = today's pool elevation − deviation from pool
+            rpt_gc = round(todays_pool - dev_from_pool, 2)
 
-        diff = calc - rpt
-        passed = abs(diff) <= TOLERANCE
-        flag = "PASS" if passed else "FAIL"
-        print(f"{lake:<14} {rpt:>8.2f} {calc:>8.2f} {diff:>+7.2f} {flag:>5}  {notes}")
-        if not passed:
+        # Percent util check
+        if rpt_pct is not None and calc_pct is not None:
+            pct_diff = calc_pct - rpt_pct
+            pct_ok = abs(pct_diff) <= TOLERANCE_PCT_UTIL
+            pct_flag = "PASS" if pct_ok else "FAIL"
+            pct_rpt_s = f"{rpt_pct:>7.2f}"
+            pct_calc_s = f"{calc_pct:>7.2f}"
+            pct_diff_s = f"{pct_diff:>+6.2f}"
+        elif rpt_pct is None:
+            pct_ok, pct_flag = True, "N/A"
+            pct_rpt_s = pct_calc_s = pct_diff_s = " N/A"
+        else:
+            pct_ok, pct_flag = False, "FAIL"
+            pct_rpt_s = f"{rpt_pct:>7.2f}" if rpt_pct is not None else "   N/A"
+            pct_calc_s, pct_diff_s = "    N/A", "   N/A"
+
+        # Guide curve elevation check
+        if rpt_gc is not None and calc_gc is not None:
+            elev_diff = round(calc_gc - rpt_gc, 4)  # round away float precision noise
+            elev_ok = abs(elev_diff) <= TOLERANCE_ELEV_FT
+            elev_flag = "PASS" if elev_ok else "FAIL"
+            gc_rpt_s = f"{rpt_gc:>8.2f}"
+            gc_calc_s = f"{calc_gc:>8.2f}"
+            elev_diff_s = f"{elev_diff:>+6.2f}"
+        elif rpt_gc is None:
+            elev_ok, elev_flag = True, "N/A"
+            gc_rpt_s = gc_calc_s = elev_diff_s = "     N/A"
+        else:
+            elev_ok, elev_flag = False, "FAIL"
+            gc_rpt_s = f"{rpt_gc:>8.2f}" if rpt_gc is not None else "     N/A"
+            gc_calc_s, elev_diff_s = "     N/A", "    N/A"
+
+        print(
+            f"{lake:<14} {pct_rpt_s} {pct_calc_s} {pct_diff_s} {pct_flag:>6}  "
+            f"{gc_rpt_s} {gc_calc_s} {elev_diff_s} {elev_flag:>6}  {notes}"
+        )
+
+        if not pct_ok or not elev_ok:
             failures.append(lake)
 
     print()
+    n_lakes = len(LAKES)
     if failures:
         failed_str = ", ".join(failures)
-        print(f"FAILED ({len(failures)}/17 lakes outside ±{TOLERANCE}): {failed_str}")
+        print(
+            f"FAILED ({len(failures)}/{n_lakes} lakes outside tolerance): "
+            f"{failed_str}\n"
+            f"  Tolerances: percent_util ±{TOLERANCE_PCT_UTIL}, "
+            f"guide curve elevation ±{TOLERANCE_ELEV_FT} ft"
+        )
     else:
-        print(f"All 17 lakes within ±{TOLERANCE}  ✓")
+        print(
+            f"All {n_lakes} lakes within tolerance  ✓\n"
+            f"  (percent_util ±{TOLERANCE_PCT_UTIL}, "
+            f"guide curve elevation ±{TOLERANCE_ELEV_FT} ft)"
+        )
 
     if args.save_fixtures and args.date == "2026-10-08":
-        # Also fetch the elevation TS and guide curve elevation for the fixture
         print("\nRefreshing test fixtures …")
-        for lake in LAKES:
-            elev_ts_id = f"{lake}.Elev.Inst.0.0.lrldlb-rev"
-            elev_url = (
-                f"{CWMS_BASE}/timeseries?name={urllib.parse.quote(elev_ts_id, safe='')}"
-                f"&office={OFFICE}&unit=ft&begin={win_begin}&end={win_end}"
-            )
-            all_raw[lake]["elev_ts_response"] = cwms_fetch(elev_url)
-
-            level_name = lake + ".Elev.Inst.0.Bottom of Flood Control"
-            gc_elev_url = (
-                f"{CWMS_BASE}/levels/"
-                f"{urllib.parse.quote(level_name, safe='')}"
-                f"?office={OFFICE}&unit=ft&effective-date={level_date}"
-            )
-            all_raw[lake]["elev_gc_level_response"] = cwms_fetch(gc_elev_url)
-
+        # Elevation TS is already in all_raw from fetch_lake_data; write it out
         fixture_path = (
             pathlib.Path(__file__).parent.parent
             / "tests"
