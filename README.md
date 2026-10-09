@@ -108,11 +108,11 @@ uv run python main.py
 ```
 
 The server starts in **stdio** mode — it speaks JSON-RPC over stdin/stdout, which
-is how local clients (Claude Desktop, Claude Code, Bob) launch it as a subprocess.
+is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
 
 ### Connect a client
 
-**Claude Code / Bob** — create or edit `.mcp.json` in the repo root:
+**IBM Bob** — create or edit `.mcp.json` in the repo root:
 
 ```json
 {

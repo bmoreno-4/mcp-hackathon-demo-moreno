@@ -56,8 +56,8 @@ Interpretation guidance for AI assistants
 - Report conditions factually (elevation, deviation, pool_status, percent_util).
   Do not make operational judgments or flood risk assessments such as "no
   concern" or "normal conditions".
-- For official water control information, direct users to the LRL Water Control
-  website: https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/
+- For official lake conditions, direct users to the LRL Daily Lake Report:
+  https://www.lrl-wc.usace.army.mil/reports/lkreport.html
 """
 
 from __future__ import annotations
@@ -477,8 +477,22 @@ async def get_lake_conditions(
       - data_note (str): One-line guidance reminding the caller that guide_curve_ft
           is the operative seasonal target; summer/winter pool are reference-only;
           always cite as_of; report factually without operational judgments; and
-          direct users to the LRL Water Control website for official information.
+          direct users to the LRL Daily Lake Report for official information.
       - error (str): present only when the elevation API call failed
+
+    Interpretation guidance for AI assistants:
+      - guide_curve_ft (Bottom of Flood Control) is the operative seasonal target for
+        the current date. Use it — not summer_pool or winter_pool — to assess whether
+        the pool is high, low, or on target.
+      - summer_pool_ft and winter_pool_ft are static reference values only. Do not
+        describe a pool as "below summer pool" or "below conservation pool" as a
+        shortfall; doing so is incorrect during drawdown or pre-fill periods.
+      - Always report the observation timestamp (as_of) when stating pool conditions.
+      - Report conditions factually (elevation, deviation, pool_status, percent_util).
+        Do not make operational judgments or flood risk assessments such as "no
+        concern" or "normal conditions".
+      - For official lake conditions, direct users to the LRL Daily Lake Report:
+        https://www.lrl-wc.usace.army.mil/reports/lkreport.html
     """
     lake_id: str = lake.value  # type: ignore[union-attr]
     meta = _LAKES[lake_id]
@@ -527,7 +541,7 @@ async def get_lake_conditions(
             "data_note": (
                 "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
                 "always cite as_of; report factually without operational judgments; "
-                "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+                "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
             ),
             "error": str(exc),
         }
@@ -553,7 +567,7 @@ async def get_lake_conditions(
             "data_note": (
                 "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
                 "always cite as_of; report factually without operational judgments; "
-                "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+                "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
             ),
             "error": "No observations returned for the lookback window.",
         }
@@ -636,7 +650,7 @@ async def get_lake_conditions(
         "data_note": (
             "guide_curve_ft is the operative seasonal target; summer/winter pool are reference-only; "
             "always cite as_of; report factually without operational judgments; "
-            "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+            "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
         ),
     }
 

@@ -107,9 +107,10 @@ DATABRICKS_TOKEN="$(databricks auth token --output json | jq -r .access_token)" 
 ## Part 3 — Connect a client
 
 Databricks Apps are gated by workspace auth, so an MCP client must present a
-bearer token. For **watsonx Orchestrate** or **Claude** (remote HTTP), register
-the endpoint and supply the token as an `Authorization: Bearer <token>` header
-via the client's connection/credential mechanism.
+bearer token. For **watsonx Orchestrate**, **IBM Bob**, or other remote HTTP
+clients, register the endpoint and supply the token as an
+`Authorization: Bearer <token>` header via the client's connection/credential
+mechanism.
 
 For a quick local test with an MCP client that supports HTTP + headers:
 

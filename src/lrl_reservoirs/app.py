@@ -52,8 +52,8 @@ def main() -> None:
          `PORT`) → run HTTP on that port. Cloud hosts set this for you.
       2. `MCP_TRANSPORT=streamable-http` in the environment → run HTTP on
          `MCP_HOST`:`MCP_PORT` (see config.py / .env).
-      3. Otherwise → stdio, which is how local clients (Claude Desktop, Claude
-         Code, Zed) launch the server as a subprocess.
+      3. Otherwise → stdio, which is how local clients (IBM Bob, Claude Desktop,
+         Zed) launch the server as a subprocess.
     """
     platform_port = os.getenv("DATABRICKS_APP_PORT") or os.getenv("PORT")
 

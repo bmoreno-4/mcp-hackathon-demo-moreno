@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     )
 
     # ── Transport ─────────────────────────────────────────────────────────────
-    # "stdio"           — local subprocess (Claude Desktop / Claude Code / Zed)
+    # "stdio"           — local subprocess (IBM Bob / Claude Desktop / Zed)
     # "streamable-http" — remote HTTP server (containers, cloud deploys)
     #
     # NOTE: app.py also auto-selects HTTP when a platform injects DATABRICKS_APP_PORT

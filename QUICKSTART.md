@@ -31,7 +31,7 @@ server is launched *by* the client as a subprocess. Press `Ctrl-C` to stop it.
 
 ## 4. Connect a client
 
-### Claude Code / IBM Bob
+### IBM Bob
 
 Create or edit `.mcp.json` in the repo root (or your user MCP settings) with
 the **absolute path** to this repo:

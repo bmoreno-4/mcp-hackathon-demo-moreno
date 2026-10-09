@@ -1,7 +1,7 @@
 # Deploying Your MCP Server
 
-Local development runs your server over **stdio** (how Claude Desktop / Claude
-Code launch it). To share it with an agent platform, deploy it to a host that
+Local development runs your server over **stdio** (how IBM Bob / Claude Desktop
+launch it). To share it with an agent platform, deploy it to a host that
 serves it over **streamable-HTTP**, then register it.
 
 This template ships deployment kits for two targets:

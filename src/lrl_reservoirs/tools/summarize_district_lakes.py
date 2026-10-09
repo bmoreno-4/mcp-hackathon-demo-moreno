@@ -29,8 +29,8 @@ Interpretation guidance for AI assistants
 - Report conditions factually (counts, elevation, deviation, pool_status).
   Do not make operational judgments or flood risk assessments such as "no
   concern" or "normal conditions".
-- For official water control information, direct users to the LRL Water Control
-  website: https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/
+- For official lake conditions, direct users to the LRL Daily Lake Report:
+  https://www.lrl-wc.usace.army.mil/reports/lkreport.html
 """
 
 from __future__ import annotations
@@ -83,11 +83,26 @@ async def summarize_district_lakes() -> dict[str, Any]:
       - data_note (str): One-line guidance reminding the caller that all status
           values use the live guide curve; summer/winter pool are reference-only;
           always cite as_of_utc; report factually without operational judgments;
-          and direct users to the LRL Water Control website for official information.
+          and direct users to the LRL Daily Lake Report for official information.
       - lakes (list[dict]): One entry per lake, each identical in shape to the
           dict returned by get_lake_conditions (including a per-lake data_note).
           Sorted by basin then public_name.
           Lakes with fetch errors include an "error" key; all other fields are null.
+
+    Interpretation guidance for AI assistants:
+      - All status values (above_guide, below_guide, etc.) are relative to the live
+        guide curve (Bottom of Flood Control) for the current date — NOT the static
+        summer_pool or winter_pool reference values.
+      - Do not characterise lakes as "below summer pool" or "below conservation pool"
+        as shortfalls; deviations from those static targets are expected and normal
+        during seasonal fill and drawdown periods.
+      - Always include the observation timestamp (as_of per lake, as_of_utc for the
+        snapshot) when reporting conditions to users.
+      - Report conditions factually (counts, elevation, deviation, pool_status).
+        Do not make operational judgments or flood risk assessments such as "no
+        concern" or "normal conditions".
+      - For official lake conditions, direct users to the LRL Daily Lake Report:
+        https://www.lrl-wc.usace.army.mil/reports/lkreport.html
     """
     import datetime
 
@@ -123,7 +138,7 @@ async def summarize_district_lakes() -> dict[str, Any]:
             "All status counts use today's live guide curve (Bottom of Flood Control); "
             "summer/winter pool are reference-only; always cite as_of_utc; "
             "report factually without operational judgments; "
-            "direct users to https://www.lrl.usace.army.mil/Missions/Water-Resources/Water-Control/ for official information."
+            "direct users to https://www.lrl-wc.usace.army.mil/reports/lkreport.html (LRL Daily Lake Report) for official information."
         ),
         "lakes": results,
     }
