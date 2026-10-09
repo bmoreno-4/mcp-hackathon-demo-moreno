@@ -1,0 +1,41 @@
+https://www.lrl-wc.usace.army.mil/reports/lkreport.html
+Louisville District Daily Lake Report
+8 October 2026
+Lake Elevations and Flood Storages Basin 	Project 	Winter
+Pool
+Feet 	Summer
+Pool
+Feet 	Flood
+Pool
+Feet 	Todays
+Pool
+Feet 	Dev.
+from
+Pool
+Feet 	24 Hour
+Change
+Feet 	24 Hour
+Precip
+Inches 	24 Hour
+Avg
+Inflow 	6 A.M.
+Outflow
+CFS 	Inches R.O. To Flood Pool 	Percent
+Util 	Inches R.O. To Guide Curve
+Little Miami 	CaesarCreek 	846.0 	849.0 	883.0 	847.8 	0.0 	0.0 	0.0 	76 	159 	11.35 	0.05 	0.00
+	WHHarsha 	729.0 	733.0 	795.0 	731.3 	0.0 	0.0 	0.0 	0 	31 	10.83 	-0.05 	0.01
+Mill Creek 	WestFork 	675.0 	675.0 	702.0 	675.1 	0.1 	0.0 	0.0 	1 	1 	6.20 	0.24 	0.00
+Mad River 	CJBrown 	1009.0 	1012.0 	1023.0 	1011.2 	0.1 	0.0 	0.0 	8 	19 	6.49 	0.79 	0.00
+Whitewater 	Brookville 	740.0 	748.0 	775.0 	748.2 	0.2 	0.0 	0.0 	131 	104 	8.65 	0.48 	0.00
+Licking 	CaveRun 	724.0 	730.0 	765.0 	729.6 	1.4 	0.0 	0.0 	0 	54 	8.97 	2.62 	0.00
+Kentucky 	CarrCreek 	1017.0 	1028.0 	1055.0 	1027.6 	2.9 	0.0 	0.0 	1 	5 	7.69 	7.20 	0.00
+	Buckhorn 	757.0 	782.0 	840.0 	782.0 	1.6 	0.0 	0.0 	40 	96 	5.87 	0.94 	0.00
+Salt River 	Taylorsville 	545.0 	547.0 	592.0 	546.5 	-0.5 	0.0 	0.0 	0 	50 	10.97 	-0.68 	0.07
+Green River 	Green 	668.0 	675.0 	713.0 	674.2 	-0.5 	0.0 	0.0 	0 	77 	13.32 	-0.85 	0.11
+	Nolin 	492.0 	515.0 	560.0 	514.5 	1.1 	0.0 	0.0 	0 	73 	11.79 	1.33 	0.00
+	Barren 	528.0 	552.0 	590.0 	551.1 	0.6 	0.0 	0.0 	24 	251 	11.52 	0.95 	0.00
+	Rough 	470.0 	490.0 	524.0 	489.9 	-0.1 	0.0 	0.0 	4 	48 	9.87 	-0.18 	0.02
+Mid. Wabash 	CMHarden 	640.0 	662.0 	690.0 	662.0 	0.0 	0.0 	0.0 	1 	22 	7.08 	-0.10 	0.01
+	CaglesMill 	636.0 	639.5 	704.0 	639.4 	0.3 	0.0 	0.0 	36 	104 	12.70 	0.18 	0.00
+	Monroe 	538.0 	538.0 	556.0 	537.9 	0.0 	0.0 	0.0 	0 	56 	11.04 	-0.37 	0.04
+	Patoka 	532.0 	536.0 	548.0 	538.7 	3.0 	0.0 	0.0 	0 	296 	10.67 	21.77 	0.00
