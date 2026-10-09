@@ -293,7 +293,10 @@ async def get_lake_conditions(
           "Percent Util" column in the USACE LRL Daily Lake Report.
           Formula: (storage - storage_at_guide)
               / (storage_at_flood - storage_at_guide) * 100.
-          Negative when pool is below guide curve.
+          Negative when pool is below guide curve. This is the share of the
+          lake's flood storage currently in use: any lake above its guide curve
+          is "using flood storage"; pool_status at_or_above_flood means the
+          flood pool is full.
       - reference_levels (dict): Static pool schedule —
           winter_pool_ft, summer_pool_ft, flood_pool_ft.
           These are reference values only; do not use them to assess whether

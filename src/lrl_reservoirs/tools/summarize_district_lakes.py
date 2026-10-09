@@ -81,6 +81,7 @@ PoolStatusFilter = Enum(  # type: ignore[misc]
 )
 PoolStatusFilter.__doc__ = (
     "Pool status bucket for filtering summarize_district_lakes results. "
+    "above_guide = using some flood storage; at_or_above_flood = flood pool full. "
     "Matches the aggregate count keys: above_guide | at_guide | below_guide | "
     "at_or_above_flood | no_data."
 )
@@ -111,8 +112,12 @@ async def summarize_district_lakes(
     ] = None,
     status: Annotated[
         PoolStatusFilter | None,  # type: ignore[valid-type]
-        "Optional: restrict results to lakes with a specific pool status bucket "
-        "(above_guide | at_guide | below_guide | at_or_above_flood | no_data).",
+        "Optional: restrict results to one pool status bucket: above_guide "
+        "(pool is above the guide curve, i.e. USING some flood storage) | at_guide "
+        "| below_guide | at_or_above_flood (pool at or above the TOP of the flood "
+        "pool, i.e. flood storage FULL; rare) | no_data. To find which lake is "
+        "using the most flood storage, do NOT filter by status; use "
+        "flood_storage_ranking (sorted by percent_util).",
     ] = None,
 ) -> dict[str, Any]:
     """Return current pool conditions for all 17 USACE Louisville District lakes.
@@ -148,6 +153,10 @@ async def summarize_district_lakes(
           matching"; report their status as unknown.
       - filter_note (str | null): plain-language warning when unevaluated_lakes
           is non-empty.
+      - flood_storage_ranking (list): lakes in the requested basin (status filter
+          not applied) sorted by percent_util, highest first: lake_id,
+          public_name, percent_util, deviation_from_guide_curve_ft, as_of.
+          Use this for "which lake is using the most flood storage?".
 
     Interpretation guidance for AI assistants:
       - All status values (above_guide, below_guide, etc.) are relative to the live
@@ -161,6 +170,9 @@ async def summarize_district_lakes(
       - Report conditions factually (counts, elevation, deviation, pool_status).
         Do not make operational judgments or flood risk assessments such as "no
         concern" or "normal conditions".
+      - Terminology: a lake "using flood storage" is any lake above its guide
+        curve; how much is percent_util (share of flood storage in use).
+        at_or_above_flood means the flood pool is FULL, not "using flood storage".
       - For official lake conditions, direct users to the LRL Daily Lake Report:
         https://www.lrl-wc.usace.army.mil/reports/lkreport.html
     """
@@ -220,6 +232,19 @@ async def summarize_district_lakes(
                 if _status_bucket(r.get("pool_status", "no_data")) == "no_data"
             ]
 
+    ranked = [r for r in in_scope if r.get("percent_util") is not None]
+    ranked.sort(key=lambda r: r["percent_util"], reverse=True)
+    flood_storage_ranking = [
+        {
+            "lake_id": r.get("lake_id"),
+            "public_name": r.get("public_name"),
+            "percent_util": r.get("percent_util"),
+            "deviation_from_guide_curve_ft": r.get("deviation_from_guide_curve_ft"),
+            "as_of": r.get("as_of"),
+        }
+        for r in ranked
+    ]
+
     filter_note = None
     if unevaluated:
         names = ", ".join(str(u["public_name"]) for u in unevaluated)
@@ -245,6 +270,7 @@ async def summarize_district_lakes(
         "matched_lakes": len(filtered),
         "unevaluated_lakes": unevaluated,
         "filter_note": filter_note,
+        "flood_storage_ranking": flood_storage_ranking,
         "lakes": filtered,
     }
 

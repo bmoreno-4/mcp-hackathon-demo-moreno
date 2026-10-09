@@ -179,7 +179,7 @@ def _mock_by_lake(statuses: dict[str, str], errors: dict[str, str] | None = None
     async def _fake(lake):
         lid = lake.value
         if lid in errors:
-            return _make_lake_result(lid, error=errors[lid])
+            return _make_lake_result(lid, error=errors[lid], percent_util=None)
         return _make_lake_result(lid, pool_status=statuses.get(lid, "below_guide"))
 
     return AsyncMock(side_effect=_fake)
@@ -260,3 +260,63 @@ async def test_basin_parameter_description_names_values_and_lakes():
     schema_text = str(tool.parameters)
     assert "'Kentucky' (Buckhorn Lake, Carr Creek Lake)" in schema_text
     assert "Kentucky River basin" in schema_text
+
+
+# ── Flood storage ranking (regression: "most flood storage" answered "none") ──
+
+
+@pytest.mark.asyncio
+async def test_flood_storage_ranking_puts_patoka_first():
+    """LRL report 2026-10-09: Patoka 21.23%, Carr Creek 7.50%, Cave Run 2.71%."""
+    utils = {"Patoka": 21.23, "CarrCreek": 7.50, "CaveRun": 2.71, "Green": -0.90}
+
+    async def _fake(lake):
+        lid = lake.value
+        return _make_lake_result(
+            lid,
+            pool_status="above_guide" if utils.get(lid, -0.1) > 0 else "below_guide",
+            percent_util=utils.get(lid, -0.1),
+        )
+
+    mock = AsyncMock(side_effect=_fake)
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes()
+
+    ranking = result["flood_storage_ranking"]
+    assert [r["lake_id"] for r in ranking[:3]] == ["Patoka", "CarrCreek", "CaveRun"]
+    assert ranking[0]["percent_util"] == 21.23
+    assert len(ranking) == 17
+    assert result["counts"]["at_or_above_flood"] == 0
+
+
+@pytest.mark.asyncio
+async def test_flood_storage_ranking_skips_lakes_without_percent_util():
+    mock = _mock_by_lake({}, errors={"Patoka": "boom"})
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes()
+
+    ids = [r["lake_id"] for r in result["flood_storage_ranking"]]
+    assert "Patoka" not in ids
+
+
+@pytest.mark.asyncio
+async def test_ranking_respects_basin_but_not_status_filter():
+    mock = _mock_by_lake({"Barren": "above_guide"})
+    with patch.object(sdl_mod, "get_lake_conditions", new=mock):
+        result = await sdl_mod.summarize_district_lakes(
+            basin=sdl_mod.BasinName("Green River"),
+            status=sdl_mod.PoolStatusFilter("above_guide"),
+        )
+
+    assert len(result["flood_storage_ranking"]) == 4
+    assert [r["lake_id"] for r in result["lakes"]] == ["Barren"]
+
+
+@pytest.mark.asyncio
+async def test_status_description_explains_flood_storage_terms():
+    mcp = FastMCP("test")
+    sdl_mod.register(mcp)
+    tool = {t.name: t for t in await mcp.list_tools()}["summarize_district_lakes"]
+    text = str(tool.parameters) + str(tool.description)
+    assert "flood_storage_ranking" in text
+    assert "TOP of the flood" in text
