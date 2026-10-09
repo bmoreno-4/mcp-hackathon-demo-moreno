@@ -45,8 +45,8 @@ REPORTS_DIR = pathlib.Path(__file__).parent / "reports"
 
 # Allowed difference between computed and reported values.
 # Storage TS may lag the report time by up to one hour.
-TOLERANCE_PCT_UTIL = 0.15   # percent-util points
-TOLERANCE_ELEV_FT = 0.10    # feet (guide curve elevation; report rounds dev to 1 dp)
+TOLERANCE_PCT_UTIL = 0.15  # percent-util points
+TOLERANCE_ELEV_FT = 0.10  # feet (guide curve elevation; report rounds dev to 1 dp)
 
 # Lake order matches the LRL Daily Lake Report
 LAKES = [
@@ -286,8 +286,10 @@ def main() -> int:
     print(f"Storage window: {win_begin} → {win_end} UTC\n")
 
     # ── Percent Util table ────────────────────────────────────────────────────
-    print(f"{'Lake':<14} {'Rpt%':>7} {'Calc%':>7} {'ΔPct':>6} {'PctOK':>6}  "
-          f"{'RptGC':>8} {'CalcGC':>8} {'ΔElev':>6} {'ElevOK':>6}  Notes")
+    print(
+        f"{'Lake':<14} {'Rpt%':>7} {'Calc%':>7} {'ΔPct':>6} {'PctOK':>6}  "
+        f"{'RptGC':>8} {'CalcGC':>8} {'ΔElev':>6} {'ElevOK':>6}  Notes"
+    )
     print("-" * 100)
 
     failures: list[str] = []
@@ -301,8 +303,10 @@ def main() -> int:
 
         row = report_data.get(lake)
         if row is None:
-            print(f"{lake:<14}  {'N/A':>7} {'N/A':>7} {'N/A':>6} {'?':>6}  "
-                  f"{'N/A':>8} {'N/A':>8} {'N/A':>6} {'?':>6}  no report value")
+            print(
+                f"{lake:<14}  {'N/A':>7} {'N/A':>7} {'N/A':>6} {'?':>6}  "
+                f"{'N/A':>8} {'N/A':>8} {'N/A':>6} {'?':>6}  no report value"
+            )
             continue
 
         rpt_pct = row.get("percent_util")

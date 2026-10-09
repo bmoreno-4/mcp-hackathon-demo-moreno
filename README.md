@@ -80,14 +80,19 @@ lrl-reservoirs/
 ├── tests/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
-│   ├── test_percent_util_lrl_report.py   # Deterministic validation vs. report
+│   ├── test_percent_util_lrl_report.py   # Deterministic validation vs. saved CWMS responses
+│   ├── test_fetch_lake_report.py         # HTML parser tests against saved report fixture
 │   ├── test_http_security.py
 │   ├── test_server.py
 │   └── fixtures/
 │       ├── lrl_oct8_2026/                # Saved CWMS responses for offline tests
-│       └── lrl_lake_report_2026-10-08.txt  # Reference report for validation
+│       └── lrl_lake_report_2026-10-08.txt  # Reference report (hand-transcribed)
 ├── eval/
-│   └── lrl_percent_util_validation.py    # Live CWMS validation script
+│   ├── fetch_lake_report.py              # Download + parse the Daily Lake Report
+│   ├── lrl_percent_util_validation.py    # Validate percent_util + guide curve vs. report
+│   └── reports/                          # Dated report snapshots (CSV + raw HTML)
+│       ├── lrl_lake_report_2026-10-08.csv  # Hand-transcribed from .txt fixture
+│       └── lrl_lake_report_YYYY-MM-DD.csv  # Fetched by fetch_lake_report.py
 └── deploy/
     ├── README.md
     ├── ibm/                   # watsonx Orchestrate kits
@@ -195,14 +200,52 @@ and eval script use 10:00 UTC as the reference time.
 
 ## Validation against the LRL Daily Lake Report
 
-The 17-lake Percent Util values computed by this server were validated against the
-LRL Daily Lake Report for **2026-10-08** using storage data fetched at the report's
-publication time (10:00 UTC). Largest deviation was **−0.08** (Barren and
-CarrCreek), which is within 0.08% of the reported value. 15 of 17 lakes matched
-at the reported 2-decimal-place precision.
+The USACE publishes the
+[LRL Daily Lake Report](https://www.lrl-wc.usace.army.mil/reports/lkreport.html)
+each morning at **06:00 US/Eastern** (10:00 UTC in October). Two scripts in
+`eval/` let you download the report and compare it against live CWMS data:
 
-Guide curve elevations for all 17 lakes were validated against the report's
-"Pool" column for the same date. All 17 lakes matched within **0.07 ft**.
+| Script | Purpose |
+|---|---|
+| `eval/fetch_lake_report.py` | Download today's report → `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` + raw HTML. Never overwrites an existing date's files. |
+| `eval/lrl_percent_util_validation.py` | Read a dated CSV and validate **Percent Util** (±0.15 pp) and **guide curve elevation** (±0.10 ft) for all 17 lakes against live CWMS data. |
+
+### Daily routine
+
+Run these after 06:00 US/Eastern (the report publishes around that time):
+
+```bash
+uv run python eval/fetch_lake_report.py
+uv run python eval/lrl_percent_util_validation.py --date $(date +%F)
+```
+
+`fetch_lake_report.py` is safe to re-run — it skips the download if today's
+files already exist. Both commands exit `0` on success and `1` on any failure.
+
+### The `eval/reports/` folder
+
+Each downloaded report is saved as two immutable files:
+
+```
+eval/reports/
+├── lrl_lake_report_2026-10-08.csv   # hand-transcribed from test fixture
+├── lrl_lake_report_2026-10-09.csv   # fetched by fetch_lake_report.py
+├── lrl_lake_report_2026-10-09.html  # raw HTML provenance copy
+└── …
+```
+
+CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
+dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
+
+The guide curve reference used in the elevation check is derived as
+`todays_pool − dev_from_pool` (the report rounds `dev_from_pool` to one decimal
+place, which accounts for the ±0.10 ft tolerance).
+
+### Validation results (2026-10-08)
+
+Largest Percent Util deviation: **−0.08** (Barren and CarrCreek); 15 of 17 lakes
+matched at the reported 2-decimal-place precision. All 17 guide curve elevations
+matched within **0.10 ft**.
 
 | Lake | Report % | Calc % | Δ |
 |---|---:|---:|---:|
@@ -224,17 +267,11 @@ Guide curve elevations for all 17 lakes were validated against the report's
 | Monroe | −0.37 | −0.37 | 0.00 |
 | Patoka | 21.77 | 21.77 | 0.00 |
 
-The deterministic test in `tests/test_percent_util_lrl_report.py` replays the
-saved CWMS responses from `tests/fixtures/lrl_oct8_2026/` and asserts all 17
-lakes are within ±0.15 of the report value.
+### Deterministic offline test
 
-To re-run with live data:
-
-```bash
-uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
-```
-
-To refresh the test fixtures:
+`tests/test_percent_util_lrl_report.py` replays saved CWMS responses from
+`tests/fixtures/lrl_oct8_2026/` and asserts all 17 lakes are within ±0.15 of
+the report value. To refresh the fixture with live data:
 
 ```bash
 uv run python eval/lrl_percent_util_validation.py --date 2026-10-08 --save-fixtures

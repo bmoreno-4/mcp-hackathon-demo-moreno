@@ -76,9 +76,23 @@ def test_taylorsville_values(parsed_rows: list[dict[str, str]]) -> None:
 
 def test_all_expected_lakes_present(parsed_rows: list[dict[str, str]]) -> None:
     expected = {
-        "CaesarCreek", "WHHarsha", "WestFork", "CJBrown", "Brookville",
-        "CaveRun", "CarrCreek", "Buckhorn", "Taylorsville", "Green",
-        "Nolin", "Barren", "Rough", "CMHarden", "CaglesMill", "Monroe", "Patoka",
+        "CaesarCreek",
+        "WHHarsha",
+        "WestFork",
+        "CJBrown",
+        "Brookville",
+        "CaveRun",
+        "CarrCreek",
+        "Buckhorn",
+        "Taylorsville",
+        "Green",
+        "Nolin",
+        "Barren",
+        "Rough",
+        "CMHarden",
+        "CaglesMill",
+        "Monroe",
+        "Patoka",
     }
     found = {r["lake"] for r in parsed_rows}
     assert found == expected

@@ -63,16 +63,34 @@ Once connected, try asking:
 
 > "Give me a district summary — how many lakes are above guide?"
 
-## 5. Verify everything
+## 5. Validate against the Daily Lake Report
+
+The USACE publishes the
+[LRL Daily Lake Report](https://www.lrl-wc.usace.army.mil/reports/lkreport.html)
+each morning at **06:00 US/Eastern**. After it appears, download it and
+compare it against live CWMS data:
+
+```bash
+uv run python eval/fetch_lake_report.py
+uv run python eval/lrl_percent_util_validation.py --date $(date +%F)
+```
+
+The first command saves `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` (plus
+the raw HTML for provenance) and is safe to re-run — it skips the download if
+today's file already exists. The second command validates **Percent Util**
+and the **guide curve elevation** for all 17 lakes against live CWMS data and
+exits `0` if all pass.
+
+## 6. Verify everything
 
 ```bash
 uv sync --group dev
-uv run pytest tests/ -v      # 85 tests pass
+uv run pytest tests/ -v      # 105 tests pass
 uv run ruff check .          # lint clean
 uv run ruff format --check . # format clean
 ```
 
-## 6. Test HTTP mode (optional)
+## 7. Test HTTP mode (optional)
 
 Cloud hosts run the server over HTTP. Try it locally:
 
