@@ -19,10 +19,9 @@
 # src/ on PYTHONPATH and launch it as a module; app.py sees DATABRICKS_APP_PORT
 # and automatically serves streamable-HTTP on that port with /mcp and /health.
 #
-# If you renamed the `example_server` package, update the module path below.
 command:
   [
     "/bin/sh",
     "-c",
-    "export PYTHONPATH=/app/python/source_code/src:$PYTHONPATH && python -m example_server.app",
+    "export PYTHONPATH=/app/python/source_code/src:$PYTHONPATH && python -m lrl_reservoirs.app",
   ]

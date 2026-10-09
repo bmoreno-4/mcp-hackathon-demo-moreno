@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     # `settings.<field>` in your tool. Document the matching env var in
     # `.env.example`. Example:
     #
-    #   example_api_key: str = ""   # ← set EXAMPLE_API_KEY in the environment
+    #   some_api_key: str = ""   # ← set SOME_API_KEY in the environment
 
 
 settings = Settings()

@@ -7,9 +7,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastmcp import FastMCP
 
-from example_server.tools import summarize_district_lakes as sdl_mod
-from example_server.tools.lake_conditions import _LAKES
-
+from lrl_reservoirs.tools import summarize_district_lakes as sdl_mod
+from lrl_reservoirs.tools.lake_conditions import _LAKES
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

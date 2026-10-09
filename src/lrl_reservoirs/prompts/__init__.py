@@ -11,12 +11,10 @@ To add a prompt:
 
 from __future__ import annotations
 
-from example_server.prompts import example
-
 
 def register_prompts(mcp) -> None:
     """Register all prompts with the MCP server."""
-    example.register(mcp)
+    # No prompts registered yet — add imports and calls here.
 
 
 __all__ = ["register_prompts"]

@@ -28,4 +28,4 @@ RUN uv pip install --system --no-cache .
 EXPOSE 8080
 
 # PORT=8080 (set above) makes app.py run HTTP on that port automatically.
-CMD ["python", "-m", "example_server.app"]
+CMD ["python", "-m", "lrl_reservoirs.app"]

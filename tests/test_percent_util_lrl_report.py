@@ -27,8 +27,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from example_server.tools import lake_conditions as lc_mod
-from example_server.tools.lake_conditions import LakeName
+from lrl_reservoirs.tools import lake_conditions as lc_mod
+from lrl_reservoirs.tools.lake_conditions import LakeName
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

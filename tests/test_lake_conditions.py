@@ -20,16 +20,16 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastmcp import FastMCP
 
-from example_server.tools import lake_conditions as lc_mod
-from example_server.tools.lake_conditions import (
-    AT_GUIDE_TOLERANCE_FT,
+from lrl_reservoirs.tools import lake_conditions as lc_mod
+from lrl_reservoirs.tools.lake_conditions import (
     _LAKES,
+    AT_GUIDE_TOLERANCE_FT,
     LakeName,
     _pool_status,
     _pool_status_vs_guide,
     interpolate_guide_curve,
 )
-from example_server.utils import UpstreamServiceError
+from lrl_reservoirs.utils import UpstreamServiceError
 
 # ── _pool_status unit tests (static fallback) ─────────────────────────────────
 
@@ -388,8 +388,8 @@ async def test_cwms_get_sends_versioned_accept_header():
     """
     import httpx
 
-    import example_server.tools.lake_conditions as lc_mod2
-    from example_server.tools.lake_conditions import CWMS_ACCEPT
+    import lrl_reservoirs.tools.lake_conditions as lc_mod2
+    from lrl_reservoirs.tools.lake_conditions import CWMS_ACCEPT
 
     captured_headers: dict[str, str] = {}
 
@@ -432,7 +432,7 @@ async def test_cwms_get_does_not_follow_redirects():
     """
     import httpx
 
-    import example_server.tools.lake_conditions as lc_mod2
+    import lrl_reservoirs.tools.lake_conditions as lc_mod2
 
     captured_kwargs: dict = {}
 
@@ -465,8 +465,8 @@ async def test_cwms_get_501_error_message_indicates_request_format():
     not a generic 'service offline' message."""
     import httpx
 
-    import example_server.tools.lake_conditions as lc_mod2
-    from example_server.utils import UpstreamServiceError
+    import lrl_reservoirs.tools.lake_conditions as lc_mod2
+    from lrl_reservoirs.utils import UpstreamServiceError
 
     async def mock_send(request: httpx.Request, **_kwargs):
         return httpx.Response(
@@ -526,7 +526,7 @@ def _parse_lrl_report() -> list[tuple[str, float, float]]:
     """
     report_path = (
         pathlib.Path(__file__).parent.parent
-        / "src" / "example_server" / "data" / "lrl_lake_report_2026-10-08.txt"
+        / "src" / "lrl_reservoirs" / "data" / "lrl_lake_report_2026-10-08.txt"
     )
     # Mapping from the report's project names to our lake_id keys
     NAME_MAP = {
@@ -577,7 +577,6 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
     This test uses real seasonal data fetched from CWMS and cached as mocks
     so the test is deterministic and offline-capable.
     """
-    import asyncio, httpx, json
 
     Q = datetime.datetime(2026, 10, 8, 6, 0, 0, tzinfo=datetime.timezone.utc)
 
@@ -735,7 +734,7 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
 
 @pytest.mark.asyncio
 async def test_lake_conditions_tool_is_discoverable():
-    from example_server.app import mcp
+    from lrl_reservoirs.app import mcp
 
     tools = await mcp.list_tools()
     tool_names = {t.name for t in tools}

@@ -21,19 +21,19 @@ import os
 
 from fastmcp import FastMCP
 
-from example_server.config import settings
-from example_server.prompts import register_prompts
-from example_server.resources import register_resources
-from example_server.routes import register_routes
-from example_server.tools import register_tools
+from lrl_reservoirs.config import settings
+from lrl_reservoirs.prompts import register_prompts
+from lrl_reservoirs.resources import register_resources
+from lrl_reservoirs.routes import register_routes
+from lrl_reservoirs.tools import register_tools
 
-# The server name is what MCP clients display. Rename it to your service.
 mcp = FastMCP(
-    name="Example MCP Server",
+    name="LRL Reservoir Conditions",
     instructions=(
-        "Starter MCP server for the GSA MCP hackathon. "
-        "Replace this description, the tools, and the package name with your "
-        "own service. See the repo README to get started."
+        "Provides current pool conditions for all 17 USACE Louisville District "
+        "(LRL) reservoirs. Use get_lake_conditions for a single lake or "
+        "summarize_district_lakes for a district-wide snapshot. Data comes from "
+        "the CWMS Data API and matches the LRL Daily Lake Report."
     ),
 )
 

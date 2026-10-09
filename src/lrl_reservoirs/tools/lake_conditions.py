@@ -53,7 +53,7 @@ from typing import Annotated, Any
 import httpx
 from fastmcp import FastMCP
 
-from example_server.utils import UpstreamServiceError
+from lrl_reservoirs.utils import UpstreamServiceError
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -73,7 +73,7 @@ AT_GUIDE_TOLERANCE_FT = 0.05
 def _load_lake_table() -> dict[str, dict[str, Any]]:
     """Load the LRL lakes CSV shipped with the package into a keyed dict."""
     table: dict[str, dict[str, Any]] = {}
-    pkg = importlib.resources.files("example_server").joinpath("data/lrl_lakes.csv")
+    pkg = importlib.resources.files("lrl_reservoirs").joinpath("data/lrl_lakes.csv")
     with importlib.resources.as_file(pkg) as path:
         with open(path, newline="") as fh:
             for row in csv.DictReader(fh):

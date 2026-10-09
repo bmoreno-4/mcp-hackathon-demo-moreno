@@ -24,9 +24,9 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from example_server.tools.lake_conditions import (
-    LakeName,
+from lrl_reservoirs.tools.lake_conditions import (
     _LAKES,
+    LakeName,
     get_lake_conditions,
 )
 
