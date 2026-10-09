@@ -33,6 +33,7 @@ from lrl_reservoirs.utils import UpstreamServiceError
 
 # ── _pool_status unit tests (static fallback) ─────────────────────────────────
 
+
 class TestPoolStatus:
     def test_below_normal(self):
         assert _pool_status(520.0, 552.0, 525.0, 590.0) == "below_normal"
@@ -76,6 +77,7 @@ class TestPoolStatus:
 
 # ── _pool_status_vs_guide unit tests ─────────────────────────────────────────
 
+
 class TestPoolStatusVsGuide:
     """Pool status relative to the seasonal guide curve."""
 
@@ -87,7 +89,9 @@ class TestPoolStatusVsGuide:
 
     def test_at_guide_lower_boundary(self):
         assert (
-            _pool_status_vs_guide(self.GUIDE - AT_GUIDE_TOLERANCE_FT, self.GUIDE, self.FLOOD)
+            _pool_status_vs_guide(
+                self.GUIDE - AT_GUIDE_TOLERANCE_FT, self.GUIDE, self.FLOOD
+            )
             == "at_guide"
         )
 
@@ -96,7 +100,9 @@ class TestPoolStatusVsGuide:
 
     def test_at_guide_upper_boundary(self):
         assert (
-            _pool_status_vs_guide(self.GUIDE + AT_GUIDE_TOLERANCE_FT, self.GUIDE, self.FLOOD)
+            _pool_status_vs_guide(
+                self.GUIDE + AT_GUIDE_TOLERANCE_FT, self.GUIDE, self.FLOOD
+            )
             == "at_guide"
         )
 
@@ -104,8 +110,13 @@ class TestPoolStatusVsGuide:
         assert _pool_status_vs_guide(550.0, self.GUIDE, self.FLOOD) == "above_guide"
 
     def test_at_or_above_flood(self):
-        assert _pool_status_vs_guide(self.FLOOD, self.GUIDE, self.FLOOD) == "at_or_above_flood"
-        assert _pool_status_vs_guide(600.0, self.GUIDE, self.FLOOD) == "at_or_above_flood"
+        assert (
+            _pool_status_vs_guide(self.FLOOD, self.GUIDE, self.FLOOD)
+            == "at_or_above_flood"
+        )
+        assert (
+            _pool_status_vs_guide(600.0, self.GUIDE, self.FLOOD) == "at_or_above_flood"
+        )
 
     def test_unknown_when_flood_pool_missing(self):
         assert _pool_status_vs_guide(550.0, self.GUIDE, None) == "unknown"
@@ -113,18 +124,19 @@ class TestPoolStatusVsGuide:
 
 # ── interpolate_guide_curve unit tests ────────────────────────────────────────
 
+
 class TestInterpolateGuideCurve:
-    """Verify interpolation logic using Taylorsville (well-understood seasonal curve)."""
+    """Verify interpolation using Taylorsville (well-understood seasonal curve)."""
 
     ORIGIN = "2018-01-01T05:00:00Z"
     INTERVAL = 12
     # seasonal: Jan=545, Mar+14d=545, Apr=547, Nov+14d=547, Dec=545
     SV = [
-        {"offset-months": 0,  "offset-minutes": 0,     "value": 545.0},
-        {"offset-months": 2,  "offset-minutes": 20160,  "value": 545.0},
-        {"offset-months": 3,  "offset-minutes": 0,      "value": 547.0},
-        {"offset-months": 10, "offset-minutes": 20160,  "value": 547.0},
-        {"offset-months": 11, "offset-minutes": 0,      "value": 545.0},
+        {"offset-months": 0, "offset-minutes": 0, "value": 545.0},
+        {"offset-months": 2, "offset-minutes": 20160, "value": 545.0},
+        {"offset-months": 3, "offset-minutes": 0, "value": 547.0},
+        {"offset-months": 10, "offset-minutes": 20160, "value": 547.0},
+        {"offset-months": 11, "offset-minutes": 0, "value": 545.0},
     ]
 
     def _q(self, month: int, day: int) -> datetime.datetime:
@@ -132,17 +144,23 @@ class TestInterpolateGuideCurve:
 
     def test_flat_summer_segment(self):
         """Between Apr and Nov+14d both at 547.0 — should be exactly 547."""
-        result = interpolate_guide_curve(self.SV, self.ORIGIN, self.INTERVAL, self._q(7, 15))
+        result = interpolate_guide_curve(
+            self.SV, self.ORIGIN, self.INTERVAL, self._q(7, 15)
+        )
         assert result == 547.0
 
     def test_flat_winter_segment(self):
         """Between Jan 1 and Mar+14d both at 545.0 — should be exactly 545."""
-        result = interpolate_guide_curve(self.SV, self.ORIGIN, self.INTERVAL, self._q(2, 1))
+        result = interpolate_guide_curve(
+            self.SV, self.ORIGIN, self.INTERVAL, self._q(2, 1)
+        )
         assert result == 545.0
 
     def test_october_8_is_547(self):
         """Oct 8 is between Apr (547) and Nov+14d (547) — still 547."""
-        result = interpolate_guide_curve(self.SV, self.ORIGIN, self.INTERVAL, self._q(10, 8))
+        result = interpolate_guide_curve(
+            self.SV, self.ORIGIN, self.INTERVAL, self._q(10, 8)
+        )
         assert result == 547.0
 
     def test_transition_interpolates(self):
@@ -164,6 +182,7 @@ class TestInterpolateGuideCurve:
 
 
 # ── Lake table sanity checks ──────────────────────────────────────────────────
+
 
 class TestLakeTable:
     def test_all_17_lakes_loaded(self):
@@ -207,6 +226,7 @@ class TestLakeTable:
 
 # ── Helpers for mocked integration tests ─────────────────────────────────────
 
+
 def _fake_ts(elev_ft: float, ts_ms: int = 1791435600000) -> dict:
     """Minimal CWMS timeseries JSON response for Barren at *elev_ft*."""
     return {
@@ -242,20 +262,31 @@ def _fake_stor_level(value_af: float) -> dict:
 
 # ── Mocked integration tests ──────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_get_lake_conditions_normal_pool():
     """Normal-pool observation → status relative to guide curve, correct fields."""
     fake_ts = _fake_ts(elev_ft=540.0)
     fake_guide = _fake_guide(guide_ft=550.0)
 
-    # gc_stor=80000, flood_stor=873000 → percent_util = (350000-80000)/(873000-80000)*100
+    # gc_stor=80000, flood_stor=873000
+    # percent_util = (350000-80000)/(873000-80000)*100
     fake_stor_val = _fake_stor(storage_af=350000.0)
     fake_gc_stor = _fake_stor_level(80000.0)
     fake_flood_stor = _fake_stor_level(873000.0)
 
     with patch.object(
-        lc_mod, "_cwms_get",
-        new=AsyncMock(side_effect=[fake_ts, fake_guide, fake_stor_val, fake_gc_stor, fake_flood_stor]),
+        lc_mod,
+        "_cwms_get",
+        new=AsyncMock(
+            side_effect=[
+                fake_ts,
+                fake_guide,
+                fake_stor_val,
+                fake_gc_stor,
+                fake_flood_stor,
+            ]
+        ),
     ):
         mcp = FastMCP("test")
         lc_mod.register(mcp)
@@ -282,7 +313,9 @@ async def test_get_lake_conditions_normal_pool():
     assert result["storage_acre_ft"] == 350000.0
     assert result["storage_at_guide_curve_acre_ft"] == 80000.0
     assert result["storage_at_flood_pool_acre_ft"] == 873000.0
-    assert result["percent_util"] == round((350000.0 - 80000.0) / (873000.0 - 80000.0) * 100, 1)
+    assert result["percent_util"] == round(
+        (350000.0 - 80000.0) / (873000.0 - 80000.0) * 100, 1
+    )
     assert "error" not in result
 
 
@@ -293,8 +326,17 @@ async def test_get_lake_conditions_above_guide():
     fake_guide = _fake_guide(guide_ft=552.0)
 
     with patch.object(
-        lc_mod, "_cwms_get",
-        new=AsyncMock(side_effect=[fake_ts, fake_guide, _fake_stor(400000.0), _fake_stor_level(232000.0), _fake_stor_level(873000.0)]),
+        lc_mod,
+        "_cwms_get",
+        new=AsyncMock(
+            side_effect=[
+                fake_ts,
+                fake_guide,
+                _fake_stor(400000.0),
+                _fake_stor_level(232000.0),
+                _fake_stor_level(873000.0),
+            ]
+        ),
     ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Barren"),  # type: ignore[call-arg]
@@ -304,7 +346,9 @@ async def test_get_lake_conditions_above_guide():
     assert result["deviation_from_guide_curve_ft"] == 8.0
     # percent: (560-552)/(590-552)*100 = 8/38*100 ≈ 21.1
     assert result["percent_to_flood_pool"] == round(8 / 38 * 100, 1)
-    assert result["percent_util"] == round((400000.0 - 232000.0) / (873000.0 - 232000.0) * 100, 1)
+    assert result["percent_util"] == round(
+        (400000.0 - 232000.0) / (873000.0 - 232000.0) * 100, 1
+    )
 
 
 @pytest.mark.asyncio
@@ -315,8 +359,17 @@ async def test_get_lake_conditions_at_guide():
     fake_guide = _fake_guide(guide_ft=guide)
 
     with patch.object(
-        lc_mod, "_cwms_get",
-        new=AsyncMock(side_effect=[fake_ts, fake_guide, _fake_stor(200000.0), _fake_stor_level(86450.0), _fake_stor_level(291670.0)]),
+        lc_mod,
+        "_cwms_get",
+        new=AsyncMock(
+            side_effect=[
+                fake_ts,
+                fake_guide,
+                _fake_stor(200000.0),
+                _fake_stor_level(86450.0),
+                _fake_stor_level(291670.0),
+            ]
+        ),
     ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Taylorsville"),  # type: ignore[call-arg]
@@ -333,8 +386,17 @@ async def test_get_lake_conditions_guide_fetch_fails_falls_back():
     guide_err = UpstreamServiceError("CWMS API returned status 404.")
 
     with patch.object(
-        lc_mod, "_cwms_get",
-        new=AsyncMock(side_effect=[fake_ts, guide_err, _fake_stor(300000.0), _fake_stor_level(232000.0), _fake_stor_level(873000.0)]),
+        lc_mod,
+        "_cwms_get",
+        new=AsyncMock(
+            side_effect=[
+                fake_ts,
+                guide_err,
+                _fake_stor(300000.0),
+                _fake_stor_level(232000.0),
+                _fake_stor_level(873000.0),
+            ]
+        ),
     ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Barren"),  # type: ignore[call-arg]
@@ -347,7 +409,9 @@ async def test_get_lake_conditions_guide_fetch_fails_falls_back():
     assert result["percent_to_flood_pool"] is None
     assert result["storage_acre_ft"] == 300000.0
     # percent_util still computable even without guide curve elevation
-    assert result["percent_util"] == round((300000.0 - 232000.0) / (873000.0 - 232000.0) * 100, 1)
+    assert result["percent_util"] == round(
+        (300000.0 - 232000.0) / (873000.0 - 232000.0) * 100, 1
+    )
 
 
 @pytest.mark.asyncio
@@ -441,9 +505,11 @@ async def test_cwms_get_does_not_follow_redirects():
     def patched_client(**kw):
         captured_kwargs.update(kw)
         kw.pop("trust_env", None)
+
         # Use a mock transport so no real network call is made.
         async def mock_send(request, **_):
             return httpx.Response(200, content=b'{"values":[]}', request=request)
+
         kw["transport"] = httpx.MockTransport(mock_send)
         return real_client_cls(**kw)
 
@@ -501,8 +567,17 @@ async def test_get_lake_conditions_patoka_with_conservation_level():
     fake_guide = _fake_guide(guide_ft=535.7)
 
     with patch.object(
-        lc_mod, "_cwms_get",
-        new=AsyncMock(side_effect=[fake_ts, fake_guide, _fake_stor(50000.0), _fake_stor_level(176141.0), _fake_stor_level(298380.0)]),
+        lc_mod,
+        "_cwms_get",
+        new=AsyncMock(
+            side_effect=[
+                fake_ts,
+                fake_guide,
+                _fake_stor(50000.0),
+                _fake_stor_level(176141.0),
+                _fake_stor_level(298380.0),
+            ]
+        ),
     ):
         result = await lc_mod.get_lake_conditions(
             lake=LakeName("Patoka"),  # type: ignore[call-arg]
@@ -518,6 +593,7 @@ async def test_get_lake_conditions_patoka_with_conservation_level():
 
 # ── LRL Daily Lake Report 2026-10-08 validation ───────────────────────────────
 
+
 def _parse_lrl_report() -> list[tuple[str, float, float]]:
     """Parse the LRL Daily Lake Report text file.
 
@@ -526,33 +602,41 @@ def _parse_lrl_report() -> list[tuple[str, float, float]]:
     """
     report_path = (
         pathlib.Path(__file__).parent.parent
-        / "src" / "lrl_reservoirs" / "data" / "lrl_lake_report_2026-10-08.txt"
+        / "src"
+        / "lrl_reservoirs"
+        / "data"
+        / "lrl_lake_report_2026-10-08.txt"
     )
     # Mapping from the report's project names to our lake_id keys
     NAME_MAP = {
         "CaesarCreek": "CaesarCreek",
-        "WHHarsha":    "WHHarsha",
-        "WestFork":    "WestFork",
-        "CJBrown":     "CJBrown",
-        "Brookville":  "Brookville",
-        "CaveRun":     "CaveRun",
-        "CarrCreek":   "CarrCreek",
-        "Buckhorn":    "Buckhorn",
-        "Taylorsville":"Taylorsville",
-        "Green":       "Green",
-        "Nolin":       "Nolin",
-        "Barren":      "Barren",
-        "Rough":       "Rough",
-        "CMHarden":    "CMHarden",
-        "CaglesMill":  "CaglesMill",
-        "Monroe":      "Monroe",
-        "Patoka":      "Patoka",
+        "WHHarsha": "WHHarsha",
+        "WestFork": "WestFork",
+        "CJBrown": "CJBrown",
+        "Brookville": "Brookville",
+        "CaveRun": "CaveRun",
+        "CarrCreek": "CarrCreek",
+        "Buckhorn": "Buckhorn",
+        "Taylorsville": "Taylorsville",
+        "Green": "Green",
+        "Nolin": "Nolin",
+        "Barren": "Barren",
+        "Rough": "Rough",
+        "CMHarden": "CMHarden",
+        "CaglesMill": "CaglesMill",
+        "Monroe": "Monroe",
+        "Patoka": "Patoka",
     }
     rows = []
     text = report_path.read_text()
     for line in text.splitlines():
         for lake_id in NAME_MAP:
-            if f"\t{lake_id}\t" in line or f"\t{lake_id} \t" in line or line.strip().startswith(lake_id + "\t") or f" {lake_id} " in line:
+            if (
+                f"\t{lake_id}\t" in line
+                or f"\t{lake_id} \t" in line
+                or line.strip().startswith(lake_id + "\t")
+                or f" {lake_id} " in line
+            ):
                 parts = line.split()
                 # Find lake_id in parts
                 try:
@@ -583,23 +667,23 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
     # Seasonal data fetched from CWMS (2026-10-08) for all 17 lakes.
     # Keys are lake_id; value is the full levels response dict.
     GUIDE_RESPONSES: dict[str, dict] = {
-        "CaesarCreek":  {"constant-value": 847.78},   # interpolated from seasonal
-        "WHHarsha":     {"constant-value": 731.37},
-        "WestFork":     {"constant-value": 675.0},
-        "CJBrown":      {"constant-value": 1011.1},
-        "Brookville":   {"constant-value": 748.0},
-        "CaveRun":      {"constant-value": 728.2},
-        "CarrCreek":    {"constant-value": 1024.71},
+        "CaesarCreek": {"constant-value": 847.78},  # interpolated from seasonal
+        "WHHarsha": {"constant-value": 731.37},
+        "WestFork": {"constant-value": 675.0},
+        "CJBrown": {"constant-value": 1011.1},
+        "Brookville": {"constant-value": 748.0},
+        "CaveRun": {"constant-value": 728.2},
+        "CarrCreek": {"constant-value": 1024.71},
         "Buckhorn": {
             "interval-origin": "2018-01-01T05:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 757.0},
-                {"offset-months": 3,  "offset-minutes": 0,     "value": 757.0},
-                {"offset-months": 4,  "offset-minutes": 0,     "value": 782.0},
-                {"offset-months": 8,  "offset-minutes": 20160, "value": 782.0},
-                {"offset-months": 9,  "offset-minutes": 20160, "value": 780.0},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 757.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 757.0},
+                {"offset-months": 3, "offset-minutes": 0, "value": 757.0},
+                {"offset-months": 4, "offset-minutes": 0, "value": 782.0},
+                {"offset-months": 8, "offset-minutes": 20160, "value": 782.0},
+                {"offset-months": 9, "offset-minutes": 20160, "value": 780.0},
+                {"offset-months": 11, "offset-minutes": 0, "value": 757.0},
                 {"offset-months": 11, "offset-minutes": 43200, "value": 757.0},
             ],
         },
@@ -607,48 +691,48 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
             "interval-origin": "2018-01-01T05:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 545.0},
-                {"offset-months": 2,  "offset-minutes": 20160, "value": 545.0},
-                {"offset-months": 3,  "offset-minutes": 0,     "value": 547.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 545.0},
+                {"offset-months": 2, "offset-minutes": 20160, "value": 545.0},
+                {"offset-months": 3, "offset-minutes": 0, "value": 547.0},
                 {"offset-months": 10, "offset-minutes": 20160, "value": 547.0},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 545.0},
+                {"offset-months": 11, "offset-minutes": 0, "value": 545.0},
             ],
         },
         "Green": {
             "interval-origin": "2018-01-01T05:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 668.0},
-                {"offset-months": 2,  "offset-minutes": 20160, "value": 668.0},
-                {"offset-months": 3,  "offset-minutes": 20160, "value": 673.0},
-                {"offset-months": 4,  "offset-minutes": 20160, "value": 675.0},
-                {"offset-months": 8,  "offset-minutes": 20160, "value": 675.0},
-                {"offset-months": 10, "offset-minutes": 0,     "value": 674.5},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 668.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 668.0},
+                {"offset-months": 2, "offset-minutes": 20160, "value": 668.0},
+                {"offset-months": 3, "offset-minutes": 20160, "value": 673.0},
+                {"offset-months": 4, "offset-minutes": 20160, "value": 675.0},
+                {"offset-months": 8, "offset-minutes": 20160, "value": 675.0},
+                {"offset-months": 10, "offset-minutes": 0, "value": 674.5},
+                {"offset-months": 11, "offset-minutes": 0, "value": 668.0},
             ],
         },
         "Nolin": {
             "interval-origin": "2018-01-01T05:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 492.0},
-                {"offset-months": 2,  "offset-minutes": 20160, "value": 492.0},
-                {"offset-months": 3,  "offset-minutes": 20160, "value": 515.0},
-                {"offset-months": 8,  "offset-minutes": 20160, "value": 515.0},
-                {"offset-months": 9,  "offset-minutes": 20160, "value": 513.0},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 492.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 492.0},
+                {"offset-months": 2, "offset-minutes": 20160, "value": 492.0},
+                {"offset-months": 3, "offset-minutes": 20160, "value": 515.0},
+                {"offset-months": 8, "offset-minutes": 20160, "value": 515.0},
+                {"offset-months": 9, "offset-minutes": 20160, "value": 513.0},
+                {"offset-months": 11, "offset-minutes": 0, "value": 492.0},
             ],
         },
         "Barren": {
             "interval-origin": "2018-01-01T05:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 528.0},
-                {"offset-months": 2,  "offset-minutes": 20160, "value": 528.0},
-                {"offset-months": 3,  "offset-minutes": 20160, "value": 552.0},
-                {"offset-months": 8,  "offset-minutes": 20160, "value": 552.0},
-                {"offset-months": 9,  "offset-minutes": 20160, "value": 550.0},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 528.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 528.0},
+                {"offset-months": 2, "offset-minutes": 20160, "value": 528.0},
+                {"offset-months": 3, "offset-minutes": 20160, "value": 552.0},
+                {"offset-months": 8, "offset-minutes": 20160, "value": 552.0},
+                {"offset-months": 9, "offset-minutes": 20160, "value": 550.0},
+                {"offset-months": 11, "offset-minutes": 0, "value": 528.0},
                 {"offset-months": 11, "offset-minutes": 43200, "value": 528.0},
             ],
         },
@@ -656,27 +740,27 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
             "interval-origin": "2023-01-01T00:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 470.0},
-                {"offset-months": 3,  "offset-minutes": 0,     "value": 470.0},
-                {"offset-months": 4,  "offset-minutes": 0,     "value": 490.0},
-                {"offset-months": 9,  "offset-minutes": 20160, "value": 490.0},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 470.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 470.0},
+                {"offset-months": 3, "offset-minutes": 0, "value": 470.0},
+                {"offset-months": 4, "offset-minutes": 0, "value": 490.0},
+                {"offset-months": 9, "offset-minutes": 20160, "value": 490.0},
+                {"offset-months": 11, "offset-minutes": 0, "value": 470.0},
                 {"offset-months": 11, "offset-minutes": 44639, "value": 470.0},
             ],
         },
-        "CMHarden":   {"constant-value": 662.0},
+        "CMHarden": {"constant-value": 662.0},
         "CaglesMill": {"constant-value": 639.1},
-        "Monroe":     {"constant-value": 538.0},
+        "Monroe": {"constant-value": 538.0},
         "Patoka": {
             "interval-origin": "2018-01-01T05:00:00Z",
             "interval-months": 12,
             "seasonal-values": [
-                {"offset-months": 0,  "offset-minutes": 0,     "value": 533.0},
-                {"offset-months": 0,  "offset-minutes": 20160, "value": 532.0},
-                {"offset-months": 3,  "offset-minutes": 20160, "value": 532.0},
-                {"offset-months": 5,  "offset-minutes": 0,     "value": 536.0},
-                {"offset-months": 8,  "offset-minutes": 20160, "value": 536.0},
-                {"offset-months": 11, "offset-minutes": 0,     "value": 535.0},
+                {"offset-months": 0, "offset-minutes": 0, "value": 533.0},
+                {"offset-months": 0, "offset-minutes": 20160, "value": 532.0},
+                {"offset-months": 3, "offset-minutes": 20160, "value": 532.0},
+                {"offset-months": 5, "offset-minutes": 0, "value": 536.0},
+                {"offset-months": 8, "offset-minutes": 20160, "value": 536.0},
+                {"offset-months": 11, "offset-minutes": 0, "value": 535.0},
                 {"offset-months": 11, "offset-minutes": 43200, "value": 533.0},
             ],
         },
@@ -684,23 +768,23 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
 
     # Report ground truth: (lake_id, today_pool, dev_from_pool)
     REPORT = [
-        ("CaesarCreek",  847.8,   0.0),
-        ("WHHarsha",     731.3,   0.0),
-        ("WestFork",     675.1,   0.1),
-        ("CJBrown",     1011.2,   0.1),
-        ("Brookville",   748.2,   0.2),
-        ("CaveRun",      729.6,   1.4),
-        ("CarrCreek",   1027.6,   2.9),
-        ("Buckhorn",     782.0,   1.6),
-        ("Taylorsville", 546.5,  -0.5),
-        ("Green",        674.2,  -0.5),
-        ("Nolin",        514.5,   1.1),
-        ("Barren",       551.1,   0.6),
-        ("Rough",        489.9,  -0.1),
-        ("CMHarden",     662.0,   0.0),
-        ("CaglesMill",   639.4,   0.3),
-        ("Monroe",       537.9,   0.0),
-        ("Patoka",       538.7,   3.0),
+        ("CaesarCreek", 847.8, 0.0),
+        ("WHHarsha", 731.3, 0.0),
+        ("WestFork", 675.1, 0.1),
+        ("CJBrown", 1011.2, 0.1),
+        ("Brookville", 748.2, 0.2),
+        ("CaveRun", 729.6, 1.4),
+        ("CarrCreek", 1027.6, 2.9),
+        ("Buckhorn", 782.0, 1.6),
+        ("Taylorsville", 546.5, -0.5),
+        ("Green", 674.2, -0.5),
+        ("Nolin", 514.5, 1.1),
+        ("Barren", 551.1, 0.6),
+        ("Rough", 489.9, -0.1),
+        ("CMHarden", 662.0, 0.0),
+        ("CaglesMill", 639.4, 0.3),
+        ("Monroe", 537.9, 0.0),
+        ("Patoka", 538.7, 3.0),
     ]
 
     failures = []
@@ -721,7 +805,8 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
         diff = abs(computed - expected_guide)
         if diff > 0.2:
             failures.append(
-                f"{lake_id}: expected {expected_guide:.2f}, got {computed:.2f}, diff={diff:+.3f}"
+                f"{lake_id}: expected {expected_guide:.2f},"
+                f" got {computed:.2f}, diff={diff:+.3f}"
             )
 
     assert not failures, (
@@ -731,6 +816,7 @@ async def test_guide_curve_matches_lrl_report_within_tolerance():
 
 
 # ── Server-level registration smoke test ─────────────────────────────────────
+
 
 @pytest.mark.asyncio
 async def test_lake_conditions_tool_is_discoverable():

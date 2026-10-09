@@ -101,6 +101,7 @@ async def summarize_district_lakes() -> dict[str, Any]:
 
 # ── Tool registration ─────────────────────────────────────────────────────────
 
+
 def register(mcp: FastMCP) -> None:
     """Register the summarize_district_lakes tool with the MCP server."""
     mcp.tool(

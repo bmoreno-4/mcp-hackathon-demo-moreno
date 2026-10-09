@@ -36,7 +36,8 @@ pools (which bound the normal operating range):
   - unknown:           flood_pool_ft missing
 
 Percent Util (storage-based) matches the USACE LRL Daily Lake Report column.
-Formula: (current_storage - storage_at_guide) / (storage_at_flood - storage_at_guide) * 100
+Formula: (current_storage - storage_at_guide)
+         / (storage_at_flood - storage_at_guide) * 100
   - Negative when pool is below guide curve.
   - Both bounds are fetched live from CWMS storage location levels.
 """
@@ -69,6 +70,7 @@ AT_GUIDE_TOLERANCE_FT = 0.05
 
 
 # ── Lookup table ──────────────────────────────────────────────────────────────
+
 
 def _load_lake_table() -> dict[str, dict[str, Any]]:
     """Load the LRL lakes CSV shipped with the package into a keyed dict."""
@@ -121,6 +123,7 @@ LakeName.__doc__ = (
 
 # ── Guide-curve interpolation (stdlib only — no dateutil) ─────────────────────
 
+
 def _add_months(dt: datetime.datetime, months: int) -> datetime.datetime:
     """Add a whole number of months to a datetime, clamping the day."""
     m = dt.month - 1 + months
@@ -163,9 +166,7 @@ def interpolate_guide_curve(
     Returns:
         Interpolated elevation in feet, rounded to 2 decimal places.
     """
-    origin = datetime.datetime.fromisoformat(
-        interval_origin_str.replace("Z", "+00:00")
-    )
+    origin = datetime.datetime.fromisoformat(interval_origin_str.replace("Z", "+00:00"))
     # Build anchors for three consecutive cycles to ensure the query is bracketed.
     year_diff = query.year - origin.year
     start_cycle = max(0, year_diff - 1)
@@ -196,6 +197,7 @@ def interpolate_guide_curve(
 
 
 # ── Pool-status helpers ───────────────────────────────────────────────────────
+
 
 def _pool_status_vs_guide(
     elev: float,
@@ -288,9 +290,7 @@ async def _cwms_get(path: str, params: dict[str, str]) -> Any:
                 f"CWMS API returned status {status}: request format not accepted "
                 f"(check Accept header and query parameters)."
             ) from None
-        raise UpstreamServiceError(
-            f"CWMS API returned status {status}."
-        ) from None
+        raise UpstreamServiceError(f"CWMS API returned status {status}.") from None
     except (
         httpx.DecodingError,
         __import__("json").JSONDecodeError,
@@ -332,9 +332,7 @@ async def _fetch_guide_curve(lake_id: str, at: datetime.datetime) -> float | Non
     return interpolate_guide_curve(sv, origin, int(months), at)
 
 
-async def _fetch_storage(
-    stor_ts_id: str, begin: str, end: str
-) -> float | None:
+async def _fetch_storage(stor_ts_id: str, begin: str, end: str) -> float | None:
     """Fetch the most recent storage observation (acre-feet) from *stor_ts_id*.
 
     Uses the lrldlb-comp (computed) timeseries — the lrldlb-rev series is
@@ -403,6 +401,7 @@ async def _fetch_storage_level(
 
 # ── Tool implementation ───────────────────────────────────────────────────────
 
+
 async def get_lake_conditions(
     lake: Annotated[
         LakeName,  # type: ignore[valid-type]
@@ -445,7 +444,8 @@ async def get_lake_conditions(
           the top of flood pool (Top of Flood storage level).
       - percent_util (float | null): Storage-based utilisation matching the
           "Percent Util" column in the USACE LRL Daily Lake Report.
-          Formula: (storage - storage_at_guide) / (storage_at_flood - storage_at_guide) * 100.
+          Formula: (storage - storage_at_guide)
+              / (storage_at_flood - storage_at_guide) * 100.
           Negative when pool is below guide curve.
       - reference_levels (dict): Static pool schedule —
           winter_pool_ft, summer_pool_ft, flood_pool_ft
@@ -598,6 +598,7 @@ async def get_lake_conditions(
 
 
 # ── Tool registration ─────────────────────────────────────────────────────────
+
 
 def register(mcp: FastMCP) -> None:
     """Register the get_lake_conditions tool with the MCP server."""

@@ -1,6 +1,6 @@
-# Quickstart — Your First MCP Server in 5 Minutes
+# Quickstart — LRL Reservoir Conditions MCP Server
 
-New to MCP? This gets you from clone to a running server connected to a client.
+Get from clone to a running server connected to a client in about 5 minutes.
 
 ## 1. Install prerequisites
 
@@ -17,6 +17,8 @@ cp .env.example .env
 uv sync
 ```
 
+No API keys needed — the CWMS Data API is public.
+
 ## 3. Run the server
 
 ```bash
@@ -29,18 +31,18 @@ server is launched *by* the client as a subprocess. Press `Ctrl-C` to stop it.
 
 ## 4. Connect a client
 
-### Claude Code
+### Claude Code / IBM Bob
 
-Create or edit `.mcp.json` (or your user MCP settings) with the **absolute path**
-to this repo:
+Create or edit `.mcp.json` in the repo root (or your user MCP settings) with
+the **absolute path** to this repo:
 
 ```json
 {
   "mcpServers": {
-    "example-mcp": {
+    "lrl-reservoirs": {
       "command": "uv",
-      "args": ["run", "example-server"],
-      "cwd": "/absolute/path/to/mcp-hackathon-template"
+      "args": ["run", "lrl-reservoirs"],
+      "cwd": "/absolute/path/to/lrl-reservoirs"
     }
   }
 }
@@ -53,19 +55,21 @@ Add the same block to
 `%APPDATA%\Claude\claude_desktop_config.json` (Windows), then restart Claude
 Desktop.
 
-Once connected, ask the client to call the example tool, e.g.:
+Once connected, try asking:
 
-> "Use the example_search_datasets tool to search for 'transportation'."
+> "How is Barren River Lake doing compared to its guide curve?"
 
-You'll get placeholder results — proof the wiring works. Now replace the example
-with your own tool.
+> "Which LRL lakes are currently below their guide curve?"
+
+> "Give me a district summary — how many lakes are above guide?"
 
 ## 5. Verify everything
 
 ```bash
 uv sync --group dev
-uv run pytest tests/ -v      # tests pass
+uv run pytest tests/ -v      # 85 tests pass
 uv run ruff check .          # lint clean
+uv run ruff format --check . # format clean
 ```
 
 ## 6. Test HTTP mode (optional)
@@ -80,13 +84,31 @@ curl http://localhost:8000/health      # {"status":"healthy",...}
 
 ---
 
+## What the tools return
+
+### `get_lake_conditions`
+
+Pass a CWMS location ID (e.g. `Barren`, `Taylorsville`, `Patoka`). Returns:
+
+- Pool elevation, vertical datum, and observation timestamp
+- Today's seasonal guide curve elevation and deviation from it
+- Pool status (`below_guide`, `at_guide`, `above_guide`, `at_or_above_flood`)
+- Current storage (acre-ft) and storage-based Percent Util
+- Static reference levels (winter/summer/flood pool)
+
+### `summarize_district_lakes`
+
+No parameters. Queries all 17 lakes in parallel and returns:
+
+- Per-lake conditions (same shape as `get_lake_conditions`)
+- Aggregate counts: how many lakes are above/at/below guide or at flood stage
+- Sorted by basin then lake name for easy scanning
+
+---
+
 ## Next steps
 
-- **Add a real tool** — follow "The one-tool-per-file pattern" in the
-  [README](README.md#the-one-tool-per-file-pattern).
-- **Rename the package** from `example_server` to your service — see the
-  [README](README.md#rename-the-package).
 - **Deploy it** — pick a kit in [deploy/README.md](deploy/README.md)
   (IBM watsonx Orchestrate or Databricks).
-- **Evaluate it** — build an eval harness with the `mcp-eval` skill; see
-  [eval/README.md](eval/README.md).
+- **Read the full docs** — [README.md](README.md) has data source details,
+  validation results, and security notes.

@@ -1,23 +1,57 @@
-# GSA MCP Hackathon — Server Template
+# LRL Reservoir Conditions — MCP Server
 
-A ready-to-run starter for building a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server in Python, plus deployment kits for **IBM Cloud (watsonx Orchestrate)** and **Databricks**.
+An [MCP](https://modelcontextprotocol.io) server that gives AI clients live pool
+conditions for all 17 **USACE Louisville District (LRL)** flood-risk management
+reservoirs, using real-time data from the Corps of Engineers CWMS Data API.
 
-Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.astral.sh/uv/). If you have never built an MCP server before, start with **[QUICKSTART.md](QUICKSTART.md)**.
+Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.astral.sh/uv/).
 
 ---
 
-## What is an MCP server?
+## What it does
 
-An MCP server exposes **tools** (functions the model can call), **prompts** (reusable conversation starters), and **resources** (data the model can read) to an AI client such as Claude Desktop, Claude Code, or an agent platform like watsonx Orchestrate. You write the tools; the client's model decides when to call them.
+The LRL district operates 17 reservoirs across Kentucky, Ohio, and Indiana for
+flood risk management. Each day the district publishes a **Daily Lake Report**
+showing pool elevation, deviation from the seasonal guide curve, storage
+utilisation (Percent Util), and inflow/outflow for every lake.
 
-This template gives you a working server with one example of each, so you can replace the examples with your own service and deploy.
+This server exposes two MCP tools that pull the same data from the live CWMS
+API:
+
+| Tool | Description |
+|---|---|
+| `get_lake_conditions` | Current conditions for a single lake by CWMS location ID |
+| `summarize_district_lakes` | Conditions for all 17 lakes in parallel, with aggregate counts |
+
+### Example questions an AI client can answer
+
+- *"How is Barren River Lake doing compared to its guide curve?"*
+- *"Which lakes are currently below their guide curve?"*
+- *"Show me a district summary — how many lakes are above guide?"*
+- *"What is the Percent Util for Patoka Lake right now?"*
+- *"Compare the storage utilisation for all Green River basin lakes."*
+
+### Fields returned per lake
+
+| Field | Description |
+|---|---|
+| `elevation_ft` | Current pool elevation in feet (NGVD-29) |
+| `guide_curve_ft` | Today's seasonal Bottom of Flood Control elevation |
+| `deviation_from_guide_curve_ft` | Elevation minus guide curve; negative = below guide |
+| `pool_status` | `below_guide` / `at_guide` / `above_guide` / `at_or_above_flood` / `no_data` |
+| `percent_to_flood_pool` | Elevation-based position through flood-control buffer (0 % = at guide, 100 % = flood pool) |
+| `storage_acre_ft` | Current pool storage (acre-feet) |
+| `storage_at_guide_curve_acre_ft` | Storage in acre-feet at today's guide curve elevation |
+| `storage_at_flood_pool_acre_ft` | Storage in acre-feet at top of flood pool |
+| `percent_util` | Storage-based utilisation — matches the USACE Daily Lake Report **Percent Util** column |
+| `reference_levels` | Static pool schedule: winter/summer/flood pool elevations |
 
 ---
 
 ## Repo structure
 
 ```
-mcp-hackathon-template/
+lrl-reservoirs/
 ├── README.md                  # This file
 ├── QUICKSTART.md              # 5-minute clone → run → connect walkthrough
 ├── main.py                    # Local entry point (uv run python main.py)
@@ -27,37 +61,43 @@ mcp-hackathon-template/
 ├── manifest.yaml              # cloud.gov (Cloud Foundry) deploy
 ├── server.json                # MCP registry metadata
 ├── .env.example               # Copy to .env for local dev
-├── .github/workflows/ci.yml   # Lint + test on push/PR
 ├── src/
-│   └── example_server/        # ← rename to your service
-│       ├── app.py             # Thin entry point: builds FastMCP, picks transport
-│       ├── config.py          # Settings from env vars / .env
+│   └── lrl_reservoirs/
+│       ├── app.py             # FastMCP instance; picks stdio vs HTTP transport
+│       ├── config.py          # Settings loaded from env / .env
 │       ├── models.py          # Pydantic models & enums for tool params
-│       ├── utils.py           # Shared helpers (HTTP client, pagination)
-│       ├── routes.py          # HTTP-only routes (/health, /version)
-│       ├── tools/             # ONE FILE PER TOOL
-│       │   ├── __init__.py    #   register_tools(mcp) aggregator
-│       │   └── example_tool.py
-│       ├── prompts/
-│       │   ├── __init__.py    #   register_prompts(mcp) aggregator
-│       │   └── example.py
-│       └── resources/
-│           ├── __init__.py    #   register_resources(mcp) aggregator
-│           └── example.py
-├── tests/                     # Import + registration smoke tests
-├── eval/                      # Stub → build a Phoenix eval harness (see mcp-eval skill)
+│       ├── utils.py           # HTTP client, security helpers, pagination
+│       ├── routes.py          # /health and /version endpoints
+│       ├── tools/
+│       │   ├── lake_conditions.py          # get_lake_conditions tool
+│       │   └── summarize_district_lakes.py # summarize_district_lakes tool
+│       └── data/
+│           ├── lrl_lakes.csv               # Lake metadata + CWMS timeseries IDs
+│           └── lrl_lake_report_2026-10-08.txt  # Reference report for validation
+├── tests/
+│   ├── test_lake_conditions.py
+│   ├── test_summarize_district_lakes.py
+│   ├── test_percent_util_lrl_report.py   # Deterministic validation vs. report
+│   ├── test_http_security.py
+│   ├── test_server.py
+│   └── fixtures/lrl_oct8_2026/           # Saved CWMS responses for offline tests
+├── eval/
+│   └── lrl_percent_util_validation.py    # Live CWMS validation script
 └── deploy/
-    ├── README.md              # Which deployment kit to use
-    ├── ibm/                   # watsonx Orchestrate: 3 kits (see below)
+    ├── README.md
+    ├── ibm/                   # watsonx Orchestrate kits
     └── databricks/            # Databricks Apps kit
 ```
 
 ---
 
-## Getting started
+## Setup
 
 ### Prerequisites
+
 - [uv](https://docs.astral.sh/uv/) — `pip install uv` or `brew install uv`
+
+No API keys required. The CWMS Data API is public.
 
 ### Install and run
 
@@ -67,130 +107,188 @@ uv sync
 uv run python main.py
 ```
 
-The server starts in **stdio** mode — it talks JSON-RPC over stdin/stdout, which is how local clients (Claude Desktop, Claude Code) launch it. See [QUICKSTART.md](QUICKSTART.md) to connect a client.
+The server starts in **stdio** mode — it speaks JSON-RPC over stdin/stdout, which
+is how local clients (Claude Desktop, Claude Code, Bob) launch it as a subprocess.
+
+### Connect a client
+
+**Claude Code / Bob** — create or edit `.mcp.json` in the repo root:
+
+```json
+{
+  "mcpServers": {
+    "lrl-reservoirs": {
+      "command": "uv",
+      "args": ["run", "lrl-reservoirs"],
+      "cwd": "/absolute/path/to/this/repo"
+    }
+  }
+}
+```
+
+**Claude Desktop** — add the same block to
+`~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or
+`%APPDATA%\Claude\claude_desktop_config.json` (Windows), then restart.
 
 ### Verify
 
 ```bash
 uv sync --group dev
-uv run pytest tests/ -v      # tests
+uv run pytest tests/ -v      # 85 tests
 uv run ruff check .          # lint
+uv run ruff format --check . # format check
 ```
 
 ---
 
-## The one-tool-per-file pattern
+## Data sources
 
-Each tool lives in its own file under `src/example_server/tools/` and exposes a `register(mcp)` function. `tools/__init__.py` calls each one from a single `register_tools(mcp)`. This keeps the tool list scannable and lets you add or remove an integration by touching two files.
+All data comes from the public
+[CWMS Data API](https://cwms-data.usace.army.mil/cwms-data/) operated by USACE.
+The server requires `Accept: application/json;version=2` on every request (without
+it the API returns `501 Not Implemented`).
 
-**Step 1 — create `src/example_server/tools/my_tool.py`:**
+### Elevation and guide curve
 
-```python
-from typing import Annotated
-from urllib.parse import quote
-from fastmcp import FastMCP
+| Series / Level | Role |
+|---|---|
+| `<lake>.Elev.Inst.0.0.lrldlb-rev` | Current pool elevation; updates every 15–60 min |
+| `<lake>.Elev.Inst.0.Bottom of Flood Control` | Seasonal guide curve elevation (interpolated) |
 
-from example_server.utils import fetch_json
+The guide curve is a CWMS _location level_ with seasonal anchor points. The server
+interpolates it at the observation timestamp using the same linear-interpolation
+algorithm as the CWMS engine.
 
+### Storage and Percent Util
 
-def register(mcp: FastMCP) -> None:
-    @mcp.tool(
-        name="example_get_thing",
-        annotations={
-            "title": "Get a thing",
-            "readOnlyHint": True,
-            "destructiveHint": False,
-            "idempotentHint": True,
-            "openWorldHint": True,
-        },
-    )
-    async def get_thing(thing_id: Annotated[str, "The ID to fetch."]) -> dict:
-        """One-line summary. Document the data source, its update cadence,
-        and the return shape here — the model reads this docstring."""
-        safe_id = quote(thing_id, safe="")
-        return await fetch_json(f"things/{safe_id}")
-```
-
-**Step 2 — wire it up in `tools/__init__.py`:**
-
-```python
-from example_server.tools import example_tool, my_tool
-
-def register_tools(mcp) -> None:
-    example_tool.register(mcp)
-    my_tool.register(mcp)  # ← add this line
-```
-
-**Step 3 — add any API key** as a typed field in `config.py` and document the env var in `.env.example`.
-
-Prompts (`prompts/`) and resources (`resources/`) follow the exact same `register(mcp)` + aggregator pattern.
-
----
-
-## Rename the package
-
-Before publishing your server, rename `example_server` to your service (e.g. `census_mcp`):
-
-1. Rename the folder `src/example_server/` → `src/<your_name>/`.
-2. Update `pyproject.toml`: the `[project].name`, `[project.scripts]`, and `[tool.hatch.build.targets.wheel].packages`.
-3. Find-and-replace `example_server` across `src/`, `tests/`, `main.py`, `Dockerfile`, and `manifest.yaml`.
-
----
-
-## Tool design tips (federal data)
-
-- **Return structured data, not prose.** Return dicts/lists with consistent keys and let the model narrate.
-- **Document freshness.** Federal datasets lag; state the update frequency and "as-of" date in the docstring.
-- **Expose pagination.** Use `PaginationParams` / `paginate()` from `utils.py`, and return `has_more` / `next_offset`.
-- **Use explicit timeouts.** `utils.fetch_json` defaults to 30s.
-- **Actionable errors.** Return an error dict with a `hint`, not a raw stack trace.
-- **Constrain outbound requests.** Keep API origins in operator-controlled code or configuration, pass only validated relative paths to `fetch_json`, and encode path segments. Never pass a tool-supplied URL directly to an HTTP client.
-- **Treat redirects and DNS as security boundaries.** Redirects are disabled by default. A server that must fetch caller-supplied URLs needs connection-time IP validation on every hop plus network egress controls; a one-time DNS check is not sufficient.
-- **Keep sensitive data out of errors and logs.** Do not expose or log upstream bodies, headers, full URLs, query strings, credentials, stack traces, SSNs, dates of birth, or addresses.
-
-### LRL lake data — storage-based Percent Util
-
-`get_lake_conditions` and `summarize_district_lakes` report a `percent_util` field that matches
-the **Percent Util** column in the USACE LRL Daily Lake Report.
-The formula is `(current_storage − storage_at_guide_curve) / (storage_at_flood_pool − storage_at_guide_curve) × 100`.
-
-**Report time zone:** The LRL Daily Lake Report is published at **06:00 US/Eastern (EDT, UTC−4)**,
-which is **10:00 UTC** in October. The eval script and test fixtures use 10:00 UTC as the
-reference time for Oct 8 2026. (US/Central would be 11:00 UTC; using Eastern gives materially
-smaller differences against the report — mean |Δ| 0.009 vs 0.013.)
-
-The required data sources are:
-
-| Series | Role |
+| Series / Level | Role |
 |---|---|
 | `<lake>.Stor.Inst.1Hour.0.lrldlb-comp` | Current storage (acre-ft), hourly |
 | `<lake>.Stor.Inst.0.Bottom of Flood Control` | Storage at today's guide curve — seasonal level |
 | `<lake>.Stor.Inst.0.Top of Flood` | Storage at flood pool — constant level |
 
-The `lrldlb-rev` variant of the storage timeseries exists in the CWMS catalog but returns no
-values through the public API; `lrldlb-comp` (computed) is the only variant with live data.
-Storage-to-elevation rating tables and instantaneous elevation-derived storage are not
-available through the public CWMS Data API for LRL reservoirs.
+**`lrldlb-comp` vs `lrldlb-rev`:** Both variants appear in the CWMS catalog.
+The `-rev` (revised) series is present but returns no values through the public
+API. The `-comp` (computed) series is the only variant with live data.
+
+**Percent Util formula** (matches the USACE Daily Lake Report column exactly):
+
+```
+percent_util = (current_storage − storage_at_guide_curve)
+             / (storage_at_flood_pool − storage_at_guide_curve) × 100
+```
+
+Negative values mean the pool is below the guide curve.
+Both bounds are fetched live from CWMS storage location levels rather than
+computed from elevation, because the elevation–storage relationship is non-linear.
+
+**Report time zone:** The LRL Daily Lake Report is published at **06:00 US/Eastern
+(EDT = UTC−4)**, equivalent to **10:00 UTC** in October. The validation fixtures
+and eval script use 10:00 UTC as the reference time.
+
+---
+
+## Validation against the LRL Daily Lake Report
+
+The 17-lake Percent Util values computed by this server were validated against the
+LRL Daily Lake Report for **2026-10-08** using storage data fetched at the report's
+publication time (10:00 UTC). Largest deviation was **−0.08** (Barren and
+CarrCreek). 15 of 17 lakes matched exactly at the reported 2-decimal-place
+precision.
+
+| Lake | Report % | Calc % | Δ |
+|---|---:|---:|---:|
+| CaesarCreek | 0.05 | 0.05 | 0.00 |
+| WHHarsha | −0.05 | −0.05 | 0.00 |
+| WestFork | 0.24 | 0.24 | 0.00 |
+| CJBrown | 0.79 | 0.79 | 0.00 |
+| Brookville | 0.48 | 0.48 | 0.00 |
+| CaveRun | 2.62 | 2.62 | 0.00 |
+| CarrCreek | 7.20 | 7.12 | −0.08 |
+| Buckhorn | 0.94 | 0.94 | 0.00 |
+| Taylorsville | −0.68 | −0.68 | 0.00 |
+| Green | −0.85 | −0.85 | 0.00 |
+| Nolin | 1.33 | 1.33 | 0.00 |
+| Barren | 0.95 | 0.87 | −0.08 |
+| Rough | −0.18 | −0.18 | 0.00 |
+| CMHarden | −0.10 | −0.10 | 0.00 |
+| CaglesMill | 0.18 | 0.18 | 0.00 |
+| Monroe | −0.37 | −0.37 | 0.00 |
+| Patoka | 21.77 | 21.77 | 0.00 |
+
+The deterministic test in `tests/test_percent_util_lrl_report.py` replays the
+saved CWMS responses from `tests/fixtures/lrl_oct8_2026/` and asserts all 17
+lakes are within ±0.15 of the report value.
+
+To re-run with live data:
+
+```bash
+uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
+```
+
+To refresh the test fixtures:
+
+```bash
+uv run python eval/lrl_percent_util_validation.py --date 2026-10-08 --save-fixtures
+```
+
+---
+
+## Limitations
+
+- **Storage timeseries lag:** The `lrldlb-comp` series updates hourly. Sub-hourly
+  elevation changes are not reflected in storage until the next hourly value.
+- **No storage-to-elevation ratings:** CWMS does not expose elevation→storage
+  rating tables for LRL reservoirs through the public API. Storage is read
+  directly from the computed timeseries.
+- **`percent_to_flood_pool` is elevation-based:** It is computed from the pool
+  stage (elevation), not storage. Use `percent_util` when you need a value that
+  matches the Daily Lake Report.
+- **Guide curve `no_guide` fallback:** When the Bottom of Flood Control level
+  fetch fails, the server falls back to a static pool classification
+  (`pool_status` is prefixed `no_guide/`). `percent_util` is still computed from
+  storage as long as the storage bounds are available.
+- **Public data, no auth:** The CWMS Data API is unauthenticated. Data is
+  subject to revision (the `-rev` series) but revised values are currently not
+  served through the public endpoint.
+
+---
+
+## Security notes
+
+- **Outbound requests are constrained.** All CWMS calls use a fixed base URL in
+  operator-controlled code. Tool arguments cannot influence the destination host
+  or scheme. Path segments are percent-encoded before use.
+- **Redirects are disabled.** `httpx` is configured with
+  `follow_redirects=False`. The CWMS API does not redirect; a redirect would
+  indicate something unexpected.
+- **Responses are size-limited.** Each response is capped at 1 MB to prevent
+  memory exhaustion from unexpectedly large upstream payloads.
+- **Errors are sanitised.** Upstream response bodies, full URLs, and stack
+  traces are never forwarded to the caller. Error messages expose only the HTTP
+  status code or a generic category.
+- **DNS and IP validation** is not needed here because the destination is a
+  fixed hardcoded constant, not a caller-supplied URL.
+
+See [SECURITY.md](SECURITY.md) for the vulnerability disclosure policy.
 
 ---
 
 ## Deploying
 
-Local development uses stdio. To share your server with an agent platform, deploy it and register it. See **[deploy/README.md](deploy/README.md)** for a chooser, then:
+Local development uses stdio. To deploy for an agent platform:
 
-- **IBM watsonx Orchestrate** — [deploy/ibm/](deploy/ibm/) (three kits: local stdio toolkit, Code Engine build-from-Git, and prebuilt image).
+- **IBM watsonx Orchestrate** — [deploy/ibm/](deploy/ibm/) (three kits: local
+  stdio toolkit, Code Engine build-from-Git, prebuilt image).
 - **Databricks Apps** — [deploy/databricks/](deploy/databricks/).
+- **cloud.gov** — `cf push` with the included `manifest.yaml`.
 
-Both read the same server code; `app.py` automatically serves HTTP when the platform injects a port.
-
----
-
-## Evaluations
-
-Measuring how well an LLM can use your tools is the real test of server quality. This template intentionally does **not** ship an eval harness — see [eval/README.md](eval/README.md) for how to build one with the `mcp-eval` skill.
+All kits run the same server code. `app.py` auto-selects HTTP when the platform
+injects `DATABRICKS_APP_PORT` or `PORT`.
 
 ---
 
 ## License
 
-[MIT](LICENSE). See [SECURITY.md](SECURITY.md) for the vulnerability disclosure policy and hackathon security notes.
+[MIT](LICENSE). See [SECURITY.md](SECURITY.md) for the vulnerability disclosure
+policy.

@@ -12,6 +12,7 @@ from lrl_reservoirs.tools.lake_conditions import _LAKES
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+
 def _make_lake_result(
     lake_id: str,
     pool_status: str = "above_guide",
@@ -52,13 +53,15 @@ def _make_lake_result(
 
 # ── Tests ─────────────────────────────────────────────────────────────────────
 
+
 @pytest.mark.asyncio
 async def test_summarize_returns_all_17_lakes():
     """Result contains an entry for every lake in the district."""
     fake_results = [_make_lake_result(lid) for lid in _LAKES]
 
     with patch.object(
-        sdl_mod, "get_lake_conditions",
+        sdl_mod,
+        "get_lake_conditions",
         new=AsyncMock(side_effect=fake_results),
     ):
         result = await sdl_mod.summarize_district_lakes()
@@ -79,12 +82,12 @@ async def test_summarize_counts_are_correct():
     )
     lake_ids = list(_LAKES.keys())
     fake_results = [
-        _make_lake_result(lid, pool_status=st)
-        for lid, st in zip(lake_ids, statuses)
+        _make_lake_result(lid, pool_status=st) for lid, st in zip(lake_ids, statuses)
     ]
 
     with patch.object(
-        sdl_mod, "get_lake_conditions",
+        sdl_mod,
+        "get_lake_conditions",
         new=AsyncMock(side_effect=fake_results),
     ):
         result = await sdl_mod.summarize_district_lakes()
@@ -103,7 +106,8 @@ async def test_summarize_sorted_by_basin_then_name():
     fake_results = [_make_lake_result(lid) for lid in _LAKES]
 
     with patch.object(
-        sdl_mod, "get_lake_conditions",
+        sdl_mod,
+        "get_lake_conditions",
         new=AsyncMock(side_effect=fake_results),
     ):
         result = await sdl_mod.summarize_district_lakes()
@@ -118,13 +122,15 @@ async def test_summarize_includes_error_lakes_in_no_data_count():
     """Lakes with errors are included in the list and counted as no_data."""
     lake_ids = list(_LAKES.keys())
     fake_results = [
-        _make_lake_result(lid, error="CWMS API returned status 503.") if i == 0
+        _make_lake_result(lid, error="CWMS API returned status 503.")
+        if i == 0
         else _make_lake_result(lid, pool_status="above_guide")
         for i, lid in enumerate(lake_ids)
     ]
 
     with patch.object(
-        sdl_mod, "get_lake_conditions",
+        sdl_mod,
+        "get_lake_conditions",
         new=AsyncMock(side_effect=fake_results),
     ):
         result = await sdl_mod.summarize_district_lakes()
@@ -142,7 +148,8 @@ async def test_summarize_has_as_of_utc_field():
     fake_results = [_make_lake_result(lid) for lid in _LAKES]
 
     with patch.object(
-        sdl_mod, "get_lake_conditions",
+        sdl_mod,
+        "get_lake_conditions",
         new=AsyncMock(side_effect=fake_results),
     ):
         result = await sdl_mod.summarize_district_lakes()

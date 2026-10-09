@@ -42,9 +42,7 @@ extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
-# E501: line-too-long is not enforced — docstrings, URLs, and test assertion
 # expressions are deliberately allowed to exceed 88 chars.
-ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
