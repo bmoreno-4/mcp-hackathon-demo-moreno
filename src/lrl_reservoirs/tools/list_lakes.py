@@ -15,6 +15,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 
 from lrl_reservoirs.lakes import LAKES
+from lrl_reservoirs.models import LakeDirectory, output_schema
 from lrl_reservoirs.tools.summarize_district_lakes import BasinName
 from lrl_reservoirs.utils import LAKE_REPORT_URL
 
@@ -69,6 +70,7 @@ def register(mcp: FastMCP) -> None:
     """Register the list_lakes tool with the MCP server."""
     mcp.tool(
         name="list_lakes",
+        output_schema=output_schema(LakeDirectory),
         annotations={
             "title": "List LRL Lakes (reference)",
             "readOnlyHint": True,

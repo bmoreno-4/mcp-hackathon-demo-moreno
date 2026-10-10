@@ -26,6 +26,13 @@ reference data:
 | `get_lake_trend` | One lake over the last 1-14 days: change, 24-hour change, rising/falling/steady, toward or away from the guide curve, peak and low |
 | `check_against_daily_report` | Fetches today's LRL Daily Lake Report and compares it lake by lake with live CWMS values; adds the report's 24-hour precipitation, change, inflow and outflow |
 
+Inputs are validated before any network call (fixed lake, basin and status
+lists; `days` 1-14). Every tool's output is a Pydantic model in
+[`models.py`](src/lrl_reservoirs/models.py), published to clients as the tool's
+MCP output schema, so an agent knows each field, its type and its allowed values
+before calling. `tests/test_models.py` checks every tool's real output against
+its model.
+
 It also provides one MCP prompt, `district_briefing` (optional basin), which
 runs a daily briefing: it checks this morning's report, summarizes the
 district, and pulls 3-day trends for the lakes using the most flood storage.
@@ -82,7 +89,7 @@ lrl-reservoirs/
 │       ├── guide_curve.py     # CWMS seasonal guide-curve interpolation
 │       ├── lakes.py           # Lake metadata table and LakeName enum
 │       ├── lake_report.py     # Daily Lake Report HTML parser
-│       ├── models.py          # Pydantic models & enums for tool params
+│       ├── models.py          # Pydantic output models → MCP output schemas
 │       ├── utils.py           # CWMS HTTP client, security helpers, pagination
 │       ├── routes.py          # /health and /version endpoints
 │       ├── tools/
@@ -100,6 +107,7 @@ lrl-reservoirs/
 ├── tests/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
+│   ├── test_models.py                    # every tool's output matches its model
 │   ├── test_lake_trend.py
 │   ├── test_briefing.py                  # district_briefing prompt + agent instructions
 │   ├── test_check_report.py              # Report vs. live comparison, report client boundary

@@ -24,6 +24,7 @@ from lrl_reservoirs.lake_report import (
     report_reference_time,
 )
 from lrl_reservoirs.lakes import LAKES, LakeName
+from lrl_reservoirs.models import ReportCheck, output_schema
 from lrl_reservoirs.tools.lake_conditions import get_lake_conditions
 from lrl_reservoirs.utils import (
     LAKE_REPORT_URL,
@@ -235,6 +236,7 @@ def register(mcp: FastMCP) -> None:
     """Register the check_against_daily_report tool with the MCP server."""
     mcp.tool(
         name="check_against_daily_report",
+        output_schema=output_schema(ReportCheck),
         annotations={
             "title": "Check Against LRL Daily Lake Report",
             "readOnlyHint": True,

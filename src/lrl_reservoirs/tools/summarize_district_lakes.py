@@ -42,6 +42,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 
 from lrl_reservoirs.lakes import LAKES, LakeName
+from lrl_reservoirs.models import DistrictSummary, output_schema
 from lrl_reservoirs.tools.lake_conditions import get_lake_conditions
 from lrl_reservoirs.utils import LAKE_REPORT_URL
 
@@ -295,6 +296,7 @@ def register(mcp: FastMCP) -> None:
     """Register the summarize_district_lakes tool with the MCP server."""
     mcp.tool(
         name="summarize_district_lakes",
+        output_schema=output_schema(DistrictSummary),
         annotations={
             "title": "Summarize LRL District Lakes",
             "readOnlyHint": True,

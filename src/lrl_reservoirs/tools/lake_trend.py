@@ -21,6 +21,7 @@ from fastmcp import FastMCP
 from pydantic import Field
 
 from lrl_reservoirs.lakes import LAKES, LakeName
+from lrl_reservoirs.models import LakeTrend, output_schema
 from lrl_reservoirs.tools.lake_conditions import (
     OFFICE,
     _fetch_guide_curve,
@@ -279,6 +280,7 @@ def register(mcp: FastMCP) -> None:
     """Register the get_lake_trend tool with the MCP server."""
     mcp.tool(
         name="get_lake_trend",
+        output_schema=output_schema(LakeTrend),
         annotations={
             "title": "Get LRL Lake Trend",
             "readOnlyHint": True,

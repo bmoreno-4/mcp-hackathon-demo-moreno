@@ -46,6 +46,7 @@ from fastmcp import FastMCP
 
 from lrl_reservoirs.guide_curve import interpolate_guide_curve
 from lrl_reservoirs.lakes import LAKES, LakeName
+from lrl_reservoirs.models import LakeConditions, output_schema
 from lrl_reservoirs.utils import LAKE_REPORT_URL, UpstreamServiceError, cwms_get
 
 # ── Constants ─────────────────────────────────────────────────────────────────
@@ -489,6 +490,7 @@ def register(mcp: FastMCP) -> None:
     """Register the get_lake_conditions tool with the MCP server."""
     mcp.tool(
         name="get_lake_conditions",
+        output_schema=output_schema(LakeConditions),
         annotations={
             "title": "Get LRL Lake Conditions",
             "readOnlyHint": True,
