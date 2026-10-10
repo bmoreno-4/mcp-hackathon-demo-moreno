@@ -1,8 +1,8 @@
 # LRL Reservoir Conditions — MCP Server
 
 An [MCP](https://modelcontextprotocol.io) server that gives SI clients live pool
-conditions for all 17 **USACE Louisville District (LRL)** flood-risk management
-reservoirs, using real-time data from the U.S. Army Corps of Engineers (USACE) CWMS Data API.
+conditions for all 17 **U.S. Army Corps of Engineers (USACE) Louisville District (LRL)** flood-risk management
+reservoirs, using real-time data from the USACE CWMS Data API.
 
 Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.astral.sh/uv/).
 
@@ -10,10 +10,10 @@ Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.as
 
 ## What it does
 
-The USACE Louisville (LRL) district operates 17 reservoirs across Kentucky, Ohio, and Indiana for
+USACE LRL District operates 17 reservoirs across Kentucky, Ohio, and Indiana for
 flood risk management. Each day the district publishes a **Daily Lake Report**
 showing pool elevation, deviation from the seasonal guide curve, storage
-utilisation (Percent Util), and inflow/outflow for every lake.
+utilization (Percent Util), and inflow/outflow for every lake.
 
 This server exposes five MCP tools. Four read live data; one is static
 reference data:
@@ -127,7 +127,7 @@ lrl-reservoirs/
 └── deploy/
     ├── README.md
     ├── ibm/                   # watsonx Orchestrate kits
-    └── databricks/            # Databricks Apps kit
+    └── databricks/            # Databricks Apps kit; Not Applicable since IBM is used
 ```
 
 ---
