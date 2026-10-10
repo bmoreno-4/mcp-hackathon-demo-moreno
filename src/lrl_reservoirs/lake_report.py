@@ -78,9 +78,7 @@ def parse_report_rows(html: str) -> dict[str, dict[str, Any]]:
     Blank basin cells inherit the basin above. Raises ValueError unless exactly
     17 lake rows are found, so a format change fails loudly.
     """
-    table_m = re.search(
-        r"<table\b[^>]*>(.*?)</table>", html, re.IGNORECASE | re.DOTALL
-    )
+    table_m = re.search(r"<table\b[^>]*>(.*?)</table>", html, re.IGNORECASE | re.DOTALL)
     if not table_m:
         raise ValueError("No <table> found in the report HTML")
     rows_raw = re.findall(
