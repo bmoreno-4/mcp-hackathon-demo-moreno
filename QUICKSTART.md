@@ -122,6 +122,21 @@ No parameters. Queries all 17 lakes in parallel and returns:
 - Aggregate counts: how many lakes are above/at/below guide or at flood stage
 - Sorted by basin then lake name for easy scanning
 
+### `list_lakes`
+
+Optional `basin`. Static directory of the 17 lakes: official name, basin,
+winter, summer and flood pool. No network call.
+
+### `check_against_daily_report`
+
+Optional `lake`. Fetches today's LRL Daily Lake Report (published for 06:00
+Eastern) and compares each lake's pool, guide curve and Percent Util with live
+CWMS values:
+
+- Status per lake: `matches`, `changed_since_report` (live data is newer and
+  has moved, e.g. after rain), `differs`, `no_live_data`, `not_in_report`
+- The report's 24-hour precipitation, 24-hour change, inflow and 6 AM outflow
+
 ---
 
 ## Next steps

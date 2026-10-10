@@ -41,6 +41,12 @@ resolved IPv4/IPv6 address, validation at every redirect hop, credential strippi
 across origins, and network-level egress controls. A DNS lookup followed by a normal
 hostname request is vulnerable to DNS rebinding.
 
+This server adds one second client, for the LRL Daily Lake Report
+(`fetch_lake_report_html` in `utils.py`). It requests only the fixed
+`LAKE_REPORT_URL` constant; no tool argument can change it. Redirects and
+environment proxies are disabled, TLS is verified, the body is capped at 1 MB,
+and errors are sanitized.
+
 Treat all tool arguments, retrieved content, and agent-to-agent messages as
 untrusted. Do not include upstream response bodies, headers, full URLs, query
 strings, stack traces, credentials, names, SSNs, dates of birth, addresses, or other

@@ -28,7 +28,8 @@ CWMS_BASE_URL = "https://cwms-data.usace.army.mil/cwms-data/"
 # The endpoint does not issue redirects; follow_redirects=False is correct.
 CWMS_ACCEPT = "application/json;version=2"
 
-# Official USACE LRL Daily Lake Report URL — used in tool data_note strings.
+# Official USACE LRL Daily Lake Report URL — used in tool data_note strings and
+# fetched (fixed URL, never a tool argument) by check_against_daily_report.
 LAKE_REPORT_URL = "https://www.lrl-wc.usace.army.mil/reports/lkreport.html"
 
 # Cap concurrent outbound HTTP requests so a district-wide fan-out (17 lakes ×
@@ -133,6 +134,42 @@ async def cwms_get(path: str, params: dict[str, str]) -> Any:
             raise UpstreamServiceError("CWMS API returned invalid JSON.") from None
         except httpx.RequestError:
             raise UpstreamServiceError("CWMS API request failed.") from None
+
+
+async def fetch_lake_report_html() -> str:
+    """GET the LRL Daily Lake Report page and return its HTML text.
+
+    Second narrowly scoped client: the URL is the fixed LAKE_REPORT_URL
+    constant, redirects are not followed, TLS is verified, and the body is
+    capped at MAX_RESPONSE_BYTES. Failures raise UpstreamServiceError with a
+    sanitized message.
+    """
+    try:
+        async with httpx.AsyncClient(
+            follow_redirects=False,
+            timeout=DEFAULT_TIMEOUT,
+            trust_env=False,
+            headers={"Accept": "text/html"},
+        ) as client:
+            async with client.stream("GET", LAKE_REPORT_URL) as response:
+                response.raise_for_status()
+                content = bytearray()
+                async for chunk in response.aiter_bytes():
+                    content.extend(chunk)
+                    if len(content) > MAX_RESPONSE_BYTES:
+                        raise UpstreamServiceError(
+                            "Lake report response exceeded the size limit."
+                        )
+                return content.decode("utf-8", errors="replace")
+    except UpstreamServiceError:
+        raise
+    except httpx.HTTPStatusError as exc:
+        status = exc.response.status_code
+        raise UpstreamServiceError(
+            f"LRL lake report returned status {status}."
+        ) from None
+    except httpx.RequestError:
+        raise UpstreamServiceError("LRL lake report request failed.") from None
 
 
 def paginate(items: list[Any], limit: int, offset: int) -> dict[str, Any]:
