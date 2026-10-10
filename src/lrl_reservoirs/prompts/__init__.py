@@ -11,10 +11,12 @@ To add a prompt:
 
 from __future__ import annotations
 
+from lrl_reservoirs.prompts import briefing
+
 
 def register_prompts(mcp) -> None:
     """Register all prompts with the MCP server."""
-    # No prompts registered yet — add imports and calls here.
+    briefing.register(mcp)
 
 
 __all__ = ["register_prompts"]

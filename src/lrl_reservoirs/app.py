@@ -31,9 +31,13 @@ mcp = FastMCP(
     name="LRL Reservoir Conditions",
     instructions=(
         "Provides current pool conditions for all 17 USACE Louisville District "
-        "(LRL) reservoirs. Use get_lake_conditions for a single lake or "
-        "summarize_district_lakes for a district-wide snapshot. Data comes from "
-        "the CWMS Data API and matches the LRL Daily Lake Report."
+        "(LRL) reservoirs. Use get_lake_conditions for a single lake, "
+        "summarize_district_lakes for a district-wide snapshot, get_lake_trend "
+        "for change over 1-14 days, check_against_daily_report to compare with "
+        "this morning's official report, and list_lakes for names, basins and "
+        "pool schedules. The district_briefing prompt runs a full daily "
+        "briefing. Data comes from the CWMS Data API and matches the LRL Daily "
+        "Lake Report."
     ),
 )
 

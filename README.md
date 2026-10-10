@@ -26,6 +26,13 @@ reference data:
 | `get_lake_trend` | One lake over the last 1-14 days: change, 24-hour change, rising/falling/steady, toward or away from the guide curve, peak and low |
 | `check_against_daily_report` | Fetches today's LRL Daily Lake Report and compares it lake by lake with live CWMS values; adds the report's 24-hour precipitation, change, inflow and outflow |
 
+It also provides one MCP prompt, `district_briefing` (optional basin), which
+runs a daily briefing: it checks this morning's report, summarizes the
+district, and pulls 3-day trends for the lakes using the most flood storage.
+watsonx Orchestrate does not show MCP prompts to agents, so the same workflow
+is in [`deploy/ibm/local-mcp-toolkit/agent_instructions.md`](deploy/ibm/local-mcp-toolkit/agent_instructions.md)
+for pasting into the agent; a test keeps it in step with the registered tools.
+
 ### Example questions an AI client can answer
 
 - *"How is Barren River Lake doing compared to its guide curve?"*
@@ -36,6 +43,7 @@ reference data:
 - *"What has changed since this morning's lake report?"*
 - *"Which lakes got rain in the last 24 hours?"*
 - *"Is Patoka rising or falling, and is it getting closer to its guide curve?"*
+- *"Give me today's lake briefing for the Green River basin."*
 
 ### Fields returned per lake
 
@@ -83,6 +91,8 @@ lrl-reservoirs/
 │       │   ├── list_lakes.py               # list_lakes tool (static lake directory)
 │       │   ├── check_report.py             # check_against_daily_report tool
 │       │   └── lake_trend.py               # get_lake_trend tool
+│       ├── prompts/
+│       │   └── briefing.py                 # district_briefing prompt
 │       ├── resources/
 │       │   └── lakes.py                    # lrl://lakes resource (lake directory)
 │       └── data/
@@ -91,6 +101,7 @@ lrl-reservoirs/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
 │   ├── test_lake_trend.py
+│   ├── test_briefing.py                  # district_briefing prompt + agent instructions
 │   ├── test_check_report.py              # Report vs. live comparison, report client boundary
 │   ├── test_percent_util_lrl_report.py   # Deterministic validation vs. saved CWMS responses
 │   ├── test_fetch_lake_report.py         # HTML parser tests against saved report fixture
