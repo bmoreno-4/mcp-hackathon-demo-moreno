@@ -274,6 +274,19 @@ The guide curve reference used in the elevation check is derived as
 `todays_pool − dev_from_pool` (the report rounds `dev_from_pool` to one decimal
 place, which accounts for the ±0.10 ft tolerance).
 
+### Validation runs
+
+| Report date | Percent Util (±0.15) | Guide curve (±0.10 ft) | Largest differences |
+|---|---|---|---|
+| 2026-10-08 | 17 of 17; 15 exact | 17 of 17 | −0.08 (Barren, Carr Creek) |
+| 2026-10-09 | 17 of 17 | 17 of 17 | not recorded |
+| 2026-10-10 | 17 of 17; 14 exact | 17 of 17 | −0.09 Barren, −0.08 Carr Creek; guide curve +0.10 ft C. M. Harden |
+
+Barren and Carr Creek show the same small Percent Util offset (about −0.08) on
+both 10/08 and 10/10, which points to a consistent difference in a storage value or level
+rather than random error. It is within tolerance and documented here rather
+than tuned away.
+
 ### Validation results (2026-10-08)
 
 Largest Percent Util deviation: **−0.08** (Barren and CarrCreek); 15 of 17 lakes
