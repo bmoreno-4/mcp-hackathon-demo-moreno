@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import datetime
 import pathlib
+import ssl
+import subprocess
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
+import certifi
 import httpx
 import pytest
 
@@ -262,7 +265,10 @@ async def test_report_client_uses_fixed_url_and_no_redirects(monkeypatch):
     assert _FakeClient.requested_url == utils.LAKE_REPORT_URL
     assert _FakeClient.init_kwargs["follow_redirects"] is False
     assert _FakeClient.init_kwargs["trust_env"] is False
-    assert "verify" not in _FakeClient.init_kwargs  # TLS verification stays on
+    ctx = _FakeClient.init_kwargs["verify"]
+    assert isinstance(ctx, ssl.SSLContext)
+    assert ctx.verify_mode == ssl.CERT_REQUIRED  # TLS verification stays on
+    assert ctx.check_hostname is True
 
 
 @pytest.mark.asyncio
@@ -286,3 +292,29 @@ async def test_report_client_enforces_size_cap(monkeypatch):
 
     with pytest.raises(utils.UpstreamServiceError, match="size limit"):
         await utils.fetch_lake_report_html()
+
+
+def test_bundled_intermediate_is_the_digicert_ca_and_chains_to_certifi_root():
+    """The shipped PEM must be the DigiCert intermediate named in the report
+    server's certificate, and must verify against the public root in certifi."""
+    pem = utils.REPORT_CA_FILE
+    assert pem.exists(), "run the download steps in SECURITY.md"
+    text = pem.read_text()
+    assert text.count("BEGIN CERTIFICATE") == 1
+    assert "PRIVATE KEY" not in text
+
+    subject = subprocess.run(
+        ["openssl", "x509", "-in", str(pem), "-noout", "-subject", "-issuer"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    assert "DigiCert Global G2 TLS RSA SHA256 2020 CA1" in subject
+    assert "DigiCert Global Root G2" in subject
+
+    verify = subprocess.run(
+        ["openssl", "verify", "-CAfile", certifi.where(), str(pem)],
+        capture_output=True,
+        text=True,
+    )
+    assert verify.returncode == 0, verify.stdout + verify.stderr

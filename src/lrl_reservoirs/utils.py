@@ -7,10 +7,14 @@ I/O and formatting here keeps each tool file focused on its own logic.
 from __future__ import annotations
 
 import asyncio
+import functools
 import json
+import pathlib
+import ssl
 from typing import Any
 from urllib.parse import unquote, urlsplit
 
+import certifi
 import httpx
 
 # Federal APIs can be slow or intermittently unresponsive — always use an
@@ -136,12 +140,35 @@ async def cwms_get(path: str, params: dict[str, str]) -> Any:
             raise UpstreamServiceError("CWMS API request failed.") from None
 
 
+# The LRL report server sends only its own certificate, not the DigiCert
+# intermediate that links it to a trusted root, so standard verification fails
+# ("unable to get local issuer certificate"). Ship that public intermediate and
+# add it to the normal trust store for this one client. Verification, including
+# the hostname check, stays on. The file is checked in tests to chain to the
+# DigiCert Global Root G2 in certifi.
+REPORT_CA_FILE = (
+    pathlib.Path(__file__).parent
+    / "data"
+    / "digicert_global_g2_tls_rsa_sha256_2020_ca1.pem"
+)
+
+
+@functools.lru_cache(maxsize=1)
+def lake_report_ssl_context() -> ssl.SSLContext:
+    """Default trust store (certifi) plus the report server's intermediate CA."""
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    if REPORT_CA_FILE.exists():
+        ctx.load_verify_locations(cafile=str(REPORT_CA_FILE))
+    return ctx
+
+
 async def fetch_lake_report_html() -> str:
     """GET the LRL Daily Lake Report page and return its HTML text.
 
     Second narrowly scoped client: the URL is the fixed LAKE_REPORT_URL
-    constant, redirects are not followed, TLS is verified, and the body is
-    capped at MAX_RESPONSE_BYTES. Failures raise UpstreamServiceError with a
+    constant, redirects are not followed, TLS is verified (with the bundled
+    DigiCert intermediate, see REPORT_CA_FILE), and the body is capped at
+    MAX_RESPONSE_BYTES. Failures raise UpstreamServiceError with a
     sanitized message.
     """
     try:
@@ -149,6 +176,7 @@ async def fetch_lake_report_html() -> str:
             follow_redirects=False,
             timeout=DEFAULT_TIMEOUT,
             trust_env=False,
+            verify=lake_report_ssl_context(),
             headers={"Accept": "text/html"},
         ) as client:
             async with client.stream("GET", LAKE_REPORT_URL) as response:

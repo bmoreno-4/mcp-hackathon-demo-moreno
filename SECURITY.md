@@ -47,6 +47,20 @@ This server adds one second client, for the LRL Daily Lake Report
 environment proxies are disabled, TLS is verified, the body is capped at 1 MB,
 and errors are sanitized.
 
+The report server sends only its own certificate, without the DigiCert
+intermediate that links it to a trusted root, so normal verification fails.
+Instead of turning verification off, the package ships that public intermediate
+(`src/lrl_reservoirs/data/digicert_global_g2_tls_rsa_sha256_2020_ca1.pem`) and
+adds it to the standard trust store for this one client. A test checks that the
+file is the expected DigiCert certificate and that it verifies against the
+DigiCert Global Root G2 in certifi. To refresh it:
+
+```bash
+curl -sS -o /tmp/ca1.crt http://cacerts.digicert.com/DigiCertGlobalG2TLSRSASHA2562020CA1-1.crt
+openssl x509 -inform DER -in /tmp/ca1.crt \
+  -out src/lrl_reservoirs/data/digicert_global_g2_tls_rsa_sha256_2020_ca1.pem
+```
+
 Treat all tool arguments, retrieved content, and agent-to-agent messages as
 untrusted. Do not include upstream response bodies, headers, full URLs, query
 strings, stack traces, credentials, names, SSNs, dates of birth, addresses, or other
