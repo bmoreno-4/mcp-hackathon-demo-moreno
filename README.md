@@ -15,7 +15,7 @@ flood risk management. Each day the district publishes a **Daily Lake Report**
 showing pool elevation, deviation from the seasonal guide curve, storage
 utilisation (Percent Util), and inflow/outflow for every lake.
 
-This server exposes four MCP tools. Three read the live CWMS API; one is static
+This server exposes five MCP tools. Four read live data; one is static
 reference data:
 
 | Tool | Description |
@@ -23,6 +23,7 @@ reference data:
 | `get_lake_conditions` | Current conditions for a single lake by CWMS location ID |
 | `summarize_district_lakes` | Conditions for all 17 lakes in parallel, with aggregate counts |
 | `list_lakes` | Lake directory and pool schedule (winter, summer, flood pool); no network call |
+| `get_lake_trend` | One lake over the last 1-14 days: change, 24-hour change, rising/falling/steady, toward or away from the guide curve, peak and low |
 | `check_against_daily_report` | Fetches today's LRL Daily Lake Report and compares it lake by lake with live CWMS values; adds the report's 24-hour precipitation, change, inflow and outflow |
 
 ### Example questions an AI client can answer
@@ -34,6 +35,7 @@ reference data:
 - *"Compare the storage utilization for all Green River basin lakes."*
 - *"What has changed since this morning's lake report?"*
 - *"Which lakes got rain in the last 24 hours?"*
+- *"Is Patoka rising or falling, and is it getting closer to its guide curve?"*
 
 ### Fields returned per lake
 
@@ -79,7 +81,8 @@ lrl-reservoirs/
 │       │   ├── lake_conditions.py          # get_lake_conditions tool
 │       │   ├── summarize_district_lakes.py # summarize_district_lakes tool (basin/status filters)
 │       │   ├── list_lakes.py               # list_lakes tool (static lake directory)
-│       │   └── check_report.py             # check_against_daily_report tool
+│       │   ├── check_report.py             # check_against_daily_report tool
+│       │   └── lake_trend.py               # get_lake_trend tool
 │       ├── resources/
 │       │   └── lakes.py                    # lrl://lakes resource (lake directory)
 │       └── data/
@@ -87,6 +90,7 @@ lrl-reservoirs/
 ├── tests/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
+│   ├── test_lake_trend.py
 │   ├── test_check_report.py              # Report vs. live comparison, report client boundary
 │   ├── test_percent_util_lrl_report.py   # Deterministic validation vs. saved CWMS responses
 │   ├── test_fetch_lake_report.py         # HTML parser tests against saved report fixture

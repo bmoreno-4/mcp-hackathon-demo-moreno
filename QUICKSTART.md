@@ -127,6 +127,15 @@ No parameters. Queries all 17 lakes in parallel and returns:
 Optional `basin`. Static directory of the 17 lakes: official name, basin,
 winter, summer and flood pool. No network call.
 
+### `get_lake_trend`
+
+Pass a lake and optionally `days` (1-14, default 3). Returns:
+
+- Start and latest elevation, guide curve deviation and Percent Util, and the change
+- 24-hour change and `rising` / `falling` / `steady` (within 0.1 ft)
+- Whether the pool moved toward or away from its guide curve
+- Peak, low and every elevation reading in the window
+
 ### `check_against_daily_report`
 
 Optional `lake`. Fetches today's LRL Daily Lake Report (published for 06:00

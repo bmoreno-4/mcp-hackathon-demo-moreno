@@ -14,6 +14,7 @@ from __future__ import annotations
 from lrl_reservoirs.tools import (
     check_report,
     lake_conditions,
+    lake_trend,
     list_lakes,
     summarize_district_lakes,
 )
@@ -25,6 +26,7 @@ def register_tools(mcp) -> None:
     summarize_district_lakes.register(mcp)
     list_lakes.register(mcp)
     check_report.register(mcp)
+    lake_trend.register(mcp)
 
 
 __all__ = ["register_tools"]
