@@ -175,7 +175,7 @@ is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
 
 ```bash
 uv sync --group dev
-uv run pytest tests/ -v      # 85 tests
+uv run pytest tests/ -q      # full suite (~180 tests)
 uv run ruff check .          # lint
 uv run ruff format --check . # format check
 ```
@@ -247,7 +247,7 @@ Run these after 06:00 US/Eastern (the report publishes around that time):
 
 ```bash
 uv run python eval/fetch_lake_report.py
-uv run python eval/lrl_percent_util_validation.py --date $(date +%F)
+uv run python eval/lrl_percent_util_validation.py --date $(TZ=America/New_York date +%F)
 ```
 
 `fetch_lake_report.py` is safe to re-run — it skips the download if today's
@@ -262,6 +262,8 @@ eval/reports/
 ├── lrl_lake_report_2026-10-08.csv   # hand-transcribed from test fixture
 ├── lrl_lake_report_2026-10-09.csv   # fetched by fetch_lake_report.py
 ├── lrl_lake_report_2026-10-09.html  # raw HTML provenance copy
+├── lrl_lake_report_2026-10-10.csv
+├── lrl_lake_report_2026-10-10.html
 └── …
 ```
 
@@ -310,6 +312,26 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08 --save-fixtu
 
 ---
 
+## Agent evaluation (watsonx Orchestrate)
+
+The server was evaluated as a watsonx Orchestrate agent (GPT-OSS 120B), with
+every answer checked by hand against that day's LRL Daily Lake Report before
+it was saved as a test. Full method, per-test results, CSVs and screenshots are
+in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
+
+| Run | Tools | Result | Avg. response |
+|---|---|---|---|
+| 2026-10-09 | 3 | 8 of 8 tests passed; tool call precision and recall 1.0 | 6.05 s |
+| 2026-10-10 | 5 + daily briefing | 8 of 8 passed on tool calls (recall 1.0; briefing precision 0.6, see notes) | 6.45 s |
+
+Checking answers against the official report found eight defects that unit
+tests did not. Each was fixed in the server (tool descriptions, outputs or
+code) with a regression test, including: "no data" reported as "none", "using
+flood storage" confused with "flood pool full", a made-up answer when the
+tools were detached, the report site's incomplete certificate chain, and a
+briefing that miscounted lakes. See the
+[defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
+
 ## Limitations
 
 - **Storage timeseries lag:** The `lrldlb-comp` series updates hourly. Sub-hourly
@@ -324,6 +346,12 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08 --save-fixtu
   fetch fails, the server falls back to a static pool classification
   (`pool_status` is prefixed `no_guide/`). `percent_util` is still computed from
   storage as long as the storage bounds are available.
+- **The official report is once a day:** `check_against_daily_report`
+  compares live values with the 06:00 Eastern report. Later in the day,
+  differences are usually real changes (`changed_since_report`), not errors.
+- **MCP prompts in watsonx Orchestrate:** wxO does not show MCP prompts to
+  agents, so the `district_briefing` workflow is also provided as agent
+  instructions (`deploy/ibm/local-mcp-toolkit/agent_instructions.md`).
 - **Public data, no auth:** The CWMS Data API is unauthenticated. Data is
   subject to revision (the `-rev` series) but revised values are currently not
   served through the public endpoint.
@@ -345,6 +373,11 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08 --save-fixtu
   status code or a generic category.
 - **DNS and IP validation** is not needed here because the destination is a
   fixed hardcoded constant, not a caller-supplied URL.
+- **The LRL report has its own narrowly scoped client.** It requests only the
+  fixed report URL, with redirects off, a 1 MB cap and sanitized errors. The
+  report server omits its DigiCert intermediate certificate, so the package
+  ships that public certificate and verifies with it instead of turning
+  certificate checking off (details in [SECURITY.md](SECURITY.md)).
 
 See [SECURITY.md](SECURITY.md) for the vulnerability disclosure policy.
 

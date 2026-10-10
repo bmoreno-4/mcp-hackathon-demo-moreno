@@ -41,6 +41,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 |---|---|
 | 2026-10-08 | Hand-transcribed from `tests/fixtures/lrl_lake_report_2026-10-08.txt` |
 | 2026-10-09 | Downloaded by `fetch_lake_report.py` |
+| 2026-10-10 | Downloaded by `fetch_lake_report.py` |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
