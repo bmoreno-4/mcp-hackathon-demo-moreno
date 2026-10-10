@@ -8,6 +8,7 @@ lakes, and that it raises loudly when the row count is wrong.
 from __future__ import annotations
 
 import pathlib
+import ssl
 import sys
 
 import pytest
@@ -119,3 +120,14 @@ def test_parse_rows_raises_on_missing_rows() -> None:
     """
     with pytest.raises(ValueError, match="Expected 17 lake rows, parsed 1"):
         _parse_rows(stub)
+
+
+def test_report_download_verifies_tls():
+    """The capture script must not turn certificate checking off."""
+    from fetch_lake_report import _ssl_context
+
+    ctx = _ssl_context()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED
+    assert ctx.check_hostname is True
+    source = (_EVAL_DIR / "fetch_lake_report.py").read_text()
+    assert "CERT_NONE" not in source

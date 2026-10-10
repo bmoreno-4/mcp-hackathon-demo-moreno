@@ -27,6 +27,8 @@ import ssl
 import sys
 import urllib.request
 
+import certifi
+
 REPORT_URL = "https://www.lrl-wc.usace.army.mil/reports/lkreport.html"
 OUT_DIR = pathlib.Path(__file__).parent / "reports"
 
@@ -64,11 +66,28 @@ CSV_FIELDS = [
 ]
 
 
+# The report server omits its DigiCert intermediate certificate; the package
+# ships that public certificate (see SECURITY.md). Add it to the normal trust
+# store instead of turning verification off.
+REPORT_CA_FILE = (
+    pathlib.Path(__file__).parent.parent
+    / "src"
+    / "lrl_reservoirs"
+    / "data"
+    / "digicert_global_g2_tls_rsa_sha256_2020_ca1.pem"
+)
+
+
+def _ssl_context() -> ssl.SSLContext:
+    """Verified TLS: certifi roots plus the bundled DigiCert intermediate."""
+    ctx = ssl.create_default_context(cafile=certifi.where())
+    ctx.load_verify_locations(cafile=str(REPORT_CA_FILE))
+    return ctx
+
+
 def _fetch_html() -> str:
-    """Download the report page, bypassing SSL verification for the USACE host."""
-    ctx = ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
+    """Download the report page with certificate and hostname checks on."""
+    ctx = _ssl_context()
     req = urllib.request.Request(
         REPORT_URL,
         headers={"User-Agent": "Mozilla/5.0 (eval/fetch_lake_report.py)"},

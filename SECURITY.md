@@ -51,7 +51,8 @@ The report server sends only its own certificate, without the DigiCert
 intermediate that links it to a trusted root, so normal verification fails.
 Instead of turning verification off, the package ships that public intermediate
 (`src/lrl_reservoirs/data/digicert_global_g2_tls_rsa_sha256_2020_ca1.pem`) and
-adds it to the standard trust store for this one client. A test checks that the
+adds it to the standard trust store for this one client (and for the daily
+capture script, `eval/fetch_lake_report.py`). A test checks that the
 file is the expected DigiCert certificate and that it verifies against the
 DigiCert Global Root G2 in certifi. To refresh it:
 
