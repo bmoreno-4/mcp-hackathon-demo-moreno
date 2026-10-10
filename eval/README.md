@@ -23,8 +23,11 @@ The report publishes around **06:00 US/Eastern** each morning. Run after it appe
 
 ```bash
 uv run python eval/fetch_lake_report.py
-uv run python eval/lrl_percent_util_validation.py --date $(date +%F)
+uv run python eval/lrl_percent_util_validation.py --date $(TZ=America/New_York date +%F)
 ```
+
+`TZ=America/New_York` matters on machines set to UTC (such as the IBM VM): after
+8 PM Eastern their date is already tomorrow, which has no report yet.
 
 To validate a specific past date (CSV must already exist in `eval/reports/`):
 
