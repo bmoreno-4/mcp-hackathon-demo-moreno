@@ -42,14 +42,15 @@ Call the tools in this order:
    Note the report date, each lake's 24-hour precipitation and 24-hour change,
    and any lake whose status is changed_since_report or differs.
 2. summarize_district_lakes ({basin_arg}).
-   Use counts, flood_storage_ranking and unevaluated_lakes.
+   Use counts, lakes_by_status, flood_storage_ranking and unevaluated_lakes.
 3. get_lake_trend (days=3) for up to {TREND_LAKE_LIMIT} lakes: the lakes with the
    highest percent_util above 0, then any lake with a 24-hour change of 0.5 ft or
    more. Skip this step if no lake qualifies.
 
 Write the briefing with these sections:
 - Bottom line: report date and the time of the latest live readings; how many
-  lakes are above, at and below their guide curve; any lake with no data.
+  lakes are above, at and below their guide curve, named from lakes_by_status
+  exactly as given (each lake once); any lake with no data.
 - Flood storage in use: each lake with percent_util above 0, highest first, with
   its pool elevation and deviation from guide curve.
 - Rain and changes since the 6 AM report: lakes with precipitation in the last
@@ -64,6 +65,7 @@ Rules:
   high or low. Summer and winter pool are reference values only.
 - Any lake above its guide curve is using flood storage; say so with its percent.
 - Never report a lake with no data as "none" or "normal"; list it as no data.
+- Do not compute your own totals or percentages of the district; use counts.
 - Give times for readings. Report numbers factually and make no flood risk
   judgments; the LRL Daily Lake Report is the official source.
 """

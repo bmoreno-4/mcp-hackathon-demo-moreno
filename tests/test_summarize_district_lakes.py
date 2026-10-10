@@ -320,3 +320,44 @@ async def test_status_description_explains_flood_storage_terms():
     text = str(tool.parameters) + str(tool.description)
     assert "flood_storage_ranking" in text
     assert "TOP of the flood" in text
+
+
+@pytest.mark.asyncio
+async def test_lakes_by_status_lists_each_lake_once():
+    """2026-10-10 briefing listed Caesar Creek as both above and at guide and
+    Green River Lake twice. The tool now returns the names per status."""
+    lake_ids = list(LAKES)
+    statuses = ["above_guide"] * 10 + ["at_guide"] * 2 + ["below_guide"] * 5
+    fake_results = [
+        _make_lake_result(lid, pool_status=st) for lid, st in zip(lake_ids, statuses)
+    ]
+    with patch.object(
+        sdl_mod,
+        "get_lake_conditions",
+        new=AsyncMock(side_effect=fake_results),
+    ):
+        result = await sdl_mod.summarize_district_lakes()
+
+    by_status = result["lakes_by_status"]
+    all_names = [name for names in by_status.values() for name in names]
+    assert len(all_names) == 17
+    assert len(set(all_names)) == 17
+    for bucket, names in by_status.items():
+        assert len(names) == result["counts"][bucket]
+
+
+@pytest.mark.asyncio
+async def test_lakes_by_status_respects_basin_filter():
+    fake_results = [_make_lake_result(lid) for lid in LAKES]
+    with patch.object(
+        sdl_mod,
+        "get_lake_conditions",
+        new=AsyncMock(side_effect=fake_results),
+    ):
+        result = await sdl_mod.summarize_district_lakes(
+            basin=sdl_mod.BasinName("Kentucky")
+        )
+    assert sorted(result["lakes_by_status"]["above_guide"]) == [
+        LAKES["Buckhorn"]["public_name"],
+        LAKES["CarrCreek"]["public_name"],
+    ]

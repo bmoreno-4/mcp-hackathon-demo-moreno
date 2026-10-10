@@ -157,6 +157,11 @@ async def summarize_district_lakes(
           not applied) sorted by percent_util, highest first: lake_id,
           public_name, percent_util, deviation_from_guide_curve_ft, as_of.
           Use this for "which lake is using the most flood storage?".
+      - lakes_by_status (dict): public names of the lakes in scope for each
+          status bucket (above_guide, at_guide, below_guide, at_or_above_flood,
+          no_data). Use these lists as-is when naming lakes by status; each lake
+          appears exactly once. A lake at_guide can still show a small positive
+          percent_util; list it as at guide.
 
     Interpretation guidance for AI assistants:
       - All status values (above_guide, below_guide, etc.) are relative to the live
@@ -245,6 +250,13 @@ async def summarize_district_lakes(
         for r in ranked
     ]
 
+    # Names per status bucket, so an agent can list lakes without re-deriving
+    # (and miscounting or double-listing) them from the per-lake records.
+    lakes_by_status: dict[str, list[str]] = {bucket: [] for bucket in counts}
+    for r in in_scope:
+        bucket = _status_bucket(r.get("pool_status", "no_data"))
+        lakes_by_status[bucket].append(str(r.get("public_name")))
+
     filter_note = None
     if unevaluated:
         names = ", ".join(str(u["public_name"]) for u in unevaluated)
@@ -271,6 +283,7 @@ async def summarize_district_lakes(
         "unevaluated_lakes": unevaluated,
         "filter_note": filter_note,
         "flood_storage_ranking": flood_storage_ranking,
+        "lakes_by_status": lakes_by_status,
         "lakes": filtered,
     }
 
