@@ -250,8 +250,10 @@ uv run python eval/fetch_lake_report.py
 uv run python eval/lrl_percent_util_validation.py --date $(TZ=America/New_York date +%F)
 ```
 
-`fetch_lake_report.py` is safe to re-run — it skips the download if today's
-files already exist. Both commands exit `0` on success and `1` on any failure.
+`fetch_lake_report.py` is safe to re-run. It never overwrites a saved report;
+if USACE has revised the report since (it happens as late rain gauges report),
+the new version is saved alongside as `lrl_lake_report_<date>_rev-HHMM`. Run it
+again mid-morning to catch revisions. Both commands exit `0` on success and `1` on any failure.
 
 ### The `eval/reports/` folder
 
@@ -264,6 +266,9 @@ eval/reports/
 ├── lrl_lake_report_2026-10-09.html  # raw HTML provenance copy
 ├── lrl_lake_report_2026-10-10.csv
 ├── lrl_lake_report_2026-10-10.html
+├── lrl_lake_report_2026-10-11.csv   # first rain day
+├── lrl_lake_report_2026-10-11.html
+├── lrl_lake_report_2026-10-11_rev-HHMM.csv/.html  # same-day revision
 └── …
 ```
 
@@ -281,11 +286,14 @@ place, which accounts for the ±0.10 ft tolerance).
 | 2026-10-08 | 17 of 17; 15 exact | 17 of 17 | −0.08 (Barren, Carr Creek) |
 | 2026-10-09 | 17 of 17 | 17 of 17 | not recorded |
 | 2026-10-10 | 17 of 17; 14 exact | 17 of 17 | −0.09 Barren, −0.08 Carr Creek; guide curve +0.10 ft C. M. Harden |
+| 2026-10-11 (rain) | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.09 Carr Creek; guide curve +0.10 ft C. M. Harden |
 
-Barren and Carr Creek show the same small Percent Util offset (about −0.08) on
-both 10/08 and 10/10, which points to a consistent difference in a storage value or level
-rather than random error. It is within tolerance and documented here rather
-than tuned away.
+Barren and Carr Creek show the same small negative Percent Util offset on every
+run where it was recorded (Barren −0.08, −0.09, −0.11; Carr Creek −0.08,
+−0.08, −0.09), which points to a consistent difference in a storage value or
+level rather than random error. It is within tolerance and documented rather
+than tuned away. Barren's offset grew on the rain day (1.0 in., inflow 432 cfs),
+so it is the lake to watch: at −0.15 it would fail the check.
 
 ### Validation results (2026-10-08)
 
@@ -336,6 +344,7 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 |---|---|---|---|
 | 2026-10-09 | 3 | 8 of 8 tests passed; tool call precision and recall 1.0 | 6.05 s |
 | 2026-10-10 | 5 + daily briefing | 8 of 8 passed on tool calls (recall 1.0; briefing precision 0.6, see notes) | 6.45 s |
+| 2026-10-11 (rain) | 5 + daily briefing | Rain, briefing and snapshot passed after fixing a briefing that missed the rain; rain amounts matched the report as revised after 06:00 | 6.3–8.4 s |
 
 Checking answers against the official report found nine defects that unit
 tests did not. Each was fixed in the server (tool descriptions, outputs or
