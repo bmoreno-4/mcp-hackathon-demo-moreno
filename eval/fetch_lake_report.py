@@ -5,8 +5,10 @@ Usage:
     uv run python eval/fetch_lake_report.py
 
 Output (written to eval/reports/):
-    lrl_lake_report_YYYY-MM-DD.csv   – parsed table; will NOT overwrite an existing file
+    lrl_lake_report_YYYY-MM-DD.csv   – parsed table; never overwritten
     lrl_lake_report_YYYY-MM-DD.html  – raw HTML for provenance
+    lrl_lake_report_YYYY-MM-DD_rev-HHMM.csv/.html – saved only if USACE revises
+        the report later the same day (re-run the script mid-morning)
 
 CSV columns:
     lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
@@ -26,10 +28,12 @@ import re
 import ssl
 import sys
 import urllib.request
+from zoneinfo import ZoneInfo
 
 import certifi
 
 REPORT_URL = "https://www.lrl-wc.usace.army.mil/reports/lkreport.html"
+_EASTERN = ZoneInfo("America/New_York")
 OUT_DIR = pathlib.Path(__file__).parent / "reports"
 
 # Column indices in the HTML table (0-based after the header row)
@@ -186,6 +190,32 @@ def _parse_rows(html: str) -> list[dict[str, str]]:
     return records
 
 
+def _output_paths(
+    out_dir: pathlib.Path, date_str: str, html: str, now: datetime.datetime
+) -> tuple[pathlib.Path, pathlib.Path] | None:
+    """Where to save this download, or None if it is already saved.
+
+    The first download of a date is saved as lrl_lake_report_<date>.csv/.html.
+    USACE sometimes revises the report after 06:00 (on 2026-10-11 the 24-hour
+    precipitation for Nolin, Green and Rough changed between 07:53 and 08:17),
+    so a later download whose HTML differs from every saved copy for that date
+    is kept as a revision, lrl_lake_report_<date>_rev-HHMM.csv/.html (Eastern
+    time). The original is never overwritten.
+    """
+    base = out_dir / f"lrl_lake_report_{date_str}"
+    csv_path = base.with_suffix(".csv")
+    if not csv_path.exists():
+        return csv_path, base.with_suffix(".html")
+    saved = [base.with_suffix(".html"), *out_dir.glob(f"{base.name}_rev-*.html")]
+    if any(p.exists() and p.read_text(encoding="utf-8") == html for p in saved):
+        return None
+    if not base.with_suffix(".html").exists():
+        return None  # hand-transcribed day with no HTML to compare against
+    stamp = now.astimezone(_EASTERN).strftime("%H%M")
+    rev = out_dir / f"{base.name}_rev-{stamp}"
+    return rev.with_suffix(".csv"), rev.with_suffix(".html")
+
+
 def main() -> int:
     print(f"Fetching {REPORT_URL} …")
     try:
@@ -203,12 +233,15 @@ def main() -> int:
     date_str = report_date.isoformat()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    csv_path = OUT_DIR / f"lrl_lake_report_{date_str}.csv"
-    html_path = OUT_DIR / f"lrl_lake_report_{date_str}.html"
-
-    if csv_path.exists():
-        print(f"Already exists, skipping: {csv_path}")
+    paths = _output_paths(
+        OUT_DIR, date_str, html, datetime.datetime.now(datetime.timezone.utc)
+    )
+    if paths is None:
+        print(f"Report for {date_str} already saved and unchanged, skipping.")
         return 0
+    csv_path, html_path = paths
+    if "_rev-" in csv_path.name:
+        print(f"Report for {date_str} was revised since it was saved.")
 
     try:
         records = _parse_rows(html)

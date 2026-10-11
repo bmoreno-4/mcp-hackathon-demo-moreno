@@ -26,6 +26,10 @@ uv run python eval/fetch_lake_report.py
 uv run python eval/lrl_percent_util_validation.py --date $(TZ=America/New_York date +%F)
 ```
 
+Run `fetch_lake_report.py` again mid-morning (around 09:00). If USACE has
+revised the report, the new version is saved as `_rev-HHMM`; if not, nothing
+is written.
+
 `TZ=America/New_York` matters on machines set to UTC (such as the IBM VM): after
 8 PM Eastern their date is already tomorrow, which has no report yet.
 
@@ -172,6 +176,23 @@ It was not saved as a test. Fix: `check_against_daily_report` now returns
 `changes_since_report` (only the values that moved), and the instructions say
 Percent Util is per lake and never summed. Regression tests use the saved
 10/11 report.
+
+**Rerun after the fix (08:16–08:19):**
+
+| Question | Tool(s) | Checked against | Result | Time | Evidence |
+|---|---|---|---|---|---|
+| Which lakes got rain in the last 24 hours? | `check_against_daily_report` | Report as revised by 08:24 | Pass: all 13 lakes and amounts, wettest first | 6.31 s | [csv](wxo/results_2026-10-11_rain.csv) · [screenshot](wxo/screenshots/eval_2026-10-11_rain.png) |
+| Give me today's lake briefing | report check, summary, `get_lake_trend` ×3 | Same | Pass: rain listed, Percent Util per lake, each lake once; precision 0.6 (data-dependent trend lakes) | 7.10 s | [csv](wxo/results_2026-10-11_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-11_briefing.png) |
+| Give me a district-wide snapshot of all lakes. | `summarize_district_lakes` | Same | Pass: no rain claims without the report tool | 6.95 s | [csv](wxo/results_2026-10-11_district_snapshot_v2.csv) · [screenshot](wxo/screenshots/eval_2026-10-11_district_snapshot.png) |
+
+**The official report changed after it was captured.** The copy saved at
+07:53 showed Nolin 0.2 in., Green 0.6 in. and Rough 0.1 in. of rain; by 08:17
+the live page showed 1.0, 0.4 and 0.3 (Nolin inflow 189 → 219 cfs). The agent
+reported the revised values, which matched the live page when checked by hand
+at 08:24. The "answer key" is therefore not fixed at 06:00:
+`fetch_lake_report.py` now saves a later download as
+`lrl_lake_report_<date>_rev-HHMM` when its HTML differs from what is already
+saved, and never overwrites the original. Re-run it mid-morning.
 
 ### Defects the evaluation found (and fixes)
 

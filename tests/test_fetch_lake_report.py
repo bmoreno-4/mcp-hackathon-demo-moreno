@@ -7,6 +7,7 @@ lakes, and that it raises loudly when the row count is wrong.
 
 from __future__ import annotations
 
+import datetime
 import pathlib
 import ssl
 import sys
@@ -131,3 +132,45 @@ def test_report_download_verifies_tls():
     assert ctx.check_hostname is True
     source = (_EVAL_DIR / "fetch_lake_report.py").read_text()
     assert "CERT_NONE" not in source
+
+
+# ── Saving revisions ──────────────────────────────────────────────────────────
+
+_NOON_UTC = datetime.datetime(2026, 10, 11, 12, 17, tzinfo=datetime.timezone.utc)
+
+
+def test_first_download_uses_plain_name(tmp_path: pathlib.Path) -> None:
+    from fetch_lake_report import _output_paths
+
+    csv_path, html_path = _output_paths(tmp_path, "2026-10-11", "<v1>", _NOON_UTC)
+    assert csv_path.name == "lrl_lake_report_2026-10-11.csv"
+    assert html_path.name == "lrl_lake_report_2026-10-11.html"
+
+
+def test_unchanged_report_is_skipped(tmp_path: pathlib.Path) -> None:
+    from fetch_lake_report import _output_paths
+
+    (tmp_path / "lrl_lake_report_2026-10-11.csv").write_text("x")
+    (tmp_path / "lrl_lake_report_2026-10-11.html").write_text("<v1>")
+    assert _output_paths(tmp_path, "2026-10-11", "<v1>", _NOON_UTC) is None
+
+
+def test_revised_report_is_kept_as_revision(tmp_path: pathlib.Path) -> None:
+    """2026-10-11: precipitation for three lakes changed after 07:53."""
+    from fetch_lake_report import _output_paths
+
+    (tmp_path / "lrl_lake_report_2026-10-11.csv").write_text("x")
+    (tmp_path / "lrl_lake_report_2026-10-11.html").write_text("<v1>")
+    csv_path, html_path = _output_paths(tmp_path, "2026-10-11", "<v2>", _NOON_UTC)
+    assert csv_path.name == "lrl_lake_report_2026-10-11_rev-0817.csv"
+    assert html_path.name == "lrl_lake_report_2026-10-11_rev-0817.html"
+
+    html_path.write_text("<v2>")
+    assert _output_paths(tmp_path, "2026-10-11", "<v2>", _NOON_UTC) is None
+
+
+def test_transcribed_day_without_html_is_not_revised(tmp_path: pathlib.Path) -> None:
+    from fetch_lake_report import _output_paths
+
+    (tmp_path / "lrl_lake_report_2026-10-08.csv").write_text("x")
+    assert _output_paths(tmp_path, "2026-10-08", "<v1>", _NOON_UTC) is None
