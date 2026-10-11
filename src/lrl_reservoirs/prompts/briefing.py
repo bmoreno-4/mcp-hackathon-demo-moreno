@@ -39,8 +39,8 @@ def build_briefing_prompt(basin: str | None = None) -> str:
 
 Call the tools in this order:
 1. check_against_daily_report (no lake argument).{basin_filter}
-   Note the report date, each lake's 24-hour precipitation and 24-hour change,
-   and any lake whose status is changed_since_report or differs.
+   Note the report date. For rain, use rain_last_24hr exactly as given (empty
+   means no rain). For changes, use changes_since_report.
 2. summarize_district_lakes ({basin_arg}).
    Use counts, lakes_by_status, flood_storage_ranking and unevaluated_lakes.
 3. get_lake_trend (days=3) for up to {TREND_LAKE_LIMIT} lakes: the lakes with the
@@ -66,6 +66,7 @@ Rules:
 - Any lake above its guide curve is using flood storage; say so with its percent.
 - Never report a lake with no data as "none" or "normal"; list it as no data.
 - Do not compute your own totals or percentages of the district; use counts.
+  Percent Util is per lake: never add, average or total it across lakes.
 - Give times for readings. Report numbers factually and make no flood risk
   judgments; the LRL Daily Lake Report is the official source.
 """

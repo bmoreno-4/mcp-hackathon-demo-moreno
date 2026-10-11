@@ -318,3 +318,101 @@ def test_bundled_intermediate_is_the_digicert_ca_and_chains_to_certifi_root():
         text=True,
     )
     assert verify.returncode == 0, verify.stdout + verify.stderr
+
+
+# ── District-level rain and change lists ─────────────────────────────────────
+
+REPORT_HTML_RAIN = (
+    pathlib.Path(__file__).parent.parent
+    / "eval"
+    / "reports"
+    / "lrl_lake_report_2026-10-11.html"
+).read_text(encoding="utf-8")
+
+
+def _live_from_html(html: str):
+    rows = parse_report_rows(html)
+
+    def live(lake: Any) -> dict[str, Any]:
+        row = rows[lake.value]
+        guide = round(row["todays_pool_ft"] - row["dev_from_pool_ft"], 2)
+        return _live(
+            row["todays_pool_ft"],
+            guide,
+            row["percent_util"],
+            as_of="2026-10-11T10:00:00Z",
+        )
+
+    return live
+
+
+@pytest.mark.asyncio
+async def test_rain_list_names_every_lake_with_rain():
+    """2026-10-11: rain at 13 lakes; the agent had reported none."""
+    with (
+        patch.object(
+            cr_mod,
+            "fetch_lake_report_html",
+            new=AsyncMock(return_value=REPORT_HTML_RAIN),
+        ),
+        patch.object(
+            cr_mod,
+            "get_lake_conditions",
+            new=AsyncMock(side_effect=_live_from_html(REPORT_HTML_RAIN)),
+        ),
+    ):
+        result = await cr_mod.check_against_daily_report()
+
+    rain = result["rain_last_24hr"]
+    assert len(rain) == 13
+    assert rain[0] == {
+        "lake_id": "Barren",
+        "public_name": LAKES["Barren"]["public_name"],
+        "precip_24hr_in": 1.0,
+    }
+    assert {r["lake_id"] for r in rain}.isdisjoint(
+        {"Taylorsville", "CMHarden", "CaglesMill", "Monroe"}
+    )
+    assert result["changes_since_report"] == []
+
+
+@pytest.mark.asyncio
+async def test_dry_day_has_empty_rain_list():
+    with (
+        patch.object(
+            cr_mod, "fetch_lake_report_html", new=AsyncMock(return_value=REPORT_HTML)
+        ),
+        patch.object(
+            cr_mod,
+            "get_lake_conditions",
+            new=AsyncMock(side_effect=lambda lake: _live_from_report(lake)),
+        ),
+    ):
+        result = await cr_mod.check_against_daily_report()
+    assert result["rain_last_24hr"] == []
+
+
+@pytest.mark.asyncio
+async def test_changes_list_names_only_the_values_that_moved():
+    def live(lake: Any) -> dict[str, Any]:
+        result = _live_from_report(lake)
+        if lake.value == "Patoka":
+            result.update(percent_util=24.0, as_of="2026-10-09T16:00:00Z")
+        return result
+
+    with (
+        patch.object(
+            cr_mod, "fetch_lake_report_html", new=AsyncMock(return_value=REPORT_HTML)
+        ),
+        patch.object(cr_mod, "get_lake_conditions", new=AsyncMock(side_effect=live)),
+    ):
+        result = await cr_mod.check_against_daily_report()
+
+    assert result["changes_since_report"] == [
+        {
+            "lake_id": "Patoka",
+            "public_name": LAKES["Patoka"]["public_name"],
+            "status": "changed_since_report",
+            "changed": {"percent_util": 2.77},
+        }
+    ]

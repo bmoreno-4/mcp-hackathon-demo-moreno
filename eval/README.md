@@ -42,6 +42,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 | 2026-10-08 | Hand-transcribed from `tests/fixtures/lrl_lake_report_2026-10-08.txt` |
 | 2026-10-09 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-10 | Downloaded by `fetch_lake_report.py` |
+| 2026-10-11 | Downloaded by `fetch_lake_report.py` (first day with rain) |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
@@ -152,6 +153,26 @@ Notes:
   and change questions were checked against a dry day. They will be rerun
   after the weekend rain.
 
+### First rain day (2026-10-11)
+
+The 10/11 report shows rain at 13 of 17 lakes (Barren 1.0 in., Cave Run and
+Green 0.6 in., Carr Creek and Buckhorn 0.5 in.) and higher inflows (Barren 432
+cfs, up from 24). The district snapshot test passed again (tool call
+precision and recall 1.0, 8.35 s;
+[csv](wxo/results_2026-10-11_district_snapshot.csv)).
+
+The briefing called the right tools
+([trace](wxo/screenshots/eval_2026-10-11_briefing_trace.png)) and, with
+`lakes_by_status`, now listed every lake once (11 above, 1 at, 5 below guide).
+But it said **no lake recorded precipitation**, and that the 11 lakes above
+guide "total ≈21% of the district's flood storage" (21% is Patoka alone)
+([screenshot](wxo/screenshots/defect_2026-10-11_briefing_missed_rain.png)).
+It was not saved as a test. Fix: `check_against_daily_report` now returns
+`rain_last_24hr` (every lake with rain, wettest first) and
+`changes_since_report` (only the values that moved), and the instructions say
+Percent Util is per lake and never summed. Regression tests use the saved
+10/11 report.
+
 ### Defects the evaluation found (and fixes)
 
 | Symptom in wxO | Root cause | Fix |
@@ -164,6 +185,7 @@ Notes:
 | Made up Patoka data (2024 dates, 658 ft, 1,210 ac-ft) with no tool call | Re-importing the toolkit detached the tools from the agent; the model answered anyway | Tools re-attached; instructions: only report values from tool results, otherwise say the data could not be retrieved |
 | "I could not get the data" for the report check | The LRL report server omits its DigiCert intermediate certificate; the AI-written capture script had turned certificate checking off | Ship the public intermediate and verify with it (`SECURITY.md`); test checks it chains to the DigiCert root |
 | Briefing miscounted ("10 lakes … 10% of the district"), double-listed lakes | Model re-derived lists and percentages from 17 per-lake records | `lakes_by_status` in `summarize_district_lakes`; instructions use the tool's counts |
+| Briefing said "no precipitation" on the first rain day (13 lakes had rain) and summed Percent Util across lakes | Rain was only inside 17 nested lake records; nothing said Percent Util is per lake | `rain_last_24hr` and `changes_since_report` lists in `check_against_daily_report`; per-lake rule in instructions |
 
 Each fix has a regression test in `tests/`.
 

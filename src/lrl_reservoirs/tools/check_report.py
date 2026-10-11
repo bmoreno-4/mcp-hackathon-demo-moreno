@@ -166,6 +166,12 @@ async def check_against_daily_report(
           (bool; false before the morning report is published), report_url.
       - tolerances (dict): pool_ft, guide_curve_ft, percent_util.
       - counts (dict): number of lakes per status.
+      - rain_last_24hr (list): every lake with precipitation in the report's
+          24 hours (lake_id, public_name, precip_24hr_in), wettest first.
+          Empty means no lake recorded rain. Use this list for rain questions.
+      - changes_since_report (list): lakes whose status is changed_since_report
+          or differs, with only the values that moved (live minus report), e.g.
+          {"percent_util": 0.4}. Use this list to say what changed.
       - lakes (list): lake_id, public_name, basin, status, live_as_of,
           report {pool_ft, dev_from_guide_ft, guide_curve_ft, percent_util,
           change_24hr_ft, precip_24hr_in, inflow_24hr_avg_cfs, outflow_6am_cfs},
@@ -217,6 +223,29 @@ async def check_against_daily_report(
     for e in entries:
         counts[e["status"]] += 1
 
+    # District-level lists, so an agent does not have to scan 17 nested records
+    # (on 2026-10-11 it missed rain at 13 lakes and reported "no precipitation").
+    rain = [
+        {
+            "lake_id": e["lake_id"],
+            "public_name": e["public_name"],
+            "precip_24hr_in": e["report"]["precip_24hr_in"],
+        }
+        for e in entries
+        if e.get("report") and (e["report"].get("precip_24hr_in") or 0) > 0
+    ]
+    rain.sort(key=lambda r: r["precip_24hr_in"], reverse=True)
+    changes = [
+        {
+            "lake_id": e["lake_id"],
+            "public_name": e["public_name"],
+            "status": e["status"],
+            "changed": {f: e["live_minus_report"][f] for f in e["outside_tolerance"]},
+        }
+        for e in entries
+        if e["status"] in ("changed_since_report", "differs")
+    ]
+
     return {
         "report_date": report_date.isoformat(),
         "report_reference_time_utc": reference_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -228,6 +257,8 @@ async def check_against_daily_report(
             "percent_util": PERCENT_UTIL_TOL,
         },
         "counts": counts,
+        "rain_last_24hr": rain,
+        "changes_since_report": changes,
         "lakes": entries,
     }
 

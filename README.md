@@ -337,12 +337,12 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 | 2026-10-09 | 3 | 8 of 8 tests passed; tool call precision and recall 1.0 | 6.05 s |
 | 2026-10-10 | 5 + daily briefing | 8 of 8 passed on tool calls (recall 1.0; briefing precision 0.6, see notes) | 6.45 s |
 
-Checking answers against the official report found eight defects that unit
+Checking answers against the official report found nine defects that unit
 tests did not. Each was fixed in the server (tool descriptions, outputs or
 code) with a regression test, including: "no data" reported as "none", "using
 flood storage" confused with "flood pool full", a made-up answer when the
-tools were detached, the report site's incomplete certificate chain, and a
-briefing that miscounted lakes. See the
+tools were detached, the report site's incomplete certificate chain, a
+briefing that miscounted lakes, and a briefing that missed the first day of rain. See the
 [defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
 
 ## Limitations

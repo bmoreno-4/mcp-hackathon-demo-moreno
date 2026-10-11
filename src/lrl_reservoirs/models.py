@@ -286,6 +286,21 @@ class ReportCounts(_Model):
     not_in_report: int
 
 
+class RainReport(_Model):
+    lake_id: str
+    public_name: str
+    precip_24hr_in: float
+
+
+class ReportChange(_Model):
+    lake_id: str
+    public_name: str
+    status: Literal["changed_since_report", "differs"]
+    changed: dict[str, float | None] = Field(
+        description="Only the values outside tolerance: live minus report"
+    )
+
+
 class ReportCheck(_Model):
     """Live values vs. today's LRL Daily Lake Report (check_against_daily_report)."""
 
@@ -295,6 +310,13 @@ class ReportCheck(_Model):
     report_is_today: bool | None = None
     tolerances: ReportTolerances | None = None
     counts: ReportCounts | None = None
+    rain_last_24hr: list[RainReport] | None = Field(
+        default=None,
+        description="Lakes with rain in the report's 24 hours, wettest first",
+    )
+    changes_since_report: list[ReportChange] | None = Field(
+        default=None, description="Lakes that moved since 6 AM, and what moved"
+    )
     lakes: list[ReportLakeCheck] | None = None
     error: str | None = Field(
         default=None, description="Present only when the report could not be read"
