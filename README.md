@@ -287,13 +287,16 @@ place, which accounts for the ±0.10 ft tolerance).
 | 2026-10-09 | 17 of 17 | 17 of 17 | not recorded |
 | 2026-10-10 | 17 of 17; 14 exact | 17 of 17 | −0.09 Barren, −0.08 Carr Creek; guide curve +0.10 ft C. M. Harden |
 | 2026-10-11 (rain) | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.09 Carr Creek; guide curve +0.10 ft C. M. Harden |
+| 2026-10-12 (after rain) | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.10 Carr Creek; guide curve +0.09 ft Harsha, Buckhorn |
 
 Barren and Carr Creek show the same small negative Percent Util offset on every
-run where it was recorded (Barren −0.08, −0.09, −0.11; Carr Creek −0.08,
-−0.08, −0.09), which points to a consistent difference in a storage value or
-level rather than random error. It is within tolerance and documented rather
-than tuned away. Barren's offset grew on the rain day (1.0 in., inflow 432 cfs),
-so it is the lake to watch: at −0.15 it would fail the check.
+run where it was recorded (Barren −0.08, −0.09, −0.11, −0.11; Carr Creek −0.08,
+−0.08, −0.09, −0.10), which points to a consistent difference in a storage value
+or level rather than random error. It is within tolerance and documented rather
+than tuned away. Carr Creek's offset stays near 1% of its Percent Util as that
+rises (7.20 → 9.35), which suggests a slightly different flood-pool storage
+value; Barren's stays near −0.1 regardless. Both are the lakes to watch: at
+−0.15 a check would fail.
 
 ### Validation results (2026-10-08)
 
