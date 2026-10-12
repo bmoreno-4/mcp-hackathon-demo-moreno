@@ -1,0 +1,18 @@
+lake,basin,winter_pool,summer_pool,flood_pool,todays_pool,dev_from_pool,change_24hr,inflow_24hr,outflow,percent_util
+CaesarCreek,Little Miami,846.0,849.0,883.0,847.7,0.0,0.0,44,100,0.07
+WHHarsha,Little Miami,729.0,733.0,795.0,731.2,0.1,0.0,21,31,0.03
+WestFork,Mill Creek,675.0,675.0,702.0,675.2,0.2,0.0,2,0,0.32
+CJBrown,Mad River,1009.0,1012.0,1023.0,1011.0,0.1,-0.1,33,138,0.15
+Brookville,Whitewater,740.0,748.0,775.0,748.2,0.2,0.0,51,104,0.51
+CaveRun,Licking,724.0,730.0,765.0,729.5,1.7,0.0,54,54,3.12
+CarrCreek,Kentucky,1017.0,1028.0,1055.0,1027.9,3.8,0.3,117,12,9.35
+Buckhorn,Kentucky,757.0,782.0,840.0,782.1,2.0,0.1,135,49,1.30
+Taylorsville,Salt River,545.0,547.0,592.0,546.4,-0.6,0.0,19,50,-0.91
+Green,Green River,668.0,675.0,713.0,674.1,-0.6,0.0,0,76,-0.95
+Nolin,Green River,492.0,515.0,560.0,514.5,1.3,0.0,102,73,1.68
+Barren,Green River,528.0,552.0,590.0,551.0,0.8,0.0,206,251,1.22
+Rough,Green River,470.0,490.0,524.0,489.9,-0.1,0.0,48,48,-0.20
+CMHarden,Mid. Wabash,640.0,662.0,690.0,661.9,-0.1,0.0,1,22,-0.28
+CaglesMill,Mid. Wabash,636.0,639.5,704.0,639.1,0.2,0.0,51,104,0.09
+Monroe,Mid. Wabash,538.0,538.0,556.0,537.8,-0.2,0.0,0,56,-0.65
+Patoka,Mid. Wabash,532.0,536.0,548.0,538.5,2.9,0.0,0,24,21.22
