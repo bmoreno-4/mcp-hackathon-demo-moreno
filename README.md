@@ -1,6 +1,6 @@
 # LRL Reservoir Conditions — MCP Server
 
-An [MCP](https://modelcontextprotocol.io) server that gives SI clients live pool
+An [MCP](https://modelcontextprotocol.io) server that gives SI/AI (superintelligence / artificial intelligence) clients live pool
 conditions for all 17 **U.S. Army Corps of Engineers (USACE) Louisville District (LRL)** flood-risk management
 reservoirs, using real-time data from the USACE CWMS Data API.
 
@@ -40,7 +40,7 @@ watsonx Orchestrate does not show MCP prompts to agents, so the same workflow
 is in [`deploy/ibm/local-mcp-toolkit/agent_instructions.md`](deploy/ibm/local-mcp-toolkit/agent_instructions.md)
 for pasting into the agent; a test keeps it in step with the registered tools.
 
-### Example questions an AI client can answer
+### Example questions an SI/AI client can answer
 
 - *"How is Barren River Lake doing compared to its guide curve?"*
 - *"Which lakes are currently below their guide curve?"*

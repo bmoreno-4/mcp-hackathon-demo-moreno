@@ -16,7 +16,7 @@ Aggregate counts (at the top level) give a quick district overview:
   - at_or_above_flood    lakes at or above flood pool
   - no_data              lakes with fetch errors
 
-Interpretation guidance for AI assistants
+Interpretation guidance for SI/AI assistants
 ------------------------------------------
 - All status values (above_guide, below_guide, etc.) are relative to the live
   guide curve (Bottom of Flood Control) for the current date — NOT the static
@@ -164,7 +164,7 @@ async def summarize_district_lakes(
           appears exactly once. A lake at_guide can still show a small positive
           percent_util; list it as at guide.
 
-    Interpretation guidance for AI assistants:
+    Interpretation guidance for SI/AI assistants:
       - All status values (above_guide, below_guide, etc.) are relative to the live
         guide curve (Bottom of Flood Control) for the current date — NOT the static
         summer_pool or winter_pool reference values.

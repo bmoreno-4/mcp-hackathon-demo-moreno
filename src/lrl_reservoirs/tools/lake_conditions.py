@@ -305,12 +305,12 @@ async def get_lake_conditions(
           the pool is "below summer pool" or "below conservation pool" —
           deviations from these static targets are expected and normal during
           seasonal fill and drawdown operations.
-      - data_note (str): Guidance for the AI assistant: cites as_of, states the
+      - data_note (str): Guidance for the SI/AI assistant: cites as_of, states the
           observation age, flags staleness, and directs users to the LRL Daily
           Lake Report for official information.
       - error (str): present only when the elevation API call failed
 
-    Interpretation guidance for AI assistants:
+    Interpretation guidance for SI/AI assistants:
       - guide_curve_ft (Bottom of Flood Control) is the operative seasonal target for
         the current date. Use it — not summer_pool or winter_pool — to assess whether
         the pool is high, low, or on target.
