@@ -47,6 +47,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 | 2026-10-09 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-10 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-11 | Downloaded by `fetch_lake_report.py` (first day with rain); revised by USACE after 07:53 |
+| 2026-10-12 | Downloaded by `fetch_lake_report.py` (first 24-hour rise: Carr Creek +0.3 ft) |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
@@ -193,6 +194,17 @@ at 08:24. The "answer key" is therefore not fixed at 06:00:
 `fetch_lake_report.py` now saves a later download as
 `lrl_lake_report_<date>_rev-HHMM` when its HTML differs from what is already
 saved, and never overwrites the original. Re-run it mid-morning.
+
+### Day after the rain (2026-10-12)
+
+First report with a real 24-hour rise: Carr Creek +0.3 ft (inflow 19 → 117
+cfs, 8.23% → 9.35% Percent Util), Buckhorn +0.1 ft; rain at 7 lakes. Both
+answers were correct against the report with no fixes needed.
+
+| Question | Tool(s) | Correct answer (LRL report 10/12) | Result | Time | Evidence |
+|---|---|---|---|---|---|
+| Which lakes got rain in the last 24 hours? | `check_against_daily_report` | Barren 0.7, Buckhorn 0.6, Carr Creek 0.6, Nolin 0.3, Cave Run 0.2, Green 0.1, Harsha 0.1 in. | Pass: all 7, wettest first | 6.89 s | [csv](wxo/results_2026-10-12_rain.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_rain.png) |
+| Give me today's lake briefing. | report check, summary, `get_lake_trend` ×3 | Rain as above; Carr Creek +0.3 ft in 24 h; Patoka 21.22%, Carr Creek 9.35%, Cave Run 3.12% | Pass: each lake once (10 above, 2 at, 5 below), Percent Util per lake, Carr Creek "rising, +0.3 ft in 24 h, peak at latest reading"; precision 0.6 (data-dependent trend lakes) | 7.59 s | [csv](wxo/results_2026-10-12_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_briefing.png) |
 
 ### Defects the evaluation found (and fixes)
 
