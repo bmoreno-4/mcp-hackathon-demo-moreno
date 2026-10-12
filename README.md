@@ -1,6 +1,6 @@
 # LRL Reservoir Conditions — MCP Server
 
-An [MCP](https://modelcontextprotocol.io) server that gives SI/AI (superintelligence / artificial intelligence) clients live pool
+An [MCP](https://modelcontextprotocol.io) server that gives SI/AI (Super Intelligence / artificial intelligence) clients live pool
 conditions for all 17 **U.S. Army Corps of Engineers (USACE) Louisville District (LRL)** flood-risk management
 reservoirs, using real-time data from the USACE CWMS Data API.
 
