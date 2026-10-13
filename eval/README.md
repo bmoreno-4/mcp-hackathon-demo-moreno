@@ -48,6 +48,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 | 2026-10-10 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-11 | Downloaded by `fetch_lake_report.py` (first day with rain); revised by USACE after 07:53 |
 | 2026-10-12 | Downloaded by `fetch_lake_report.py` (first 24-hour rise: Carr Creek +0.3 ft) |
+| 2026-10-13 | Downloaded by `fetch_lake_report.py` |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
@@ -205,6 +206,18 @@ answers were correct against the report with no fixes needed.
 |---|---|---|---|---|---|
 | Which lakes got rain in the last 24 hours? | `check_against_daily_report` | Barren 0.7, Buckhorn 0.6, Carr Creek 0.6, Nolin 0.3, Cave Run 0.2, Green 0.1, Harsha 0.1 in. | Pass: all 7, wettest first | 6.89 s | [csv](wxo/results_2026-10-12_rain.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_rain.png) |
 | Give me today's lake briefing. | report check, summary, `get_lake_trend` ×3 | Rain as above; Carr Creek +0.3 ft in 24 h; Patoka 21.22%, Carr Creek 9.35%, Cave Run 3.12% | Pass: each lake once (10 above, 2 at, 5 below), Percent Util per lake, Carr Creek "rising, +0.3 ft in 24 h, peak at latest reading"; precision 0.6 (data-dependent trend lakes) | 7.59 s | [csv](wxo/results_2026-10-12_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_briefing.png) |
+
+### Second day after the rain (2026-10-13)
+
+The saved briefing test was rerun at 18:06 ET against the 10/13 report (rain at
+3 lakes; Carr Creek 9.64%, now +4.0 ft above guide).
+
+| Question | Correct answer (LRL report 10/13) | Result | Time | Evidence |
+|---|---|---|---|---|
+| Give me today's lake briefing. | Rain: Taylorsville 0.4, Harsha 0.3, Cave Run 0.2 in.; Patoka 21.14%, Carr Creek 9.64% | Pass: rain exact; each lake once (10 above, 2 at, 5 below); Patoka 21.1%, Carr Creek 9.5% (within tolerance); Carr Creek rising +0.61 ft over 3 days; recall 1.0, precision 0.6 | 8.01 s | [csv](wxo/results_2026-10-13_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-13_briefing.png) |
+
+The briefing has now been correct on two consecutive days with no changes to
+the server or instructions.
 
 ### Defects the evaluation found (and fixes)
 

@@ -349,6 +349,7 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 | 2026-10-10 | 5 + daily briefing | 8 of 8 passed on tool calls (recall 1.0; briefing precision 0.6, see notes) | 6.45 s |
 | 2026-10-11 (rain) | 5 + daily briefing | Rain, briefing and snapshot passed after fixing a briefing that missed the rain; rain amounts matched the report as revised after 06:00 | 6.3–8.4 s |
 | 2026-10-12 (after rain) | 5 + daily briefing | Rain and briefing passed with no fixes; briefing reported Carr Creek's +0.3 ft rise | 6.9–7.6 s |
+| 2026-10-13 | 5 + daily briefing | Briefing passed again with no fixes (rain at 3 lakes exact) | 8.01 s |
 
 Checking answers against the official report found nine defects that unit
 tests did not. Each was fixed in the server (tool descriptions, outputs or
