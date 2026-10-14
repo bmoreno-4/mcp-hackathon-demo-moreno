@@ -258,6 +258,12 @@ Patoka 21.1% (21.06), Carr Creek 9.4% (9.47), Cave Run 3.4% (3.41); each lake
 once (9 above, 3 at, 5 below). Recall 1.0, precision 0.6, 8.28 s
 ([csv](wxo/results_2026-10-14_briefing.csv) ·
 [screenshot](wxo/screenshots/eval_2026-10-14_briefing.png)).
+The same morning's data validation failed one check: Harsha's guide curve was
+just over the 0.10 ft limit (see [Validation results](#validation-results)). The
+briefing lists Harsha "at guide" (the server's live deviation was within
+±0.05 ft), while the report shows +0.1 ft; the two differ by no more than the
+report's 0.1 ft rounding. The failure concerns the server's guide curve against
+the report's rounded numbers, not anything the agent said.
 
 ### Defects the evaluation found (and fixes)
 
