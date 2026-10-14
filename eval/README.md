@@ -1,7 +1,9 @@
 # Evaluations
 
 This directory contains two kinds of evaluation for the LRL Reservoir Conditions
-MCP server: **data validation** (done) and **agent evaluation** (planned).
+MCP server: **data validation** (the server's numbers vs. the official report,
+daily since 2026-10-08) and **agent evaluation** (a watsonx Orchestrate agent's
+answers vs. the official report, 2026-10-09 to 2026-10-14).
 
 ---
 
@@ -14,7 +16,7 @@ Two scripts check that the server's computed values match the official
 
 | Script | What it does |
 |---|---|
-| `fetch_lake_report.py` | Downloads today's report, parses the 17-lake table, and writes `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` plus the raw HTML for provenance. Never overwrites an existing date's files. |
+| `fetch_lake_report.py` | Downloads today's report, parses the 17-lake table, and writes `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` plus the raw HTML for provenance. Never overwrites a saved report; a later same-day revision is saved as `_rev-HHMM`. |
 | `lrl_percent_util_validation.py` | Reads a dated CSV from `eval/reports/` and validates **Percent Util** (tolerance ±0.15 pp) and **guide curve elevation** (tolerance ±0.10 ft) for all 17 lakes against live CWMS data. Exits `0` if all pass, `1` on any failure. |
 
 ### Daily routine
@@ -53,6 +55,36 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
+
+### Validation results
+
+| Report date | Percent Util (±0.15) | Guide curve (±0.10 ft) | Largest differences |
+|---|---|---|---|
+| 2026-10-08 | 17 of 17; 15 exact | 17 of 17 | −0.08 Barren, Carr Creek |
+| 2026-10-09 | 17 of 17 | 17 of 17 | not recorded |
+| 2026-10-10 | 17 of 17; 14 exact | 17 of 17 | −0.09 Barren, −0.08 Carr Creek; guide curve +0.10 ft C. M. Harden |
+| 2026-10-11 (rain) | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.09 Carr Creek; guide curve +0.10 ft C. M. Harden |
+| 2026-10-12 | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.10 Carr Creek; guide curve +0.09 ft Harsha, Buckhorn |
+| 2026-10-13 | 17 of 17; 12 exact | 17 of 17 | −0.11 Barren, −0.11 Carr Creek; guide curve −0.08 ft Nolin |
+| 2026-10-14 | 17 of 17; 14 exact | **16 of 17 — FAIL: Harsha** | Harsha guide curve just over +0.10 ft; −0.11 Barren, −0.10 Carr Creek |
+
+**2026-10-14 failure (Harsha guide curve).** The report shows Harsha's pool as
+731.1 ft and its deviation from guide as 0.1 ft, so the guide curve derived
+from the report is 731.0 ft; the server's live guide curve was about 731.10 ft.
+The script compares the difference rounded to four decimals, and it was just
+over the 0.10 ft limit (displayed as +0.10, so less than 0.005 ft over). Both
+report values are rounded to 0.1 ft, so the derived guide curve can be off by
+up to just under 0.10 ft from rounding alone; the tolerance sits exactly at that
+bound with no margin, and a tiny difference in when the falling October guide
+curve is computed is enough to cross it. C. M. Harden passed at +0.10 on 10/10
+and 10/11 for the same reason, just under the line. The tolerance was not
+changed after the failure; the result stands as recorded.
+
+**Consistent offsets.** Barren (−0.08 to −0.11) and Carr Creek (−0.08 to
+−0.11) are the only lakes with a repeated Percent Util difference. Carr
+Creek's stays near 1% of its Percent Util as that rises (7.20 → 9.64), which
+suggests a slightly different flood-pool storage value; Barren's stays near
+−0.1. Both are within tolerance and documented rather than tuned away.
 
 ### Offline tests
 
