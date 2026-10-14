@@ -49,6 +49,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 | 2026-10-11 | Downloaded by `fetch_lake_report.py` (first day with rain); revised by USACE after 07:53 |
 | 2026-10-12 | Downloaded by `fetch_lake_report.py` (first 24-hour rise: Carr Creek +0.3 ft) |
 | 2026-10-13 | Downloaded by `fetch_lake_report.py` |
+| 2026-10-14 | Downloaded by `fetch_lake_report.py` |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
@@ -218,6 +219,13 @@ The saved briefing test was rerun at 18:06 ET against the 10/13 report (rain at
 
 The briefing has now been correct on two consecutive days with no changes to
 the server or instructions.
+
+**2026-10-14:** correct again (third day running). No rain anywhere, matching
+the report; Carr Creek falling, 24-hour change −0.18 ft (report −0.2);
+Patoka 21.1% (21.06), Carr Creek 9.4% (9.47), Cave Run 3.4% (3.41); each lake
+once (9 above, 3 at, 5 below). Recall 1.0, precision 0.6, 8.28 s
+([csv](wxo/results_2026-10-14_briefing.csv) ·
+[screenshot](wxo/screenshots/eval_2026-10-14_briefing.png)).
 
 ### Defects the evaluation found (and fixes)
 
