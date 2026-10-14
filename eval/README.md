@@ -208,7 +208,7 @@ answers were correct against the report with no fixes needed.
 | Which lakes got rain in the last 24 hours? | `check_against_daily_report` | Barren 0.7, Buckhorn 0.6, Carr Creek 0.6, Nolin 0.3, Cave Run 0.2, Green 0.1, Harsha 0.1 in. | Pass: all 7, wettest first | 6.89 s | [csv](wxo/results_2026-10-12_rain.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_rain.png) |
 | Give me today's lake briefing. | report check, summary, `get_lake_trend` ×3 | Rain as above; Carr Creek +0.3 ft in 24 h; Patoka 21.22%, Carr Creek 9.35%, Cave Run 3.12% | Pass: each lake once (10 above, 2 at, 5 below), Percent Util per lake, Carr Creek "rising, +0.3 ft in 24 h, peak at latest reading"; precision 0.6 (data-dependent trend lakes) | 7.59 s | [csv](wxo/results_2026-10-12_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_briefing.png) |
 
-### Second day after the rain (2026-10-13)
+### Briefing reruns (2026-10-13 and 2026-10-14)
 
 The saved briefing test was rerun at 18:06 ET against the 10/13 report (rain at
 3 lakes; Carr Creek 9.64%, now +4.0 ft above guide).
