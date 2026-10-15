@@ -1,16 +1,10 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-09-29/server.schema.json",
-  "name": "io.github.GSA-TTS/lrl-reservoirs",
-  "description": "MCP server for USACE Louisville District reservoir conditions — pool elevation, guide curve, storage utilisation, and district-wide summary.",
+  "name": "io.github.bmoreno-4/mcp-hackathon-demo-moreno",
+  "description": "USACE Louisville District lakes: pool, guide curve, flood storage, trends, daily report check",
   "repository": {
-    "url": "https://github.com/GSA-TTS/lrl-reservoirs",
+    "url": "https://github.com/bmoreno-4/mcp-hackathon-demo-moreno",
     "source": "github"
   },
-  "version": "0.1.0",
-  "remotes": [
-    {
-      "type": "streamable-http",
-      "url": "https://lrl-reservoirs.app.cloud.gov/mcp"
-    }
-  ]
+  "version": "0.1.0"
 }

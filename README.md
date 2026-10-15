@@ -394,12 +394,13 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 | 2026-10-15 (rain) | 5 + daily briefing | Briefing passed: all 16 rain amounts exact, West Fork +0.7 ft rise picked for trends; Cave Run follow-up answered from `get_lake_trend` | 7.88 s |
 
 Checking answers against the official report found nine defects that unit
-tests did not. Each was fixed in the server (tool descriptions, outputs or
-code) with a regression test, including: "no data" reported as "none", "using
-flood storage" confused with "flood pool full", a made-up answer when the
-tools were detached, the report site's incomplete certificate chain, a
-briefing that miscounted lakes, and a briefing that missed the first day of rain. See the
-[defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
+tests did not, including: "no data" reported as "none", "using flood storage"
+confused with "flood pool full", a made-up answer when the tools were detached,
+the report site's incomplete certificate chain, a briefing that miscounted
+lakes, and a briefing that missed the first day of rain. Seven were fixed in the
+server (tool descriptions, outputs or code), each with a regression test; two
+were fixed in the agent instructions and confirmed by rerunning the evaluation.
+See the [defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
 
 ## Limitations
 

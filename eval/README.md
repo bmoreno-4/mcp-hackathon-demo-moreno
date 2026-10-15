@@ -286,7 +286,10 @@ steady over 24 hours and over 3 days, with Percent Util rising from 3.2% to
 | Briefing miscounted ("10 lakes … 10% of the district"), double-listed lakes | Model re-derived lists and percentages from 17 per-lake records | `lakes_by_status` in `summarize_district_lakes`; instructions use the tool's counts |
 | Briefing said "no precipitation" on the first rain day (13 lakes had rain) and summed Percent Util across lakes | Rain was only inside 17 nested lake records; nothing said Percent Util is per lake | `rain_last_24hr` and `changes_since_report` lists in `check_against_daily_report`; per-lake rule in instructions |
 
-Each fix has a regression test in `tests/`.
+Fixes to the server code have regression tests in `tests/`. The two fixes made
+only in the agent instructions (the fake tool call and the made-up Patoka
+answer) cannot be unit-tested; a test checks that the instructions name every
+registered tool, and the evaluation reruns showed the behavior did not return.
 
 ### Optional: Phoenix harness
 
