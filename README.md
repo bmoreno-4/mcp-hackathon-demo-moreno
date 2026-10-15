@@ -1,8 +1,11 @@
 # LRL Reservoir Conditions — MCP Server
 
-An [MCP](https://modelcontextprotocol.io) server that gives SI/AI (Super Intelligence / artificial intelligence) clients live pool
-conditions for all 17 **U.S. Army Corps of Engineers (USACE) Louisville District (LRL)** flood-risk management
-reservoirs, using real-time data from the USACE CWMS Data API.
+An [MCP](https://modelcontextprotocol.io) server that gives SI/AI clients live
+conditions for the 17 flood risk management lakes of the U.S. Army Corps of
+Engineers (USACE) Louisville District (LRL), from the public CWMS Data API.
+
+SI (Super Intelligence) is the federal term under EO 14434; AI (artificial
+intelligence) is the common public term. This repo uses both, as SI/AI.
 
 Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.astral.sh/uv/).
 
@@ -56,16 +59,19 @@ for pasting into the agent; a test keeps it in step with the registered tools.
 
 | Field | Description |
 |---|---|
+| `as_of` | UTC time of the elevation reading |
+| `observation_age_hours`, `stale` | Age of that reading; `stale` is true after 30 hours |
 | `elevation_ft` | Current pool elevation in feet (NGVD-29) |
 | `guide_curve_ft` | Today's seasonal Bottom of Flood Control elevation |
 | `deviation_from_guide_curve_ft` | Elevation minus guide curve; negative = below guide |
-| `pool_status` | `below_guide` / `at_guide` / `above_guide` / `at_or_above_flood` / `no_data` |
+| `pool_status` | `below_guide` / `at_guide` / `above_guide` / `at_or_above_flood` / `no_data`, or `no_guide/...` when the guide curve could not be read |
 | `percent_to_flood_pool` | Elevation-based position through flood-control buffer (0 % = at guide, 100 % = flood pool) |
 | `storage_acre_ft` | Current pool storage (acre-feet) |
 | `storage_at_guide_curve_acre_ft` | Storage in acre-feet at today's guide curve elevation |
 | `storage_at_flood_pool_acre_ft` | Storage in acre-feet at top of flood pool |
-| `percent_util` | Storage-based utilisation — matches the USACE Daily Lake Report **Percent Util** column |
+| `percent_util` | Share of flood storage in use, the report's Percent Util formula; within ±0.15 of the report in daily validation, usually exact |
 | `reference_levels` | Static pool schedule: winter/summer/flood pool elevations |
+| `data_note` | Short note for the agent: reading time, staleness, official source |
 
 ---
 
@@ -148,7 +154,7 @@ uv sync
 uv run python main.py
 ```
 
-The server starts in **stdio** mode — it speaks JSON-RPC over stdin/stdout, which
+The server starts in **stdio** mode: it speaks JSON-RPC over stdin/stdout, which
 is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
 
 ### Connect a client
@@ -193,26 +199,29 @@ it the API returns `501 Not Implemented`).
 
 | Series / Level | Role |
 |---|---|
-| `<lake>.Elev.Inst.0.0.lrldlb-rev` | Current pool elevation; updates every 15–60 min |
+| `<lake>.Elev.Inst.0.0.lrldlb-rev` | Current pool elevation; a new value about every 6 hours |
 | `<lake>.Elev.Inst.0.Bottom of Flood Control` | Seasonal guide curve elevation (interpolated) |
 
 The guide curve is a CWMS _location level_ with seasonal anchor points. The server
-interpolates it at the observation timestamp using the same linear-interpolation
-algorithm as the CWMS engine.
+interpolates linearly between those points at the time of the reading. Checked
+against the guide curve implied by the report, it was within 0.10 ft on every
+lake on 7 of 8 days (see Validation runs).
 
 ### Storage and Percent Util
 
 | Series / Level | Role |
 |---|---|
 | `<lake>.Stor.Inst.1Hour.0.lrldlb-comp` | Current storage (acre-ft), hourly |
-| `<lake>.Stor.Inst.0.Bottom of Flood Control` | Storage at today's guide curve — seasonal level |
-| `<lake>.Stor.Inst.0.Top of Flood` | Storage at flood pool — constant level |
+| `<lake>.Stor.Inst.0.Bottom of Flood Control` | Storage at today's guide curve (seasonal level) |
+| `<lake>.Stor.Inst.0.Top of Flood` | Storage at flood pool (constant level) |
 
-**`lrldlb-comp` vs `lrldlb-rev`:** Both variants appear in the CWMS catalog.
-The `-rev` (revised) series is present but returns no values through the public
-API. The `-comp` (computed) series is the only variant with live data.
+**Storage series:** both `-comp` and `-rev` storage series appear in the CWMS
+catalog, but only the `-comp` (computed) storage series returned values through
+the public API, so the server uses it. Elevation comes from the `-rev` series,
+which does return values.
 
-**Percent Util formula** (matches the USACE Daily Lake Report column exactly):
+**Percent Util formula** (the report's formula; daily validation matches the
+report within ±0.15, and exactly for most lakes):
 
 ```
 percent_util = (current_storage − storage_at_guide_curve)
@@ -238,7 +247,7 @@ each morning at **06:00 US/Eastern** (10:00 UTC in October). Two scripts in
 
 | Script | Purpose |
 |---|---|
-| `eval/fetch_lake_report.py` | Download today's report → `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` + raw HTML. Never overwrites an existing date's files. |
+| `eval/fetch_lake_report.py` | Download today's report to `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` plus the raw HTML. Never overwrites a saved report; a later same-day revision is saved as `_rev-HHMM`. |
 | `eval/lrl_percent_util_validation.py` | Read a dated CSV and validate **Percent Util** (±0.15 pp) and **guide curve elevation** (±0.10 ft) for all 17 lakes against live CWMS data. |
 
 ### Daily routine
@@ -385,50 +394,45 @@ briefing that miscounted lakes, and a briefing that missed the first day of rain
 
 ## Limitations
 
-- **Storage timeseries lag:** The `lrldlb-comp` series updates hourly. Sub-hourly
-  elevation changes are not reflected in storage until the next hourly value.
-- **No storage-to-elevation ratings:** CWMS does not expose elevation→storage
-  rating tables for LRL reservoirs through the public API. Storage is read
-  directly from the computed timeseries.
-- **`percent_to_flood_pool` is elevation-based:** It is computed from the pool
-  stage (elevation), not storage. Use `percent_util` when you need a value that
-  matches the Daily Lake Report.
-- **Guide curve `no_guide` fallback:** When the Bottom of Flood Control level
-  fetch fails, the server falls back to a static pool classification
-  (`pool_status` is prefixed `no_guide/`). `percent_util` is still computed from
-  storage as long as the storage bounds are available.
-- **The official report is once a day:** `check_against_daily_report`
-  compares live values with the 06:00 Eastern report. Later in the day,
-  differences are usually real changes (`changed_since_report`), not errors.
-- **MCP prompts in watsonx Orchestrate:** wxO does not show MCP prompts to
-  agents, so the `district_briefing` workflow is also provided as agent
-  instructions (`deploy/ibm/local-mcp-toolkit/agent_instructions.md`).
-- **Public data, no auth:** The CWMS Data API is unauthenticated. Data is
-  subject to revision (the `-rev` series) but revised values are currently not
-  served through the public endpoint.
+- Storage updates hourly but elevation only about every 6 hours, so the
+  elevation, guide curve and status can be several hours older than Percent
+  Util. Each answer gives the reading time and its age.
+- The server reads storage directly from the CWMS computed storage series; it
+  does not convert elevation to storage itself.
+- `percent_to_flood_pool` is based on elevation, not storage. Use
+  `percent_util` for a value comparable to the Daily Lake Report.
+- If the guide curve level cannot be read, the server falls back to the static
+  pool schedule and prefixes `pool_status` with `no_guide/`. `percent_util` is
+  still computed if the storage values are available.
+- The official report comes out once a day, for 06:00 Eastern, and is sometimes
+  revised later that morning. Later in the day, differences from it are usually
+  real changes (`changed_since_report`), not errors.
+- watsonx Orchestrate does not show MCP prompts to agents, so the
+  `district_briefing` workflow is also provided as agent instructions
+  (`deploy/ibm/local-mcp-toolkit/agent_instructions.md`).
+- Barren and Carr Creek show a consistent Percent Util offset of about −0.1
+  against the report (see Validation runs); the cause has not been confirmed.
+- The CWMS Data API is public and needs no authentication; the server does not
+  add any.
 
 ---
 
 ## Security notes
 
-- **Outbound requests are constrained.** All CWMS calls use a fixed base URL in
-  operator-controlled code. Tool arguments cannot influence the destination host
-  or scheme. Path segments are percent-encoded before use.
-- **Redirects are disabled.** `httpx` is configured with
-  `follow_redirects=False`. The CWMS API does not redirect; a redirect would
-  indicate something unexpected.
-- **Responses are size-limited.** Each response is capped at 1 MB to prevent
-  memory exhaustion from unexpectedly large upstream payloads.
-- **Errors are sanitised.** Upstream response bodies, full URLs, and stack
-  traces are never forwarded to the caller. Error messages expose only the HTTP
-  status code or a generic category.
-- **DNS and IP validation** is not needed here because the destination is a
-  fixed hardcoded constant, not a caller-supplied URL.
-- **The LRL report has its own narrowly scoped client.** It requests only the
-  fixed report URL, with redirects off, a 1 MB cap and sanitized errors. The
-  report server omits its DigiCert intermediate certificate, so the package
-  ships that public certificate and verifies with it instead of turning
-  certificate checking off (details in [SECURITY.md](SECURITY.md)).
+- All CWMS requests go to a fixed base URL set in code. Tool arguments cannot
+  change the host or scheme, and path segments are percent-encoded.
+- Redirects are turned off (`follow_redirects=False`). The CWMS API does not
+  redirect, so a redirect would mean something unexpected.
+- Each response is capped at 1 MB.
+- Errors returned to the agent never include upstream response bodies, full
+  URLs or stack traces, only the HTTP status or a general category.
+- DNS and IP checks are not needed because the destination is a fixed constant,
+  not a URL from the caller.
+- The LRL report has its own client that requests only the fixed report URL,
+  with redirects off, a 1 MB cap and the same error handling. The report server
+  leaves out its DigiCert intermediate certificate, so the package includes that
+  public certificate and verifies with it rather than turning certificate
+  checking off (details in [SECURITY.md](SECURITY.md)).
 
 See [SECURITY.md](SECURITY.md) for the vulnerability disclosure policy.
 

@@ -67,7 +67,7 @@ dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
 | 2026-10-11 (rain) | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.09 Carr Creek; guide curve +0.10 ft C. M. Harden |
 | 2026-10-12 | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.10 Carr Creek; guide curve +0.09 ft Harsha, Buckhorn |
 | 2026-10-13 | 17 of 17; 12 exact | 17 of 17 | −0.11 Barren, −0.11 Carr Creek; guide curve −0.08 ft Nolin |
-| 2026-10-14 | 17 of 17; 14 exact | **16 of 17 — FAIL: Harsha** | Harsha guide curve just over +0.10 ft; −0.11 Barren, −0.10 Carr Creek |
+| 2026-10-14 | 17 of 17; 14 exact | **16 of 17 (Harsha failed)** | Harsha guide curve just over +0.10 ft; −0.11 Barren, −0.10 Carr Creek |
 | 2026-10-15 (rain) | 17 of 17; 13 exact | 17 of 17 | **−0.14 Barren** (limit 0.15), −0.10 Carr Creek; guide curve −0.08 ft C. J. Brown |
 
 **2026-10-14 failure (Harsha guide curve).** The report shows Harsha's pool as
@@ -253,37 +253,24 @@ The saved briefing test was rerun at 18:06 ET against the 10/13 report (rain at
 |---|---|---|---|---|
 | Give me today's lake briefing. | Rain: Taylorsville 0.4, Harsha 0.3, Cave Run 0.2 in.; Patoka 21.14%, Carr Creek 9.64% | Pass: rain exact; each lake once (10 above, 2 at, 5 below); Patoka 21.1%, Carr Creek 9.5% (within tolerance); Carr Creek rising +0.61 ft over 3 days; recall 1.0, precision 0.6 | 8.01 s | [csv](wxo/results_2026-10-13_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-13_briefing.png) |
 
-The briefing has now been correct on two consecutive days with no changes to
-the server or instructions.
+The briefing was correct on 10/13, 10/14 and 10/15 with no changes to the
+server or the instructions.
 
-**2026-10-14:** correct again (third day running). No rain anywhere, matching
-the report; Carr Creek falling, 24-hour change −0.18 ft (report −0.2);
-Patoka 21.1% (21.06), Carr Creek 9.4% (9.47), Cave Run 3.4% (3.41); each lake
-once (9 above, 3 at, 5 below). Recall 1.0, precision 0.6, 8.28 s
-([csv](wxo/results_2026-10-14_briefing.csv) ·
-[screenshot](wxo/screenshots/eval_2026-10-14_briefing.png)).
-The same morning's data validation failed one check: Harsha's guide curve was
-just over the 0.10 ft limit (see [Validation results](#validation-results)). The
-briefing lists Harsha "at guide" (the server's live deviation was within
-±0.05 ft), while the report shows +0.1 ft; the two differ by no more than the
-report's 0.1 ft rounding. The failure concerns the server's guide curve against
-the report's rounded numbers, not anything the agent said.
+| Date | Report conditions | Briefing result | Recall / precision | Time | Evidence |
+|---|---|---|---|---|---|
+| 10/14 | No rain; Carr Creek −0.2 ft in 24 h | Correct: no rain; Carr Creek falling (−0.18 ft); Patoka 21.1% (report 21.06), Carr Creek 9.4% (9.47), Cave Run 3.4% (3.41); 9 above, 3 at, 5 below guide | 1.0 / 0.6 | 8.28 s | [csv](wxo/results_2026-10-14_briefing.csv), [screenshot](wxo/screenshots/eval_2026-10-14_briefing.png) |
+| 10/15 | Rain at 16 lakes (Barren 1.7 in.); West Fork +0.7 ft | Correct: all 16 rain amounts; 11 above, 2 at, 4 below; Patoka 21.4% (21.43); Buckhorn Percent Util up since 6 AM (1.56 to 1.8); West Fork chosen for a trend because of its +0.67 ft rise | 1.0 / 0.5 | 7.88 s | [csv](wxo/results_2026-10-15_briefing.csv), [screenshot](wxo/screenshots/eval_2026-10-15_briefing_and_followup.png) |
 
-**2026-10-15 (second rain event):** correct. The
-report showed rain at 16 of 17 lakes (Barren 1.7, C. J. Brown 1.5, Green 1.3
-in.) and West Fork +0.7 ft in 24 hours. The briefing listed all 16 lakes and
-amounts exactly; each lake once (11 above, 2 at, 4 below); Patoka 21.4%
-(21.43); one change since 6 AM (Buckhorn Percent Util 1.56 → 1.8); and it
-chose West Fork for a trend because of its 24-hour rise (+0.67 ft; report
-+0.7), as the briefing rules ask. Recall 1.0; precision 0.5 (three trend calls
-for data-dependent lakes); 7.88 s.
+On 10/14 the data validation failed one check (Harsha's guide curve, see
+[Validation results](#validation-results)). That does not affect the briefing:
+it listed Harsha at guide, the server's live deviation was within ±0.05 ft, and
+the report showed +0.1 ft, a difference within the report's 0.1 ft rounding.
 
-A follow-up in the same chat, *"Can you give me more detail on Cave Run Lake's
-3-day elevation trend?"*, called `get_lake_trend` and returned all 11 readings
-(729.53 → 729.58 ft), steady over 24 hours and 3 days, Percent Util 3.2% →
-3.7% (report 3.66%) — the first multi-turn test
-([csv](wxo/results_2026-10-15_briefing.csv) ·
-[screenshot](wxo/screenshots/eval_2026-10-15_briefing_and_followup.png)).
+On 10/15 a follow-up question in the same chat, "Can you give me more detail on
+Cave Run Lake's 3-day elevation trend?", was the first multi-turn test. The
+agent called `get_lake_trend` and listed all 11 readings (729.53 to 729.58 ft),
+steady over 24 hours and over 3 days, with Percent Util rising from 3.2% to
+3.7% (report 3.66%).
 
 ### Defects the evaluation found (and fixes)
 

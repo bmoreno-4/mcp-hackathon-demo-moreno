@@ -19,9 +19,9 @@ Aggregate counts (at the top level) give a quick district overview:
 Interpretation guidance for SI/AI assistants
 ------------------------------------------
 - All status values (above_guide, below_guide, etc.) are relative to the live
-  guide curve (Bottom of Flood Control) for the current date — NOT the static
+  guide curve (Bottom of Flood Control) for the current date not the static
   summer_pool or winter_pool reference values.
-- Do NOT characterise lakes as "below summer pool" or "below conservation pool"
+- Do not describe lakes as "below summer pool" or "below conservation pool"
   as shortfalls; deviations from those static targets are expected and normal
   during seasonal fill and drawdown periods.
 - Always include the observation timestamp (as_of per lake, as_of_utc for the
@@ -114,10 +114,10 @@ async def summarize_district_lakes(
     status: Annotated[
         PoolStatusFilter | None,  # type: ignore[valid-type]
         "Optional: restrict results to one pool status bucket: above_guide "
-        "(pool is above the guide curve, i.e. USING some flood storage) | at_guide "
-        "| below_guide | at_or_above_flood (pool at or above the TOP of the flood "
-        "pool, i.e. flood storage FULL; rare) | no_data. To find which lake is "
-        "using the most flood storage, do NOT filter by status; use "
+        "(pool is above the guide curve, i.e. using some flood storage) | at_guide "
+        "| below_guide | at_or_above_flood (pool at or above the top of the flood "
+        "pool, i.e. flood storage full; rare) | no_data. To find which lake is "
+        "using the most flood storage, do not filter by status; use "
         "flood_storage_ranking (sorted by percent_util).",
     ] = None,
 ) -> dict[str, Any]:
@@ -131,7 +131,7 @@ async def summarize_district_lakes(
 
     Returns a dict with:
       - as_of_utc (str): ISO-8601 UTC timestamp of the tool call —
-          ALWAYS include this when reporting district conditions to users.
+          Always include this when reporting district conditions to users.
       - total_lakes (int): Number of lakes in the district (always 17)
       - counts (dict): Aggregate status breakdown relative to today's guide curve —
           above_guide, at_guide, below_guide, at_or_above_flood, no_data.
@@ -166,9 +166,9 @@ async def summarize_district_lakes(
 
     Interpretation guidance for SI/AI assistants:
       - All status values (above_guide, below_guide, etc.) are relative to the live
-        guide curve (Bottom of Flood Control) for the current date — NOT the static
+        guide curve (Bottom of Flood Control) for the current date not the static
         summer_pool or winter_pool reference values.
-      - Do not characterise lakes as "below summer pool" or "below conservation pool"
+      - Do not describe lakes as "below summer pool" or "below conservation pool"
         as shortfalls; deviations from those static targets are expected and normal
         during seasonal fill and drawdown periods.
       - Always include the observation timestamp (as_of per lake, as_of_utc for the
@@ -178,7 +178,7 @@ async def summarize_district_lakes(
         concern" or "normal conditions".
       - Terminology: a lake "using flood storage" is any lake above its guide
         curve; how much is percent_util (share of flood storage in use).
-        at_or_above_flood means the flood pool is FULL, not "using flood storage".
+        at_or_above_flood means the flood pool is full, not "using flood storage".
       - For official lake conditions, direct users to the LRL Daily Lake Report:
         https://www.lrl-wc.usace.army.mil/reports/lkreport.html
     """
@@ -263,7 +263,7 @@ async def summarize_district_lakes(
         names = ", ".join(str(u["public_name"]) for u in unevaluated)
         filter_note = (
             f"{len(unevaluated)} lake(s) in scope could not be evaluated and are "
-            f"NOT included in the filtered results: {names}. Do not report them "
+            f"not included in the filtered results: {names}. Do not report them "
             "as not matching the filter; say their status is unknown."
         )
 

@@ -262,7 +262,7 @@ async def get_lake_conditions(
       - elevation_ft (float | null): Latest pool elevation in feet
       - vertical_datum (str | null): Datum of the elevation reading (e.g. "NGVD-29")
       - as_of (str | null): ISO-8601 UTC timestamp of the observation —
-          ALWAYS include this when reporting conditions to users.
+          Always include this when reporting conditions to users.
       - observation_age_hours (float | null): Age of the most recent elevation
           reading in hours (rounded to one decimal place). Useful for phrasing
           responses as "as of 7:00 AM today" or "last updated N hours ago".
@@ -272,7 +272,7 @@ async def get_lake_conditions(
           at the observation's timestamp — the operative target for that date.
           The LRL Daily Lake Report calls this "Pool" and measures "Dev. from Pool"
           against it. This is the primary reference for assessing whether the pool
-          is high, low, or on target — NOT summer_pool or winter_pool.
+          is high, low, or on target, not summer_pool or winter_pool.
       - deviation_from_guide_curve_ft (float | null): elevation minus guide_curve_ft;
           negative = pool is below today's guide curve
       - pool_status (str): Status relative to guide curve — one of:
@@ -290,7 +290,7 @@ async def get_lake_conditions(
           today's guide curve elevation (Bottom of Flood Control storage level).
       - storage_at_flood_pool_acre_ft (float | null): Storage in acre-feet at
           the top of flood pool (Top of Flood storage level).
-      - percent_util (float | null): Storage-based utilisation matching the
+      - percent_util (float | null): Storage-based utilization matching the
           "Percent Util" column in the USACE LRL Daily Lake Report.
           Formula: (storage - storage_at_guide)
               / (storage_at_flood - storage_at_guide) * 100.

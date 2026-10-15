@@ -319,7 +319,7 @@ async def test_status_description_explains_flood_storage_terms():
     tool = {t.name: t for t in await mcp.list_tools()}["summarize_district_lakes"]
     text = str(tool.parameters) + str(tool.description)
     assert "flood_storage_ranking" in text
-    assert "TOP of the flood" in text
+    assert "top of the flood" in text
 
 
 @pytest.mark.asyncio
