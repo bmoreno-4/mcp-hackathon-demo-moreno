@@ -290,6 +290,7 @@ place, which accounts for the ±0.10 ft tolerance).
 | 2026-10-12 (after rain) | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.10 Carr Creek; guide curve +0.09 ft Harsha, Buckhorn |
 | 2026-10-13 | 17 of 17; 12 exact | 17 of 17 | −0.11 Barren, −0.11 Carr Creek; guide curve −0.08 ft Nolin |
 | 2026-10-14 | 17 of 17; 14 exact | **16 of 17**: Harsha just over +0.10 ft (limit 0.10) | −0.11 Barren, −0.10 Carr Creek |
+| 2026-10-15 (rain) | 17 of 17; 13 exact | 17 of 17 | **−0.14 Barren** (limit 0.15), −0.10 Carr Creek; guide curve −0.08 ft C. J. Brown |
 
 **The 2026-10-14 guide curve failure.** The report gives today's pool and the
 deviation from guide, each rounded to 0.1 ft, so the guide curve derived from
@@ -300,14 +301,15 @@ alone. The ±0.10 ft tolerance sits exactly at that bound, with no margin. On
 slightly different moment. The tolerance was not changed after the fact; the
 result is recorded as a failure, with this explanation.
 
-Barren and Carr Creek show the same small negative Percent Util offset on every
-run where it was recorded (Barren −0.08, −0.09, −0.11, −0.11, −0.11, −0.11;
-Carr Creek −0.08, −0.08, −0.09, −0.10, −0.11, −0.10), which points to a consistent difference in a storage value
-or level rather than random error. It is within tolerance and documented rather
-than tuned away. Carr Creek's offset stays near 1% of its Percent Util as that
-rises (7.20 → 9.64), which suggests a slightly different flood-pool storage
-value; Barren's stays near −0.1 regardless. Both are the lakes to watch: at
-−0.15 a check would fail.
+Barren and Carr Creek show a repeated negative Percent Util offset (Barren
+−0.08, −0.09, −0.11, −0.11, −0.11, −0.11, −0.14; Carr Creek −0.08, −0.08,
+−0.09, −0.10, −0.11, −0.10, −0.10). Carr Creek's stays near 1% of its Percent
+Util as that rises (7.20 → 9.60), which suggests a slightly different
+flood-pool storage value. Barren's held near −0.11 until 10/15, when 1.7 in. of
+rain pushed its inflow to 341 cfs and the offset to −0.14, 0.01 from the
+limit; a lake filling quickly is more sensitive to small timing differences
+between the report's storage value and CWMS. Both are documented rather than
+tuned away, and Barren is the most likely next failure.
 
 ### Validation results (2026-10-08)
 
@@ -362,6 +364,7 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 | 2026-10-12 (after rain) | 5 + daily briefing | Rain and briefing passed with no fixes; briefing reported Carr Creek's +0.3 ft rise | 6.9–7.6 s |
 | 2026-10-13 | 5 + daily briefing | Briefing passed again with no fixes (rain at 3 lakes exact) | 8.01 s |
 | 2026-10-14 | 5 + daily briefing | Briefing passed: no rain, Carr Creek falling (−0.18 ft vs report −0.2) | 8.28 s |
+| 2026-10-15 (rain) | 5 + daily briefing | Briefing passed: all 16 rain amounts exact, West Fork +0.7 ft rise picked for trends; Cave Run follow-up answered from `get_lake_trend` | 7.88 s |
 
 Checking answers against the official report found nine defects that unit
 tests did not. Each was fixed in the server (tool descriptions, outputs or

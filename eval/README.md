@@ -3,7 +3,7 @@
 This directory contains two kinds of evaluation for the LRL Reservoir Conditions
 MCP server: **data validation** (the server's numbers vs. the official report,
 daily since 2026-10-08) and **agent evaluation** (a watsonx Orchestrate agent's
-answers vs. the official report, 2026-10-09 to 2026-10-14).
+answers vs. the official report, 2026-10-09 to 2026-10-15).
 
 ---
 
@@ -52,6 +52,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 | 2026-10-12 | Downloaded by `fetch_lake_report.py` (first 24-hour rise: Carr Creek +0.3 ft) |
 | 2026-10-13 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-14 | Downloaded by `fetch_lake_report.py` |
+| 2026-10-15 | Downloaded by `fetch_lake_report.py` (second rain event: 16 lakes) |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
@@ -67,6 +68,7 @@ dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
 | 2026-10-12 | 17 of 17; 13 exact | 17 of 17 | −0.11 Barren, −0.10 Carr Creek; guide curve +0.09 ft Harsha, Buckhorn |
 | 2026-10-13 | 17 of 17; 12 exact | 17 of 17 | −0.11 Barren, −0.11 Carr Creek; guide curve −0.08 ft Nolin |
 | 2026-10-14 | 17 of 17; 14 exact | **16 of 17 — FAIL: Harsha** | Harsha guide curve just over +0.10 ft; −0.11 Barren, −0.10 Carr Creek |
+| 2026-10-15 (rain) | 17 of 17; 13 exact | 17 of 17 | **−0.14 Barren** (limit 0.15), −0.10 Carr Creek; guide curve −0.08 ft C. J. Brown |
 
 **2026-10-14 failure (Harsha guide curve).** The report shows Harsha's pool as
 731.1 ft and its deviation from guide as 0.1 ft, so the guide curve derived
@@ -80,11 +82,13 @@ curve is computed is enough to cross it. C. M. Harden passed at +0.10 on 10/10
 and 10/11 for the same reason, just under the line. The tolerance was not
 changed after the failure; the result stands as recorded.
 
-**Consistent offsets.** Barren (−0.08 to −0.11) and Carr Creek (−0.08 to
+**Consistent offsets.** Barren (−0.08 to −0.14) and Carr Creek (−0.08 to
 −0.11) are the only lakes with a repeated Percent Util difference. Carr
-Creek's stays near 1% of its Percent Util as that rises (7.20 → 9.64), which
-suggests a slightly different flood-pool storage value; Barren's stays near
-−0.1. Both are within tolerance and documented rather than tuned away.
+Creek's stays near 1% of its Percent Util as that rises (7.20 → 9.60), which
+suggests a slightly different flood-pool storage value. Barren's held near
+−0.11 until 10/15, when 1.7 in. of rain (inflow 341 cfs) took it to −0.14,
+0.01 from the limit. Both are within tolerance and documented rather than tuned
+away; Barren is the most likely next failure.
 
 ### Offline tests
 
@@ -240,7 +244,7 @@ answers were correct against the report with no fixes needed.
 | Which lakes got rain in the last 24 hours? | `check_against_daily_report` | Barren 0.7, Buckhorn 0.6, Carr Creek 0.6, Nolin 0.3, Cave Run 0.2, Green 0.1, Harsha 0.1 in. | Pass: all 7, wettest first | 6.89 s | [csv](wxo/results_2026-10-12_rain.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_rain.png) |
 | Give me today's lake briefing. | report check, summary, `get_lake_trend` ×3 | Rain as above; Carr Creek +0.3 ft in 24 h; Patoka 21.22%, Carr Creek 9.35%, Cave Run 3.12% | Pass: each lake once (10 above, 2 at, 5 below), Percent Util per lake, Carr Creek "rising, +0.3 ft in 24 h, peak at latest reading"; precision 0.6 (data-dependent trend lakes) | 7.59 s | [csv](wxo/results_2026-10-12_briefing.csv) · [screenshot](wxo/screenshots/eval_2026-10-12_briefing.png) |
 
-### Briefing reruns (2026-10-13 and 2026-10-14)
+### Briefing reruns (2026-10-13 to 2026-10-15)
 
 The saved briefing test was rerun at 18:06 ET against the 10/13 report (rain at
 3 lakes; Carr Creek 9.64%, now +4.0 ft above guide).
@@ -264,6 +268,22 @@ briefing lists Harsha "at guide" (the server's live deviation was within
 ±0.05 ft), while the report shows +0.1 ft; the two differ by no more than the
 report's 0.1 ft rounding. The failure concerns the server's guide curve against
 the report's rounded numbers, not anything the agent said.
+
+**2026-10-15 (second rain event):** correct, and the hardest test so far. The
+report showed rain at 16 of 17 lakes (Barren 1.7, C. J. Brown 1.5, Green 1.3
+in.) and West Fork +0.7 ft in 24 hours. The briefing listed all 16 lakes and
+amounts exactly; each lake once (11 above, 2 at, 4 below); Patoka 21.4%
+(21.43); one change since 6 AM (Buckhorn Percent Util 1.56 → 1.8); and it
+chose West Fork for a trend because of its 24-hour rise (+0.67 ft; report
++0.7), as the briefing rules ask. Recall 1.0; precision 0.5 (three trend calls
+for data-dependent lakes); 7.88 s.
+
+A follow-up in the same chat, *"Can you give me more detail on Cave Run Lake's
+3-day elevation trend?"*, called `get_lake_trend` and returned all 11 readings
+(729.53 → 729.58 ft), steady over 24 hours and 3 days, Percent Util 3.2% →
+3.7% (report 3.66%) — the first multi-turn test
+([csv](wxo/results_2026-10-15_briefing.csv) ·
+[screenshot](wxo/screenshots/eval_2026-10-15_briefing_and_followup.png)).
 
 ### Defects the evaluation found (and fixes)
 
