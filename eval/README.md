@@ -269,7 +269,7 @@ briefing lists Harsha "at guide" (the server's live deviation was within
 report's 0.1 ft rounding. The failure concerns the server's guide curve against
 the report's rounded numbers, not anything the agent said.
 
-**2026-10-15 (second rain event):** correct, and the hardest test so far. The
+**2026-10-15 (second rain event):** correct. The
 report showed rain at 16 of 17 lakes (Barren 1.7, C. J. Brown 1.5, Green 1.3
 in.) and West Fork +0.7 ft in 24 hours. The briefing listed all 16 lakes and
 amounts exactly; each lake once (11 above, 2 at, 4 below); Patoka 21.4%
