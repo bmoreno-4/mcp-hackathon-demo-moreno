@@ -311,7 +311,16 @@ limit; a lake filling quickly is more sensitive to small timing differences
 between the report's storage value and CWMS. Both are documented rather than
 tuned away, and Barren is the most likely next failure.
 
-### Validation results (2026-10-08)
+### Lake-by-lake example: first run (2026-10-08)
+
+The **Validation runs** table above summarizes every day. This section shows the
+full lake-by-lake output for one day, the first run, because the same day's
+saved CWMS responses are the fixture for the offline test below. Any other
+day's detail can be reproduced from its saved report:
+
+```bash
+uv run python eval/lrl_percent_util_validation.py --date 2026-10-15
+```
 
 Largest Percent Util deviation: **−0.08** (Barren and CarrCreek); 15 of 17 lakes
 matched at the reported 2-decimal-place precision. All 17 guide curve elevations
