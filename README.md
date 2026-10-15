@@ -78,9 +78,9 @@ for pasting into the agent; a test keeps it in step with the registered tools.
 ## Repo structure
 
 ```
-lrl-reservoirs/
+mcp-hackathon-demo-moreno/
 ├── README.md                  # This file
-├── QUICKSTART.md              # 5-minute clone → run → connect walkthrough
+├── QUICKSTART.md              # Clone, run and connect in about 5 minutes
 ├── main.py                    # Local entry point (uv run python main.py)
 ├── pyproject.toml             # Package + dependencies (uv)
 ├── requirements.txt           # Mirror of runtime deps (for buildpack hosts)
@@ -109,7 +109,8 @@ lrl-reservoirs/
 │       ├── resources/
 │       │   └── lakes.py                    # lrl://lakes resource (lake directory)
 │       └── data/
-│           └── lrl_lakes.csv               # Lake metadata + CWMS timeseries IDs
+│           ├── lrl_lakes.csv               # Lake metadata + CWMS timeseries IDs
+│           └── digicert_global_g2_tls_rsa_sha256_2020_ca1.pem  # Public cert for the LRL report site
 ├── tests/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
@@ -125,14 +126,20 @@ lrl-reservoirs/
 │       ├── lrl_oct8_2026/                # Saved CWMS responses for offline tests
 │       └── lrl_lake_report_2026-10-08.txt  # Reference report (hand-transcribed)
 ├── eval/
+│   ├── README.md                         # Validation and agent evaluation results
 │   ├── fetch_lake_report.py              # Download + parse the Daily Lake Report
 │   ├── lrl_percent_util_validation.py    # Validate percent_util + guide curve vs. report
-│   └── reports/                          # Dated report snapshots (CSV + raw HTML)
-│       ├── lrl_lake_report_2026-10-08.csv  # Hand-transcribed from .txt fixture
-│       └── lrl_lake_report_YYYY-MM-DD.csv  # Fetched by fetch_lake_report.py
+│   ├── reports/                          # Daily report snapshots (CSV + raw HTML)
+│   │   ├── lrl_lake_report_2026-10-08.csv  # Only hand-transcribed report (from .txt fixture)
+│   │   ├── lrl_lake_report_YYYY-MM-DD.csv  # Downloaded by fetch_lake_report.py
+│   │   └── lrl_lake_report_YYYY-MM-DD_rev-HHMM.csv  # Same-day revision, when USACE updates the report
+│   └── wxo/                              # watsonx Orchestrate evaluation exports
+│       ├── results_YYYY-MM-DD_<test>.csv
+│       └── screenshots/
 └── deploy/
     ├── README.md
     ├── ibm/                   # watsonx Orchestrate kits
+    │   └── local-mcp-toolkit/ # The kit used here; agent_instructions.md is the agent's instructions
     └── databricks/            # Databricks Apps kit; Not Applicable since IBM is used
 ```
 
@@ -142,7 +149,7 @@ lrl-reservoirs/
 
 ### Prerequisites
 
-- [uv](https://docs.astral.sh/uv/) — `pip install uv` or `brew install uv`
+- [uv](https://docs.astral.sh/uv/): `pip install uv` or `brew install uv`
 
 No API keys required. The CWMS Data API is public.
 
@@ -159,7 +166,7 @@ is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
 
 ### Connect a client
 
-**IBM Bob** — add the server to `.bob/mcp.json` in the repo root:
+**IBM Bob:** add the server to `.bob/mcp.json` in the repo root:
 
 ```json
 {
@@ -167,15 +174,17 @@ is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
     "lrl-reservoirs": {
       "command": "uv",
       "args": ["run", "lrl-reservoirs"],
-      "cwd": "/absolute/path/to/this/repo"
+      "cwd": "/absolute/path/to/mcp-hackathon-demo-moreno"
     }
   }
 }
 ```
 
-**Claude Desktop** — add the same block to
+**Claude Desktop:** add the same block to
 `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or
 `%APPDATA%\Claude\claude_desktop_config.json` (Windows), then restart.
+On macOS with the repo in `~/Documents`, you may also need
+`"env": {"PYTHONPATH": "<repo>/src"}` in that block (see QUICKSTART step 4).
 
 ### Verify
 

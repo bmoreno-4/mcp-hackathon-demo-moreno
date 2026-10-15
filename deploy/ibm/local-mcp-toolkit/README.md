@@ -32,6 +32,7 @@ deploy/ibm/local-mcp-toolkit/
 ├── toolkit.yaml        # import config template (kind: mcp, command: python server.py, tools: *)
 ├── register-toolkit.sh # stage flattened package_root + activate ADK env + import (idempotent)
 ├── .env.example        # instance URL + env/toolkit names (no secrets)
+├── agent_instructions.md # instructions to paste into the wxO agent
 └── README.md           # this runbook
 ```
 
