@@ -68,6 +68,9 @@ class LakeConditions(_Model):
 
     lake_id: str = Field(description="CWMS location ID, e.g. 'Patoka'")
     public_name: str
+    lake_page_url: str | None = Field(
+        default=None, description="Public USACE Water Data page with a dam diagram"
+    )
     basin: str
     elevation_ft: float | None = Field(description=f"Latest pool elevation, {FT}")
     vertical_datum: str | None
@@ -173,6 +176,9 @@ class DistrictSummary(_Model):
 class LakeReference(_Model):
     lake_id: str
     public_name: str
+    lake_page_url: str | None = Field(
+        default=None, description="Public USACE Water Data page with a dam diagram"
+    )
     basin: str
     winter_pool_ft: float | None
     summer_pool_ft: float | None
@@ -220,6 +226,9 @@ class LakeTrend(_Model):
 
     lake_id: str
     public_name: str
+    lake_page_url: str | None = Field(
+        default=None, description="Public USACE Water Data page with a dam diagram"
+    )
     basin: str
     days: int
     start: TrendSnapshot | None = None
@@ -270,6 +279,9 @@ class LiveMinusReport(_Model):
 class ReportLakeCheck(_Model):
     lake_id: str
     public_name: str
+    lake_page_url: str | None = Field(
+        default=None, description="Public USACE Water Data page with a dam diagram"
+    )
     basin: str
     live_as_of: str | None
     live_as_of_eastern: str | None = None
@@ -298,12 +310,18 @@ class ReportCounts(_Model):
 class RainReport(_Model):
     lake_id: str
     public_name: str
+    lake_page_url: str | None = Field(
+        default=None, description="Public USACE Water Data page with a dam diagram"
+    )
     precip_24hr_in: float
 
 
 class ReportChange(_Model):
     lake_id: str
     public_name: str
+    lake_page_url: str | None = Field(
+        default=None, description="Public USACE Water Data page with a dam diagram"
+    )
     status: Literal["changed_since_report", "differs"]
     changed: dict[str, float | None] = Field(
         description="Only the values outside tolerance: live minus report"

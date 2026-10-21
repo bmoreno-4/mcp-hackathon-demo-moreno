@@ -73,6 +73,7 @@ for pasting into the agent; a test keeps it in step with the registered tools.
 | `percent_util` | Share of flood storage in use, the report's Percent Util formula; within ±0.15 of the report in daily validation, usually exact |
 | `reference_levels` | Static pool schedule: winter/summer/flood pool elevations |
 | `data_note` | Short note for the agent: reading time, staleness, official source |
+| `lake_page_url` | The lake's public USACE Water Data page (dam diagram, inflow, outflow) |
 
 ---
 

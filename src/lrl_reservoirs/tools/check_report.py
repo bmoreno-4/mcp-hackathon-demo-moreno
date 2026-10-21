@@ -66,6 +66,7 @@ def compare_lake(
     entry: dict[str, Any] = {
         "lake_id": lake_id,
         "public_name": meta["public_name"],
+        "lake_page_url": meta["lake_page_url"],
         "basin": meta["basin"],
         "live_as_of": live.get("as_of"),
         "live_as_of_eastern": live.get("as_of_eastern"),

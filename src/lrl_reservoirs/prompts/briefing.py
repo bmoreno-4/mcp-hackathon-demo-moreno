@@ -77,6 +77,13 @@ detail, write for a member of the public:
 - Do not mention CWMS, tool names, field names, or negative percentages.
 - End with a short "What these terms mean" note and the link to the official
   LRL Daily Lake Report.
+- When the answer is about one lake, end with its lake_page_url ("See the
+  lake's page for a dam diagram"). That diagram measures from the summer level
+  (Top of Conservation), not today's target; in fall and winter a lake can be
+  below its summer level and still above its target, so say so when that is
+  the case.
+- When the report gives inflow and outflow, say in words whether more water is
+  flowing out than in (the lake is being lowered) or in than out (it is filling).
 - Keep the same facts and rules: no flood risk judgments, no estimates.
 If the user asks for technical detail, use the full briefing format with
 elevations, guide curve values and percent utilization.

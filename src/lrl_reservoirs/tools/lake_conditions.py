@@ -259,6 +259,9 @@ async def get_lake_conditions(
     Returns a dict with:
       - lake_id (str): CWMS location ID
       - public_name (str): Human-readable lake name
+      - lake_page_url (str): the lake's public USACE Water Data page (dam
+          diagram, inflow, outflow). Its diagram measures from the summer
+          pool line ("Top of Conservation"), not today's guide curve.
       - basin (str): River basin (e.g. "Salt River")
       - elevation_ft (float | null): Latest pool elevation in feet
       - vertical_datum (str | null): Datum of the elevation reading (e.g. "NGVD-29")
@@ -359,6 +362,7 @@ async def get_lake_conditions(
         return {
             "lake_id": lake_id,
             "public_name": meta["public_name"],
+            "lake_page_url": meta["lake_page_url"],
             "basin": meta["basin"],
             "elevation_ft": None,
             "vertical_datum": None,
@@ -384,6 +388,7 @@ async def get_lake_conditions(
         return {
             "lake_id": lake_id,
             "public_name": meta["public_name"],
+            "lake_page_url": meta["lake_page_url"],
             "basin": meta["basin"],
             "elevation_ft": None,
             "vertical_datum": None,
@@ -470,6 +475,7 @@ async def get_lake_conditions(
     return {
         "lake_id": lake_id,
         "public_name": meta["public_name"],
+        "lake_page_url": meta["lake_page_url"],
         "basin": meta["basin"],
         "elevation_ft": elev_ft,
         "vertical_datum": vertical_datum,

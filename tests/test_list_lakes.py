@@ -47,3 +47,21 @@ async def test_register_on_fresh_server():
     mcp = FastMCP("test")
     ll_mod.register(mcp)
     assert "list_lakes" in {t.name for t in await mcp.list_tools()}
+
+
+# Pages supplied by the district (2026-10-21); every lake must match exactly.
+EXPECTED_LAKE_PAGES = {
+    f"https://water.usace.army.mil/overview/lrl/locations/{slug}"
+    for slug in (
+        "barren brookville buckhorn cjbrown cmharden caesarcreek caglesmill "
+        "carrcreek caverun green monroe nolin patoka rough taylorsville "
+        "westfork whharsha"
+    ).split()
+}
+
+
+@pytest.mark.asyncio
+async def test_every_lake_has_its_water_data_page():
+    result = await ll_mod.list_lakes()
+    urls = {r["lake_page_url"] for r in result["lakes"]}
+    assert urls == EXPECTED_LAKE_PAGES

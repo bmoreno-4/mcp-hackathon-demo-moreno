@@ -50,6 +50,7 @@ async def list_lakes(
         {
             "lake_id": meta["lake_id"],
             "public_name": meta["public_name"],
+            "lake_page_url": meta["lake_page_url"],
             "basin": meta["basin"],
             "winter_pool_ft": meta["top_of_normal_ft"],
             "summer_pool_ft": meta["top_of_conservation_ft"],

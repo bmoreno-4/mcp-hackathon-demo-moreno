@@ -210,6 +210,7 @@ async def get_lake_trend(
     base: dict[str, Any] = {
         "lake_id": lake_id,
         "public_name": meta["public_name"],
+        "lake_page_url": meta["lake_page_url"],
         "basin": meta["basin"],
         "days": days,
     }

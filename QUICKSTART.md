@@ -128,6 +128,7 @@ Pass a CWMS location ID (e.g. `Barren`, `Taylorsville`, `Patoka`). Returns:
   2026, 6:00 AM EDT"), its age, and a `stale` flag after 30 hours
 - Current storage (acre-ft) and storage-based Percent Util
 - Static reference levels (winter/summer/flood pool)
+- `lake_page_url`, the lake's public USACE Water Data page with a dam diagram
 
 ### `summarize_district_lakes`
 

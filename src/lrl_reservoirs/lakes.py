@@ -16,6 +16,10 @@ import importlib.resources
 from enum import Enum
 from typing import Any
 
+# Public USACE Water Data page for each lake: current level, inflow, outflow and
+# a dam profile diagram. The page path is the CWMS location ID in lower case.
+LAKE_PAGE_BASE_URL = "https://water.usace.army.mil/overview/lrl/locations/"
+
 
 def _load_lake_table() -> dict[str, dict[str, Any]]:
     """Load the LRL lakes CSV shipped with the package into a keyed dict."""
@@ -29,6 +33,7 @@ def _load_lake_table() -> dict[str, dict[str, Any]]:
                     "lake_id": lid,
                     "public_name": row["public_name"],
                     "basin": row["basin"],
+                    "lake_page_url": LAKE_PAGE_BASE_URL + lid.lower(),
                     "elev_ts_id": row["elev_ts_id"],
                     "stor_ts_id": row["stor_ts_id"],
                     "inflow_ts_id": row["inflow_ts_id"],

@@ -93,3 +93,10 @@ def test_prompt_and_instructions_forbid_working_out_weekdays():
     for text in (briefing.build_briefing_prompt(), INSTRUCTIONS.read_text()):
         assert "report_date_label" in text
         assert "Never work out a day of the week" in text
+
+
+def test_public_wording_links_lake_page_and_explains_its_diagram():
+    for text in (briefing.build_briefing_prompt(), INSTRUCTIONS.read_text()):
+        assert "lake_page_url" in text
+        assert "Top of Conservation" in text
+        assert "inflow and outflow" in text
