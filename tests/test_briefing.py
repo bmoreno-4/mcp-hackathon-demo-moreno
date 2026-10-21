@@ -75,3 +75,14 @@ async def test_agent_instructions_name_every_registered_tool():
     for tool in await mcp.list_tools():
         assert tool.name in text, f"agent_instructions.md does not mention {tool.name}"
     assert "briefing" in text.lower()
+
+
+def test_prompt_and_instructions_default_to_plain_language():
+    """2026-10-21: briefings were accurate but written for operators."""
+    prompt = briefing.build_briefing_prompt()
+    instructions = INSTRUCTIONS.read_text(encoding="utf-8")
+    for text in (prompt, instructions):
+        assert "Writing for the public" in text
+        assert "target level for this time of year" in text
+        assert "Eastern time" in text
+        assert "technical detail" in text

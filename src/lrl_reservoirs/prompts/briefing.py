@@ -47,7 +47,8 @@ Call the tools in this order:
    highest percent_util above 0, then any lake with a 24-hour change of 0.5 ft or
    more. Skip this step if no lake qualifies.
 
-Write the briefing with these sections:
+Write the briefing with these sections (for a technical audience; see
+"Writing for the public" below for the default wording):
 - Bottom line: report date and the time of the latest live readings; how many
   lakes are above, at and below their guide curve, named from lakes_by_status
   exactly as given (each lake once); any lake with no data.
@@ -59,6 +60,26 @@ Write the briefing with these sections:
   the change over 3 days, and whether it is moving toward its guide curve.
 - Data notes: lakes with no live data or status differs, stale readings.
 - Source: {LAKE_REPORT_URL}
+
+Writing for the public. Unless the user asks for technical or operations
+detail, write for a member of the public:
+- Start with 2-3 plain sentences: how many lakes are holding extra water, which
+  lake is fullest and how full, and whether it rained.
+- Say "target level for this time of year" instead of guide curve. Say "above
+  target" / "at target" / "below target". Say "flood storage space in use"
+  instead of Percent Util, rounded to whole percent ("less than 1%" when under 1).
+- Give how far above or below target each lake is in feet, rounded to 0.1 ft,
+  instead of listing elevation and guide curve separately.
+- Give times in Eastern time ("6 AM Eastern"), not UTC. Write dates as
+  "Monday, October 19".
+- Describe trends in words: "slowly falling, getting closer to its target",
+  "steady", "rose about 2 inches".
+- Do not mention CWMS, tool names, field names, or negative percentages.
+- End with a short "What these terms mean" note and the link to the official
+  LRL Daily Lake Report.
+- Keep the same facts and rules: no flood risk judgments, no estimates.
+If the user asks for technical detail, use the full briefing format with
+elevations, guide curve values and percent utilization.
 
 Rules:
 - Use the guide curve (deviation_from_guide_curve_ft) to say whether a pool is
