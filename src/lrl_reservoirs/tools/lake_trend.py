@@ -20,6 +20,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from pydantic import Field
 
+from lrl_reservoirs.eastern_time import eastern_datetime_label
 from lrl_reservoirs.lakes import LAKES, LakeName
 from lrl_reservoirs.models import LakeTrend, output_schema
 from lrl_reservoirs.tools.lake_conditions import (
@@ -130,6 +131,7 @@ async def _snapshot(
     deviation = round(elevation - guide, 2) if guide is not None else None
     return {
         "time": _iso(t),
+        "time_eastern": eastern_datetime_label(t),
         "elevation_ft": round(elevation, 2),
         "guide_curve_ft": guide,
         "deviation_from_guide_curve_ft": deviation,
@@ -180,6 +182,9 @@ async def get_lake_trend(
       - guide_curve_trend (str): moving_toward_guide | moving_away_from_guide |
           no_change | unknown — whether the pool got closer to or farther from
           its guide curve over the window.
+      - start, latest, peak and low also give time_eastern, a ready-made
+          Eastern label ("Wednesday, October 21, 2026, 6:00 AM EDT"); use it
+          as given.
       - peak / low (dict): time and elevation_ft of the highest and lowest
           readings in the window.
       - readings (list): every elevation reading in the window
@@ -262,8 +267,16 @@ async def get_lake_trend(
             start["deviation_from_guide_curve_ft"],
             latest["deviation_from_guide_curve_ft"],
         ),
-        "peak": {"time": _iso(peak[0]), "elevation_ft": round(peak[1], 2)},
-        "low": {"time": _iso(low[0]), "elevation_ft": round(low[1], 2)},
+        "peak": {
+            "time": _iso(peak[0]),
+            "time_eastern": eastern_datetime_label(peak[0]),
+            "elevation_ft": round(peak[1], 2),
+        },
+        "low": {
+            "time": _iso(low[0]),
+            "time_eastern": eastern_datetime_label(low[0]),
+            "elevation_ft": round(low[1], 2),
+        },
         "observation_count": len(in_window),
         "readings": [
             {"time": _iso(t), "elevation_ft": round(v, 2)} for t, v in in_window

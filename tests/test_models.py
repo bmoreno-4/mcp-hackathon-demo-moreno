@@ -85,6 +85,8 @@ async def test_lake_conditions_success_matches_model():
         ]
     )
     models.LakeConditions.model_validate(result)
+    # Fake reading is 2026-10-08 05:00 UTC = 1:00 AM EDT that Thursday.
+    assert result["as_of_eastern"] == "Thursday, October 8, 2026, 1:00 AM EDT"
 
 
 @pytest.mark.asyncio
@@ -201,6 +203,8 @@ async def test_lake_trend_matches_model():
     elev = _elev_series([539.2, 538.9, 538.6, 538.3] + [538.0] * 9)
     result = await _run(elev, _stor_series())
     models.LakeTrend.model_validate(result)
+    assert result["latest"]["time_eastern"].endswith(("EDT", "EST"))
+    assert result["peak"]["time_eastern"]
 
 
 @pytest.mark.asyncio
@@ -238,6 +242,8 @@ async def test_report_check_matches_model():
         result = await cr_mod.check_against_daily_report()
 
     parsed = models.ReportCheck.model_validate(result)
+    assert parsed.report_date_label == "Friday, October 9, 2026"
+    assert parsed.report_time_eastern == "6:00 AM EDT"
     assert parsed.counts.no_live_data == 1
     assert parsed.counts.changed_since_report == 1
 

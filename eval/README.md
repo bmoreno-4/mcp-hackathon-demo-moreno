@@ -311,7 +311,7 @@ not saved as a public-briefing test
 | "I could not get the data" for the report check | The LRL report server omits its DigiCert intermediate certificate; the SI/AI-written capture script had turned certificate checking off | Ship the public intermediate and verify with it (`SECURITY.md`); test checks it chains to the DigiCert root |
 | Briefing miscounted ("10 lakes … 10% of the district"), double-listed lakes | Model re-derived lists and percentages from 17 per-lake records | `lakes_by_status` in `summarize_district_lakes`; instructions use the tool's counts |
 | Briefing said "no precipitation" on the first rain day (13 lakes had rain) and summed Percent Util across lakes | Rain was only inside 17 nested lake records; nothing said Percent Util is per lake | `rain_last_24hr` and `changes_since_report` lists in `check_against_daily_report`; per-lake rule in instructions |
-| Plain-language briefing called Wednesday, October 21 "Friday" | The model worked out the weekday itself; tools return only UTC timestamps | Open: have the tools return ready-made Eastern date and time labels |
+| Plain-language briefing called Wednesday, October 21 "Friday" | The model worked out the weekday itself; tools return only UTC timestamps | Tools now return ready-made Eastern labels (`report_date_label`, `report_time_eastern`, `as_of_eastern`, `time_eastern`), with tests including the 11/1 change to standard time; the instructions say to use them as given and never work out a weekday. To be confirmed in the next evaluation |
 
 Fixes to the server code have regression tests in `tests/`. The two fixes made
 only in the agent instructions (the fake tool call and the made-up Patoka

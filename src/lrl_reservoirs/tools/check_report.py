@@ -23,6 +23,7 @@ from lrl_reservoirs.lake_report import (
     parse_report_rows,
     report_reference_time,
 )
+from lrl_reservoirs.eastern_time import eastern_date_label, eastern_time_label
 from lrl_reservoirs.lakes import LAKES, LakeName
 from lrl_reservoirs.models import ReportCheck, output_schema
 from lrl_reservoirs.tools.lake_conditions import get_lake_conditions
@@ -67,6 +68,7 @@ def compare_lake(
         "public_name": meta["public_name"],
         "basin": meta["basin"],
         "live_as_of": live.get("as_of"),
+        "live_as_of_eastern": live.get("as_of_eastern"),
     }
     if report_row is None:
         entry["status"] = "not_in_report"
@@ -162,6 +164,9 @@ async def check_against_daily_report(
       - not_in_report: the lake was missing from today's report.
 
     Returns a dict with:
+      - report_date_label (str), e.g. "Wednesday, October 21, 2026", and
+          report_time_eastern (str), e.g. "6:00 AM EDT": use these exactly as
+          given; never work out a weekday or convert UTC yourself.
       - report_date (str), report_reference_time_utc (str), report_is_today
           (bool; false before the morning report is published), report_url.
       - tolerances (dict): pool_ft, guide_curve_ft, percent_util.
@@ -249,6 +254,8 @@ async def check_against_daily_report(
     return {
         "report_date": report_date.isoformat(),
         "report_reference_time_utc": reference_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "report_date_label": eastern_date_label(report_date),
+        "report_time_eastern": eastern_time_label(reference_time),
         "report_is_today": report_date == today_et,
         "report_url": LAKE_REPORT_URL,
         "tolerances": {

@@ -41,6 +41,7 @@ from typing import Annotated, Any
 
 from fastmcp import FastMCP
 
+from lrl_reservoirs.eastern_time import eastern_datetime_label
 from lrl_reservoirs.lakes import LAKES, LakeName
 from lrl_reservoirs.models import DistrictSummary, output_schema
 from lrl_reservoirs.tools.lake_conditions import get_lake_conditions
@@ -132,6 +133,9 @@ async def summarize_district_lakes(
     Returns a dict with:
       - as_of_utc (str): ISO-8601 UTC timestamp of the tool call —
           Always include this when reporting district conditions to users.
+      - as_of_eastern (str): the same time as an Eastern label, e.g.
+          "Wednesday, October 21, 2026, 6:37 PM EDT"; each lake also has
+          as_of_eastern for its reading. Use these labels as given.
       - total_lakes (int): Number of lakes in the district (always 17)
       - counts (dict): Aggregate status breakdown relative to today's guide curve —
           above_guide, at_guide, below_guide, at_or_above_flood, no_data.
@@ -247,6 +251,7 @@ async def summarize_district_lakes(
             "percent_util": r.get("percent_util"),
             "deviation_from_guide_curve_ft": r.get("deviation_from_guide_curve_ft"),
             "as_of": r.get("as_of"),
+            "as_of_eastern": r.get("as_of_eastern"),
         }
         for r in ranked
     ]
@@ -269,6 +274,7 @@ async def summarize_district_lakes(
 
     return {
         "as_of_utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "as_of_eastern": eastern_datetime_label(now_utc),
         "total_lakes": len(results),
         "counts": counts,
         "data_note": (

@@ -124,7 +124,8 @@ Pass a CWMS location ID (e.g. `Barren`, `Taylorsville`, `Patoka`). Returns:
 - Today's seasonal guide curve elevation and deviation from it
 - Pool status (`below_guide`, `at_guide`, `above_guide`, `at_or_above_flood`,
   `no_data`, or `no_guide/...` if the guide curve could not be read)
-- Reading time, its age, and a `stale` flag after 30 hours
+- Reading time (UTC and as an Eastern label such as "Wednesday, October 21,
+  2026, 6:00 AM EDT"), its age, and a `stale` flag after 30 hours
 - Current storage (acre-ft) and storage-based Percent Util
 - Static reference levels (winter/summer/flood pool)
 

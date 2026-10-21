@@ -44,6 +44,7 @@ from typing import Annotated, Any
 
 from fastmcp import FastMCP
 
+from lrl_reservoirs.eastern_time import eastern_datetime_label
 from lrl_reservoirs.guide_curve import interpolate_guide_curve
 from lrl_reservoirs.lakes import LAKES, LakeName
 from lrl_reservoirs.models import LakeConditions, output_schema
@@ -263,6 +264,9 @@ async def get_lake_conditions(
       - vertical_datum (str | null): Datum of the elevation reading (e.g. "NGVD-29")
       - as_of (str | null): ISO-8601 UTC timestamp of the observation —
           Always include this when reporting conditions to users.
+      - as_of_eastern (str | null): the same time as a ready-made Eastern label,
+          e.g. "Wednesday, October 21, 2026, 6:00 AM EDT". Use it exactly as
+          given for dates and times; do not convert as_of or work out weekdays.
       - observation_age_hours (float | null): Age of the most recent elevation
           reading in hours (rounded to one decimal place). Useful for phrasing
           responses as "as of 7:00 AM today" or "last updated N hours ago".
@@ -359,6 +363,7 @@ async def get_lake_conditions(
             "elevation_ft": None,
             "vertical_datum": None,
             "as_of": None,
+            "as_of_eastern": None,
             "observation_age_hours": None,
             "stale": False,
             "guide_curve_ft": None,
@@ -383,6 +388,7 @@ async def get_lake_conditions(
             "elevation_ft": None,
             "vertical_datum": None,
             "as_of": None,
+            "as_of_eastern": None,
             "observation_age_hours": None,
             "stale": False,
             "guide_curve_ft": None,
@@ -468,6 +474,7 @@ async def get_lake_conditions(
         "elevation_ft": elev_ft,
         "vertical_datum": vertical_datum,
         "as_of": as_of,
+        "as_of_eastern": eastern_datetime_label(obs_utc),
         "observation_age_hours": age_hours,
         "stale": stale,
         "guide_curve_ft": guide_ft,

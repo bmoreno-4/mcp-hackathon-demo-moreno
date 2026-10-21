@@ -60,6 +60,7 @@ for pasting into the agent; a test keeps it in step with the registered tools.
 | Field | Description |
 |---|---|
 | `as_of` | UTC time of the elevation reading |
+| `as_of_eastern` | The same time as an Eastern label, e.g. "Wednesday, October 21, 2026, 6:00 AM EDT" |
 | `observation_age_hours`, `stale` | Age of that reading; `stale` is true after 30 hours |
 | `elevation_ft` | Current pool elevation in feet (NGVD-29) |
 | `guide_curve_ft` | Today's seasonal Bottom of Flood Control elevation |
@@ -95,6 +96,7 @@ mcp-hackathon-demo-moreno/
 │       ├── guide_curve.py     # CWMS seasonal guide-curve interpolation
 │       ├── lakes.py           # Lake metadata table and LakeName enum
 │       ├── lake_report.py     # Daily Lake Report HTML parser
+│       ├── eastern_time.py    # Eastern date/time labels for tool output
 │       ├── models.py          # Pydantic output models → MCP output schemas
 │       ├── utils.py           # CWMS HTTP client, security helpers, pagination
 │       ├── routes.py          # /health and /version endpoints
@@ -115,6 +117,7 @@ mcp-hackathon-demo-moreno/
 │   ├── test_lake_conditions.py
 │   ├── test_summarize_district_lakes.py
 │   ├── test_models.py                    # every tool's output matches its model
+│   ├── test_eastern_time.py              # weekday and EDT/EST labels
 │   ├── test_lake_trend.py
 │   ├── test_briefing.py                  # district_briefing prompt + agent instructions
 │   ├── test_check_report.py              # Report vs. live comparison, report client boundary
@@ -405,7 +408,9 @@ the report site's incomplete certificate chain, a briefing that miscounted
 lakes, and a briefing that missed the first day of rain. Seven were fixed in the
 server (tool descriptions, outputs or code), each with a regression test; two
 were fixed in the agent instructions and confirmed by rerunning the evaluation;
-one (a plain-language briefing that gave the wrong weekday) is still open.
+one (a plain-language briefing that gave the wrong weekday) was fixed by having
+the tools return Eastern date and time labels, and is awaiting an evaluation
+rerun.
 See the [defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
 
 ## Limitations

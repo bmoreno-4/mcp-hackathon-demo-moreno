@@ -72,6 +72,10 @@ class LakeConditions(_Model):
     elevation_ft: float | None = Field(description=f"Latest pool elevation, {FT}")
     vertical_datum: str | None
     as_of: str | None = Field(description="UTC time of the elevation reading")
+    as_of_eastern: str | None = Field(
+        default=None,
+        description="Eastern label, e.g. 'Wednesday, October 21, 2026, 6:00 AM EDT'",
+    )
     observation_age_hours: float | None
     stale: bool = Field(description="True when the reading is over 30 hours old")
     guide_curve_ft: float | None = Field(
@@ -138,12 +142,14 @@ class FloodStorageRank(_Model):
     percent_util: float | None
     deviation_from_guide_curve_ft: float | None
     as_of: str | None
+    as_of_eastern: str | None = None
 
 
 class DistrictSummary(_Model):
     """District or basin snapshot (summarize_district_lakes)."""
 
     as_of_utc: str
+    as_of_eastern: str | None = None
     total_lakes: int
     counts: StatusCounts = Field(description="Whole district, before filters")
     data_note: str
@@ -186,6 +192,7 @@ class LakeDirectory(_Model):
 
 class TrendSnapshot(_Model):
     time: str = Field(description="UTC time of the elevation reading")
+    time_eastern: str | None = None
     elevation_ft: float
     guide_curve_ft: float | None
     deviation_from_guide_curve_ft: float | None
@@ -204,6 +211,7 @@ class TrendChange(_Model):
 
 class Reading(_Model):
     time: str
+    time_eastern: str | None = None
     elevation_ft: float
 
 
@@ -264,6 +272,7 @@ class ReportLakeCheck(_Model):
     public_name: str
     basin: str
     live_as_of: str | None
+    live_as_of_eastern: str | None = None
     status: ReportStatus
     report: ReportValues | None = None
     reason: str | None = None
@@ -307,6 +316,12 @@ class ReportCheck(_Model):
     report_url: str
     report_date: str | None = None
     report_reference_time_utc: str | None = None
+    report_date_label: str | None = Field(
+        default=None, description="e.g. 'Wednesday, October 21, 2026'; use as given"
+    )
+    report_time_eastern: str | None = Field(
+        default=None, description="e.g. '6:00 AM EDT'; use as given"
+    )
     report_is_today: bool | None = None
     tolerances: ReportTolerances | None = None
     counts: ReportCounts | None = None

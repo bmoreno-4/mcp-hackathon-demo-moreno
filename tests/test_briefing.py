@@ -84,5 +84,12 @@ def test_prompt_and_instructions_default_to_plain_language():
     for text in (prompt, instructions):
         assert "Writing for the public" in text
         assert "target level for this time of year" in text
-        assert "Eastern time" in text
+        assert "Eastern labels" in text
         assert "technical detail" in text
+
+
+def test_prompt_and_instructions_forbid_working_out_weekdays():
+    """2026-10-21: the agent called Wednesday 'Friday'."""
+    for text in (briefing.build_briefing_prompt(), INSTRUCTIONS.read_text()):
+        assert "report_date_label" in text
+        assert "Never work out a day of the week" in text
