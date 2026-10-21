@@ -321,6 +321,20 @@ exactly as given in `changes_since_report`. Not saved as a test
 ([csv](wxo/results_2026-10-21_briefing_public_rerun.csv),
 [screenshot](wxo/screenshots/eval_2026-10-21_briefing_public_rerun.png)).
 
+**Second rerun at 19:42, with the public-only sections.** Tool calls passed
+(recall 1.0, precision 0.6, 8.22 s). Checked against the 10/21 report, the
+problems from the first rerun were gone: only the plain sections; each of the
+11 lakes holding extra water on its own line with feet above target and
+percent (Patoka 19%, Carr Creek 9%, Cave Run 5%, Nolin 4%, Barren 4%,
+Buckhorn 3%, matching the report); the six lakes at or below target with feet;
+no rain; and the one change correctly named as Barren (4.27% to 3.9%).
+Remaining: Patoka's and Carr Creek's 3-day changes were called "in the last
+day" (the report's 24-hour changes were 0.0 and −0.2 ft), lakes under 1% were
+shown as "≈0%" rather than "less than 1%", and the date was missing. The
+instructions now put the date at the top and keep 3-day and 24-hour changes
+apart ([csv](wxo/results_2026-10-21_briefing_public_rerun2.csv),
+[screenshot](wxo/screenshots/eval_2026-10-21_briefing_public_rerun2.png)).
+
 ### Defects the evaluation found (and fixes)
 
 | Symptom in wxO | Root cause | Fix |

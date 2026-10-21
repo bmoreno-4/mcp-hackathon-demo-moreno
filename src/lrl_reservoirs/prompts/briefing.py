@@ -68,6 +68,9 @@ lake is fullest and how full, whether it rained); Holding extra water (one line
 per lake from flood_storage_ranking with its own feet above target and flood
 storage in use); At or below target; Rain and changes since 6 AM; Past 3 days;
 What these terms mean; Source. Do not add the technical sections as well.
+Put the date from report_date_label at the top. In Past 3 days, give the
+3-day change as a 3-day change, and call a change "in the last day" only if it
+is change_24hr_ft.
 - Start with 2-3 plain sentences: how many lakes are holding extra water, which
   lake is fullest and how full, and whether it rained.
 - Say "target level for this time of year" instead of guide curve. Say "above

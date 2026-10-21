@@ -108,4 +108,5 @@ def test_public_version_has_its_own_sections_and_per_lake_values():
     for text in (briefing.build_briefing_prompt(), INSTRUCTIONS.read_text()):
         assert "using only these sections" in text
         assert "never summarize several lakes as a range" in text
+        assert "only if it\nis change_24hr_ft" in text
         assert "exactly as given in\n  changes_since_report" in text
