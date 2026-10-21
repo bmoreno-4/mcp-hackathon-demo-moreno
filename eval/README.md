@@ -335,6 +335,25 @@ instructions now put the date at the top and keep 3-day and 24-hour changes
 apart ([csv](wxo/results_2026-10-21_briefing_public_rerun2.csv),
 [screenshot](wxo/screenshots/eval_2026-10-21_briefing_public_rerun2.png)).
 
+**Third rerun at 19:47 (final instructions).** Tool calls passed (recall 1.0,
+precision 0.6, 8.07 s). Checked against the 10/21 report: the date at the top
+("Wednesday, October 21, 2026"); all 17 lakes with their own feet and percent,
+"<1%" for lakes under 1%; no rain; the one change named as Barren; and 3-day
+changes kept in the 3-day section (Patoka down about 0.2 ft, Carr Creek about
+0.5 ft). One error remained: Cave Run was described as "about 0.2 ft above
+target" in the trend line, although the same answer correctly listed it at
+2.8 ft above target. Some technical words ("guide curve", "percent
+utilization") also remained in parentheses and in the terms section. Under
+this project's method (save only answers that are fully correct) it was not
+saved as a test. The agent instructions were frozen at this point
+([csv](wxo/results_2026-10-21_briefing_public_rerun3.csv),
+[screenshot](wxo/screenshots/eval_2026-10-21_briefing_public_rerun3.png)).
+
+watsonx Orchestrate's built-in "Hallucination" judge scored this answer 0.00,
+with the explanation that the answer "only says 'Think step by step.'": the
+judge evaluated the wrong text. Its scores were not used; every answer was
+checked by hand against the report instead.
+
 ### Defects the evaluation found (and fixes)
 
 | Symptom in wxO | Root cause | Fix |
