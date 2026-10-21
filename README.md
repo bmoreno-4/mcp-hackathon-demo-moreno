@@ -309,6 +309,7 @@ place, which accounts for the ±0.10 ft tolerance).
 | 2026-10-13 | 17 of 17; 12 exact | 17 of 17 | −0.11 Barren, −0.11 Carr Creek; guide curve −0.08 ft Nolin |
 | 2026-10-14 | 17 of 17; 14 exact | **16 of 17**: Harsha just over +0.10 ft (limit 0.10) | −0.11 Barren, −0.10 Carr Creek |
 | 2026-10-15 (rain) | 17 of 17; 13 exact | 17 of 17 | **−0.14 Barren** (limit 0.15), −0.10 Carr Creek; guide curve −0.08 ft C. J. Brown |
+| 2026-10-21 | **16 of 17 (Barren failed)**: Barren −0.38; 14 exact | 17 of 17 | **−0.38 Barren** (limit 0.15), −0.09 Carr Creek; guide curve +0.09 ft C. J. Brown |
 
 **The 2026-10-14 guide curve failure.** The report gives today's pool and the
 deviation from guide, each rounded to 0.1 ft, so the guide curve derived from
@@ -327,7 +328,10 @@ flood-pool storage value. Barren's held near −0.11 until 10/15, when 1.7 in. o
 rain pushed its inflow to 341 cfs and the offset to −0.14, 0.01 from the
 limit; a lake filling quickly is more sensitive to small timing differences
 between the report's storage value and CWMS. Both are documented rather than
-tuned away, and Barren is the most likely next failure.
+tuned away. On 10/21 Barren failed at −0.38 (report 4.27%, server 3.89%) while
+its guide curve was falling for the fall drawdown; its guide curve elevation
+still matched, so the difference is in a storage value, and the cause is not
+confirmed (details in [eval/README.md](eval/README.md#validation-results)).
 
 ### Lake-by-lake example: first run (2026-10-08)
 
@@ -392,14 +396,16 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 | 2026-10-13 | 5 + daily briefing | Briefing passed again with no fixes (rain at 3 lakes exact) | 8.01 s |
 | 2026-10-14 | 5 + daily briefing | Briefing passed: no rain, Carr Creek falling (−0.18 ft vs report −0.2) | 8.28 s |
 | 2026-10-15 (rain) | 5 + daily briefing | Briefing passed: all 16 rain amounts exact, West Fork +0.7 ft rise picked for trends; Cave Run follow-up answered from `get_lake_trend` | 7.88 s |
+| 2026-10-21 | 5 + plain-language briefing | Passed on tool calls; plainer wording, but called Wednesday "Friday" (open defect) | 8.31 s |
 
-Checking answers against the official report found nine defects that unit
+Checking answers against the official report found ten defects that unit
 tests did not, including: "no data" reported as "none", "using flood storage"
 confused with "flood pool full", a made-up answer when the tools were detached,
 the report site's incomplete certificate chain, a briefing that miscounted
 lakes, and a briefing that missed the first day of rain. Seven were fixed in the
 server (tool descriptions, outputs or code), each with a regression test; two
-were fixed in the agent instructions and confirmed by rerunning the evaluation.
+were fixed in the agent instructions and confirmed by rerunning the evaluation;
+one (a plain-language briefing that gave the wrong weekday) is still open.
 See the [defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
 
 ## Limitations

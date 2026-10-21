@@ -53,6 +53,7 @@ uv run python eval/lrl_percent_util_validation.py --date 2026-10-08
 | 2026-10-13 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-14 | Downloaded by `fetch_lake_report.py` |
 | 2026-10-15 | Downloaded by `fetch_lake_report.py` (second rain event: 16 lakes) |
+| 2026-10-21 | Downloaded by `fetch_lake_report.py` (10/16 to 10/20 not captured) |
 
 CSV columns: `lake, basin, winter_pool, summer_pool, flood_pool, todays_pool,
 dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
@@ -69,6 +70,7 @@ dev_from_pool, change_24hr, inflow_24hr, outflow, percent_util`
 | 2026-10-13 | 17 of 17; 12 exact | 17 of 17 | −0.11 Barren, −0.11 Carr Creek; guide curve −0.08 ft Nolin |
 | 2026-10-14 | 17 of 17; 14 exact | **16 of 17 (Harsha failed)** | Harsha guide curve just over +0.10 ft; −0.11 Barren, −0.10 Carr Creek |
 | 2026-10-15 (rain) | 17 of 17; 13 exact | 17 of 17 | **−0.14 Barren** (limit 0.15), −0.10 Carr Creek; guide curve −0.08 ft C. J. Brown |
+| 2026-10-21 | **16 of 17 (Barren failed)**: Barren −0.38; 14 exact | 17 of 17 | **−0.38 Barren** (limit 0.15), −0.09 Carr Creek; guide curve +0.09 ft C. J. Brown |
 
 **2026-10-14 failure (Harsha guide curve).** The report shows Harsha's pool as
 731.1 ft and its deviation from guide as 0.1 ft, so the guide curve derived
@@ -81,6 +83,18 @@ bound with no margin, and a tiny difference in when the falling October guide
 curve is computed is enough to cross it. C. M. Harden passed at +0.10 on 10/10
 and 10/11 for the same reason, just under the line. The tolerance was not
 changed after the failure; the result stands as recorded.
+
+**2026-10-21 failure (Barren Percent Util).** Reports for 10/16 to 10/20 were
+not captured. On 10/21 the report showed Barren at 4.27% and the server
+computed 3.89%, a −0.38 difference against a ±0.15 limit. Barren's offset had
+been −0.08 to −0.14 since 10/08 and grew after the 10/15 rain, while its guide
+curve was falling for the fall drawdown (550.5 ft on 10/08, 549.9 on 10/15,
+547.1 on 10/21). The guide curve elevation itself still matched (−0.01 ft), so
+the difference is in a storage value: either the storage the report uses for
+Barren's guide curve or its current storage. Nolin and Cave Run had similar
+drawdowns with no offset, so drawdown alone does not explain it; the cause is
+not confirmed. The result is recorded as a failure, and the tolerance was not
+changed.
 
 **Consistent offsets.** Barren (−0.08 to −0.14) and Carr Creek (−0.08 to
 −0.11) are the only lakes with a repeated Percent Util difference. Carr
@@ -272,6 +286,18 @@ agent called `get_lake_trend` and listed all 11 readings (729.53 to 729.58 ft),
 steady over 24 hours and over 3 days, with Percent Util rising from 3.2% to
 3.7% (report 3.66%).
 
+### Plain-language briefing (2026-10-21)
+
+The agent instructions gained a "Writing for the public" section (plain terms,
+Eastern times, technical detail only on request). The saved briefing test
+passed on tool calls (recall 1.0, precision 0.6, 8.31 s), and the answer used a
+plain summary, "2.6 ft above its target" and whole percentages. It also called
+the day **"Friday, October 21"**; October 21, 2026 was a Wednesday. It still
+used "CWMS" and "guide curve" and gave no Eastern reading times. The answer was
+not saved as a public-briefing test
+([csv](wxo/results_2026-10-21_briefing_public.csv),
+[screenshot](wxo/screenshots/eval_2026-10-21_briefing_public.png)).
+
 ### Defects the evaluation found (and fixes)
 
 | Symptom in wxO | Root cause | Fix |
@@ -285,6 +311,7 @@ steady over 24 hours and over 3 days, with Percent Util rising from 3.2% to
 | "I could not get the data" for the report check | The LRL report server omits its DigiCert intermediate certificate; the SI/AI-written capture script had turned certificate checking off | Ship the public intermediate and verify with it (`SECURITY.md`); test checks it chains to the DigiCert root |
 | Briefing miscounted ("10 lakes … 10% of the district"), double-listed lakes | Model re-derived lists and percentages from 17 per-lake records | `lakes_by_status` in `summarize_district_lakes`; instructions use the tool's counts |
 | Briefing said "no precipitation" on the first rain day (13 lakes had rain) and summed Percent Util across lakes | Rain was only inside 17 nested lake records; nothing said Percent Util is per lake | `rain_last_24hr` and `changes_since_report` lists in `check_against_daily_report`; per-lake rule in instructions |
+| Plain-language briefing called Wednesday, October 21 "Friday" | The model worked out the weekday itself; tools return only UTC timestamps | Open: have the tools return ready-made Eastern date and time labels |
 
 Fixes to the server code have regression tests in `tests/`. The two fixes made
 only in the agent instructions (the fake tool call and the made-up Patoka
