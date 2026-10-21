@@ -97,7 +97,7 @@ all pass. `TZ=America/New_York` keeps the date right on machines set to UTC.
 
 ```bash
 uv sync --group dev
-uv run pytest tests/ -q      # full suite (~185 tests)
+uv run pytest tests/ -q      # full suite (about 200 tests)
 uv run ruff check .          # lint clean
 uv run ruff format --check . # format clean
 ```

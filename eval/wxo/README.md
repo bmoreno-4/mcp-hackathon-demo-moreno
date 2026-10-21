@@ -1,9 +1,13 @@
 # watsonx Orchestrate evaluation exports
 
-One file per evaluation run, exported from wxO Evaluations (Results -> Download):
+Files from the wxO agent evaluation, named by run date:
 
-- `results_YYYY-MM-DD_<test>.csv` - per-test metrics (tool call precision/recall,
-  routing accuracy, journey success, response time).
-- `screenshots/eval_YYYY-MM-DD_<test>.png` - the wxO Results page for that run.
+- `results_YYYY-MM-DD_<test>.csv`: per-test metrics exported from wxO
+  Evaluations (tool call precision and recall, routing accuracy, journey
+  success, response time). `_rerun`, `_rerun2` and so on mark later runs of the
+  same test that day.
+- `screenshots/eval_YYYY-MM-DD_<test>.png`: the agent's answer (and, where
+  noted, its trace) for that run, checked by hand against that day's report.
+- `screenshots/defect_YYYY-MM-DD_<name>.png`: an answer that showed a defect.
 
-See `../README.md` for the test set, method, results table and defects found.
+See `../README.md` for the method, results, validation and defects found.

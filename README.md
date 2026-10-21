@@ -194,7 +194,7 @@ On macOS with the repo in `~/Documents`, you may also need
 
 ```bash
 uv sync --group dev
-uv run pytest tests/ -q      # full suite (~180 tests)
+uv run pytest tests/ -q      # full suite (about 200 tests)
 uv run ruff check .          # lint
 uv run ruff format --check . # format check
 ```
@@ -218,7 +218,7 @@ it the API returns `501 Not Implemented`).
 The guide curve is a CWMS _location level_ with seasonal anchor points. The server
 interpolates linearly between those points at the time of the reading. Checked
 against the guide curve implied by the report, it was within 0.10 ft on every
-lake on 7 of 8 days (see Validation runs).
+lake on 8 of 9 days (see Validation runs).
 
 ### Storage and Percent Util
 
@@ -433,8 +433,10 @@ See the [defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
 - watsonx Orchestrate does not show MCP prompts to agents, so the
   `district_briefing` workflow is also provided as agent instructions
   (`deploy/ibm/local-mcp-toolkit/agent_instructions.md`).
-- Barren and Carr Creek show a consistent Percent Util offset of about −0.1
-  against the report (see Validation runs); the cause has not been confirmed.
+- Barren and Carr Creek show a consistent negative Percent Util offset against
+  the report (Carr Creek about −0.1; Barren −0.08 growing to −0.38, which
+  failed validation on 10/21). The cause has not been confirmed (see
+  Validation runs).
 - The CWMS Data API is public and needs no authentication; the server does not
   add any.
 

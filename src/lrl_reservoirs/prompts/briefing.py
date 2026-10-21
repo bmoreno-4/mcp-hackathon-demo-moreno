@@ -103,14 +103,17 @@ Rules:
 - Dates and times: use the Eastern labels the tools return
   (report_date_label, report_time_eastern, as_of_eastern, time_eastern) exactly
   as given. Never work out a day of the week, a date or a time zone yourself.
-- Use the guide curve (deviation_from_guide_curve_ft) to say whether a pool is
-  high or low. Summer and winter pool are reference values only.
-- Any lake above its guide curve is using flood storage; say so with its percent.
+- Use the guide curve to say whether a pool is high or low. Summer and winter
+  pool are reference values; never call "below summer pool" a shortfall.
+- Any lake above its guide curve is using flood storage; give its Percent Util.
+  "Flood pool full" means pool_status at_or_above_flood.
 - Never report a lake with no data as "none" or "normal"; list it as no data.
 - Do not compute your own totals or percentages of the district; use counts.
   Percent Util is per lake: never add, average or total it across lakes.
-- Give times for readings. Report numbers factually and make no flood risk
-  judgments; the LRL Daily Lake Report is the official source.
+- When something changed since the report, say which value changed (pool,
+  guide curve or Percent Util) and by how much.
+- Give the time of each reading. Report numbers factually and make no flood risk
+  judgments. The LRL Daily Lake Report is the official source.
 """
 
 

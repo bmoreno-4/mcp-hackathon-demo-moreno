@@ -2,8 +2,8 @@
 
 This directory contains two kinds of evaluation for the LRL Reservoir Conditions
 MCP server: **data validation** (the server's numbers vs. the official report,
-daily since 2026-10-08) and **agent evaluation** (a watsonx Orchestrate agent's
-answers vs. the official report, 2026-10-09 to 2026-10-15).
+on 9 days from 2026-10-08 to 2026-10-21) and **agent evaluation** (a watsonx
+Orchestrate agent's answers vs. the official report, 2026-10-09 to 2026-10-21).
 
 ---
 
@@ -96,13 +96,12 @@ drawdowns with no offset, so drawdown alone does not explain it; the cause is
 not confirmed. The result is recorded as a failure, and the tolerance was not
 changed.
 
-**Consistent offsets.** Barren (−0.08 to −0.14) and Carr Creek (−0.08 to
+**Consistent offsets.** Barren (−0.08 to −0.38) and Carr Creek (−0.08 to
 −0.11) are the only lakes with a repeated Percent Util difference. Carr
-Creek's stays near 1% of its Percent Util as that rises (7.20 → 9.60), which
-suggests a slightly different flood-pool storage value. Barren's held near
-−0.11 until 10/15, when 1.7 in. of rain (inflow 341 cfs) took it to −0.14,
-0.01 from the limit. Both are within tolerance and documented rather than tuned
-away; Barren is the most likely next failure.
+Creek's stays near 1% of its Percent Util (7.20 to 9.60) and within tolerance,
+which suggests a slightly different flood-pool storage value. Barren's held near
+−0.11 until 10/15, reached −0.14 after 1.7 in. of rain, and failed at −0.38 on
+10/21 (see above). Neither offset was tuned away.
 
 ### Offline tests
 

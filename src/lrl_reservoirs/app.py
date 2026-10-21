@@ -36,8 +36,8 @@ mcp = FastMCP(
         "for change over 1-14 days, check_against_daily_report to compare with "
         "this morning's official report, and list_lakes for names, basins and "
         "pool schedules. The district_briefing prompt runs a full daily "
-        "briefing. Data comes from the CWMS Data API and matches the LRL Daily "
-        "Lake Report."
+        "briefing. Data comes from the CWMS Data API and is checked daily against "
+        "the LRL Daily Lake Report."
     ),
 )
 
