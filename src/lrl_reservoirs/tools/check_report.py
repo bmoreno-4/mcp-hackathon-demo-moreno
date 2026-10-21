@@ -17,13 +17,13 @@ from typing import Annotated, Any
 
 from fastmcp import FastMCP
 
+from lrl_reservoirs.eastern_time import eastern_date_label, eastern_time_label
 from lrl_reservoirs.lake_report import (
     REPORT_TIMEZONE,
     parse_report_date,
     parse_report_rows,
     report_reference_time,
 )
-from lrl_reservoirs.eastern_time import eastern_date_label, eastern_time_label
 from lrl_reservoirs.lakes import LAKES, LakeName
 from lrl_reservoirs.models import ReportCheck, output_schema
 from lrl_reservoirs.tools.lake_conditions import get_lake_conditions
