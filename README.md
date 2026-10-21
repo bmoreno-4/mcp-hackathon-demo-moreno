@@ -400,18 +400,19 @@ in [eval/README.md](eval/README.md#agent-evaluation-watsonx-orchestrate).
 | 2026-10-13 | 5 + daily briefing | Briefing passed again with no fixes (rain at 3 lakes exact) | 8.01 s |
 | 2026-10-14 | 5 + daily briefing | Briefing passed: no rain, Carr Creek falling (−0.18 ft vs report −0.2) | 8.28 s |
 | 2026-10-15 (rain) | 5 + daily briefing | Briefing passed: all 16 rain amounts exact, West Fork +0.7 ft rise picked for trends; Cave Run follow-up answered from `get_lake_trend` | 7.88 s |
-| 2026-10-21 | 5 + plain-language briefing | Passed on tool calls; plainer wording, but called Wednesday "Friday" (open defect) | 8.31 s |
+| 2026-10-21 | 5 + plain-language briefing | Passed on tool calls; called Wednesday "Friday" (fixed with Eastern labels); rerun had the right day but a made-up range and a mislabeled change (instructions fixed) | 8.31–8.40 s |
 
-Checking answers against the official report found ten defects that unit
+Checking answers against the official report found eleven defects that unit
 tests did not, including: "no data" reported as "none", "using flood storage"
 confused with "flood pool full", a made-up answer when the tools were detached,
 the report site's incomplete certificate chain, a briefing that miscounted
 lakes, and a briefing that missed the first day of rain. Seven were fixed in the
 server (tool descriptions, outputs or code), each with a regression test; two
 were fixed in the agent instructions and confirmed by rerunning the evaluation;
-one (a plain-language briefing that gave the wrong weekday) was fixed by having
-the tools return Eastern date and time labels, and is awaiting an evaluation
-rerun.
+the wrong weekday in a plain-language briefing was fixed by having the tools
+return Eastern date and time labels (confirmed on rerun); the newest, a public
+briefing that summarized lakes as a made-up range and mislabeled a change, was
+fixed in the instructions and awaits a rerun.
 See the [defects table](eval/README.md#defects-the-evaluation-found-and-fixes).
 
 ## Limitations

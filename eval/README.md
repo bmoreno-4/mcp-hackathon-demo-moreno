@@ -298,6 +298,29 @@ not saved as a public-briefing test
 ([csv](wxo/results_2026-10-21_briefing_public.csv),
 [screenshot](wxo/screenshots/eval_2026-10-21_briefing_public.png)).
 
+**Rerun at 19:36, after adding Eastern date and time labels and each lake's
+USACE Water Data page.** The first attempt after re-registering returned "unable
+to retrieve the data": the agent's tool cards still pointed at the removed copy
+of the toolkit. Removing and re-adding the five tools fixed it. The rerun
+passed on tool calls (recall 1.0, precision 0.6, 8.40 s) and checked against
+the 10/21 report:
+
+- Correct: "Wednesday, October 21 2026 (6 AM EDT)"; no rain; 11 above, 1 at,
+  5 below target; Patoka 2.6 ft above target, 19% (report 18.91), Carr Creek
+  3.9 ft, 9% (8.87), Cave Run 2.8 ft, 5% (5.38).
+- Wrong: "all other lakes above target are using between 1% and 8%" (they were
+  0.13% to 4.4%), and the one change since 6 AM, Barren's Percent Util (4.27
+  to about 3.9, the same gap that failed validation), was attributed to Patoka.
+- Mixed formats: it wrote the plain summary and then the technical sections,
+  with "guide curve" and "CWMS" still in them.
+
+Fix: the public version now has its own fixed sections ("using only these
+sections"), one line per lake from `flood_storage_ranking`, a rule never to
+summarize several lakes as a range, and a rule to name each changed lake
+exactly as given in `changes_since_report`. Not saved as a test
+([csv](wxo/results_2026-10-21_briefing_public_rerun.csv),
+[screenshot](wxo/screenshots/eval_2026-10-21_briefing_public_rerun.png)).
+
 ### Defects the evaluation found (and fixes)
 
 | Symptom in wxO | Root cause | Fix |
@@ -311,7 +334,8 @@ not saved as a public-briefing test
 | "I could not get the data" for the report check | The LRL report server omits its DigiCert intermediate certificate; the SI/AI-written capture script had turned certificate checking off | Ship the public intermediate and verify with it (`SECURITY.md`); test checks it chains to the DigiCert root |
 | Briefing miscounted ("10 lakes … 10% of the district"), double-listed lakes | Model re-derived lists and percentages from 17 per-lake records | `lakes_by_status` in `summarize_district_lakes`; instructions use the tool's counts |
 | Briefing said "no precipitation" on the first rain day (13 lakes had rain) and summed Percent Util across lakes | Rain was only inside 17 nested lake records; nothing said Percent Util is per lake | `rain_last_24hr` and `changes_since_report` lists in `check_against_daily_report`; per-lake rule in instructions |
-| Plain-language briefing called Wednesday, October 21 "Friday" | The model worked out the weekday itself; tools return only UTC timestamps | Tools now return ready-made Eastern labels (`report_date_label`, `report_time_eastern`, `as_of_eastern`, `time_eastern`), with tests including the 11/1 change to standard time; the instructions say to use them as given and never work out a weekday. To be confirmed in the next evaluation |
+| Plain-language briefing called Wednesday, October 21 "Friday" | The model worked out the weekday itself; tools return only UTC timestamps | Tools now return ready-made Eastern labels (`report_date_label`, `report_time_eastern`, `as_of_eastern`, `time_eastern`), with tests including the 11/1 change to standard time; the instructions say to use them as given. Confirmed in the 10/21 rerun ("Wednesday", "6 AM EDT") |
+| Public briefing invented a "1% to 8%" range and put Barren's change under Patoka | Model summarized and re-labeled values instead of copying them per lake; public and technical formats both in the instructions | Public version has its own sections; one line per lake; no ranges; changed lakes named exactly as given. To be confirmed in the next evaluation |
 
 Fixes to the server code have regression tests in `tests/`. The two fixes made
 only in the agent instructions (the fake tool call and the made-up Patoka

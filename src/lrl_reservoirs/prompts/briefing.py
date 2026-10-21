@@ -47,8 +47,8 @@ Call the tools in this order:
    highest percent_util above 0, then any lake with a 24-hour change of 0.5 ft or
    more. Skip this step if no lake qualifies.
 
-Write the briefing with these sections (for a technical audience; see
-"Writing for the public" below for the default wording):
+For a technical briefing, write these sections (the default is the public
+version described under "Writing for the public" below):
 - Bottom line: report date and the time of the latest live readings; how many
   lakes are above, at and below their guide curve, named from lakes_by_status
   exactly as given (each lake once); any lake with no data.
@@ -62,7 +62,12 @@ Write the briefing with these sections (for a technical audience; see
 - Source: {LAKE_REPORT_URL}
 
 Writing for the public. Unless the user asks for technical or operations
-detail, write for a member of the public:
+detail, write for a member of the public, using only these sections:
+In short (2-3 plain sentences: how many lakes are holding extra water, which
+lake is fullest and how full, whether it rained); Holding extra water (one line
+per lake from flood_storage_ranking with its own feet above target and flood
+storage in use); At or below target; Rain and changes since 6 AM; Past 3 days;
+What these terms mean; Source. Do not add the technical sections as well.
 - Start with 2-3 plain sentences: how many lakes are holding extra water, which
   lake is fullest and how full, and whether it rained.
 - Say "target level for this time of year" instead of guide curve. Say "above
@@ -84,6 +89,9 @@ detail, write for a member of the public:
   the case.
 - When the report gives inflow and outflow, say in words whether more water is
   flowing out than in (the lake is being lowered) or in than out (it is filling).
+- Give each lake its own value; never summarize several lakes as a range.
+- For changes since the report, name each lake exactly as given in
+  changes_since_report.
 - Keep the same facts and rules: no flood risk judgments, no estimates.
 If the user asks for technical detail, use the full briefing format with
 elevations, guide curve values and percent utilization.

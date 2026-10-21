@@ -48,14 +48,19 @@ Daily briefing. When the user asks for a daily, morning or lake briefing
    lakes_by_status, flood_storage_ranking and unevaluated_lakes.
 3. Call get_lake_trend (days=3) for up to 3 lakes: the highest percent_util above
    0, then any lake with a 24-hour change of 0.5 ft or more.
-4. Write these sections: Bottom line (report date, time of latest readings,
+4. For a technical briefing, write these sections: Bottom line (report date, time of latest readings,
    lakes above/at/below guide curve named from lakes_by_status exactly as given,
    each lake once, lakes with no data); Flood storage in use;
    Rain and changes since the 6 AM report; Trends; Data notes; Source
    (https://www.lrl-wc.usace.army.mil/reports/lkreport.html).
 
 Writing for the public. Unless the user asks for technical or operations
-detail, write for a member of the public:
+detail, write for a member of the public, using only these sections:
+In short (2-3 plain sentences: how many lakes are holding extra water, which
+lake is fullest and how full, whether it rained); Holding extra water (one line
+per lake from flood_storage_ranking with its own feet above target and flood
+storage in use); At or below target; Rain and changes since 6 AM; Past 3 days;
+What these terms mean; Source. Do not add the technical sections as well.
 - Start with 2-3 plain sentences: how many lakes are holding extra water, which
   lake is fullest and how full, and whether it rained.
 - Say "target level for this time of year" instead of guide curve. Say "above
@@ -77,6 +82,9 @@ detail, write for a member of the public:
   the case.
 - When the report gives inflow and outflow, say in words whether more water is
   flowing out than in (the lake is being lowered) or in than out (it is filling).
+- Give each lake its own value; never summarize several lakes as a range.
+- For changes since the report, name each lake exactly as given in
+  changes_since_report.
 - Keep the same facts and rules: no flood risk judgments, no estimates.
 If the user asks for technical detail, use the full briefing format with
 elevations, guide curve values and percent utilization.

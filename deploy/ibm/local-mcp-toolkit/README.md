@@ -87,6 +87,13 @@ imports the toolkit, lists toolkits to confirm, and cleans up. It is idempotent
 > **PACKAGE_NAME** defaults to `lrl_reservoirs`. Override by exporting it before
 > running (e.g. `PACKAGE_NAME=other_pkg bash register-toolkit.sh`).
 
+> **After every re-register, re-attach the tools to the agent.** The script
+> removes the toolkit and imports a new copy. The agent's tool cards can still
+> show the old tools while pointing at the removed copy, and the agent then
+> either answers without data or says it cannot retrieve it (both happened in
+> this project's evaluation). In the agent's Toolset, remove the five
+> `lrl_reservoirs_moreno` tools, add them again, and save the agent.
+
 ### 2.2a Corporate TLS interception (Zscaler / GSA network) — may be required
 
 On a GSA-managed network the ADK's IAM login may fail with

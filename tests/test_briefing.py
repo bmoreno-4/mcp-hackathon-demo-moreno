@@ -100,3 +100,12 @@ def test_public_wording_links_lake_page_and_explains_its_diagram():
         assert "lake_page_url" in text
         assert "Top of Conservation" in text
         assert "inflow and outflow" in text
+
+
+def test_public_version_has_its_own_sections_and_per_lake_values():
+    """2026-10-21: a public briefing mixed in the technical sections, gave a
+    made-up 1%-8% range and put Barren's change under Patoka."""
+    for text in (briefing.build_briefing_prompt(), INSTRUCTIONS.read_text()):
+        assert "using only these sections" in text
+        assert "never summarize several lakes as a range" in text
+        assert "exactly as given in\n  changes_since_report" in text
