@@ -84,6 +84,12 @@ curve is computed is enough to cross it. C. M. Harden passed at +0.10 on 10/10
 and 10/11 for the same reason, just under the line. The tolerance was not
 changed after the failure; the result stands as recorded.
 
+This means that Harsha failed because its acutal measurement was barely
+over the 0.10-foot limit, even though the report rounded it as showed
+as +0.10 ft. Because the report only shows measurements to one decimal
+place, the tiny rounding and timing differences can make a result
+fail just above or below the limit. The limit was not changed afterward.
+
 **2026-10-21 failure (Barren Percent Util).** Reports for 10/16 to 10/20 were
 not captured. On 10/21 the report showed Barren at 4.27% and the server
 computed 3.89%, a −0.38 difference against a ±0.15 limit. Barren's offset had
@@ -102,6 +108,13 @@ Creek's stays near 1% of its Percent Util (7.20 to 9.60) and within tolerance,
 which suggests a slightly different flood-pool storage value. Barren's held near
 −0.11 until 10/15, reached −0.14 after 1.7 in. of rain, and failed at −0.38 on
 10/21 (see above). Neither offset was tuned away.
+
+This means that Barren failed the check on October 21 because the report's
+percent-full figure was 4.27%, while the server calculated 3.89%. This difference
+is much larger than the allowed margin. The lake-level guide curve matches, so the 
+issue likley involves how storage is being calculated rather than the water
+elevations. Unknown cause and tolerance was not changed.
+
 
 ### Offline tests
 
@@ -209,6 +222,13 @@ Notes:
   and change questions were checked against a dry day. They will be rerun
   after the weekend rain.
 
+
+Summary:
+On October 10, the lake information assistant passed all 8 tests and generally
+gave correct answers in about 6 seconds. A few wording and math mistakes appeared
+in the district briefing, but the underlying data nad tool use were correct, and 
+the instructions were updated to prevent those errors going forward.
+
 ### First rain day (2026-10-11)
 
 The 10/11 report shows rain at 13 of 17 lakes (Barren 1.0 in., Cave Run and
@@ -245,6 +265,14 @@ at 08:24. The "answer key" is therefore not fixed at 06:00:
 `fetch_lake_report.py` now saves a later download as
 `lrl_lake_report_<date>_rev-HHMM` when its HTML differs from what is already
 saved, and never overwrites the original. Re-run it mid-morning.
+
+Summary:
+On the first rain day, the assistant correctly identified the lake conditions
+but initally missed the reported rainfall and incorrectly combined separate 
+lake stoarge percentages. Those issues were addressed and later tests correctly
+listed rain at all 13 affected lakes. The team also found the offical report
+can be updated after publication, so they now saved the revised versions
+rather than replacing the original.
 
 ### Day after the rain (2026-10-12)
 
