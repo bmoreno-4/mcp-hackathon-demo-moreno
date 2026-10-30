@@ -19,7 +19,7 @@ showing pool elevation, deviation from the seasonal guide curve, storage
 utilization (Percent Util), and inflow/outflow for every lake. However, the update
 may not occur on federal holidays or weekends.
 
-This server exposes five MCP tools. Four read live data; one is static
+This server contains five MCP tools. Four read live data; one is static
 reference data:
 
 | Tool | Description |
@@ -38,13 +38,13 @@ before calling. `tests/test_models.py` checks every tool's real output against
 its model.
 
 It also provides one MCP prompt, `district_briefing` (optional basin), which
-runs a daily briefing: it checks this morning's report, summarizes the
+runs a daily briefing: this checks this morning's daily report, summarizes the
 district, and pulls 3-day trends for the lakes using the most flood storage.
 watsonx Orchestrate does not show MCP prompts to agents, so the same workflow
 is in [`deploy/ibm/local-mcp-toolkit/agent_instructions.md`](deploy/ibm/local-mcp-toolkit/agent_instructions.md)
 for pasting into the agent; a test keeps it in step with the registered tools.
 
-### Example questions an SI/AI client can answer
+### Example questions an SI client can answer
 
 - *"How is Barren River Lake doing compared to its guide curve?"*
 - *"Which lakes are currently below their guide curve?"*
@@ -184,12 +184,6 @@ is how local clients (IBM Bob, Claude Desktop) launch it as a subprocess.
   }
 }
 ```
-
-**Claude Desktop:** add the same block to
-`~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or
-`%APPDATA%\Claude\claude_desktop_config.json` (Windows), then restart.
-On macOS with the repo in `~/Documents`, you may also need
-`"env": {"PYTHONPATH": "<repo>/src"}` in that block (see QUICKSTART step 4).
 
 ### Verify
 
