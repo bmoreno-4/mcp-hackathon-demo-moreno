@@ -16,7 +16,7 @@ Two scripts check that the server's computed values match the official
 
 | Script | What it does |
 |---|---|
-| `fetch_lake_report.py` | Downloads today's report, parses the 17-lake table, and writes `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` plus the raw HTML for provenance. Never overwrites a saved report; a later same-day revision is saved as `_rev-HHMM`. |
+| `fetch_lake_report.py` | Downloads today's report, parses the 17-lake table, and writes `eval/reports/lrl_lake_report_YYYY-MM-DD.csv` plus the raw HTML for source. Never overwrites a saved report; a later same-day revision is saved as `_rev-HHMM`. |
 | `lrl_percent_util_validation.py` | Reads a dated CSV from `eval/reports/` and validates **Percent Util** (tolerance ±0.15 pp) and **guide curve elevation** (tolerance ±0.10 ft) for all 17 lakes against live CWMS data. Exits `0` if all pass, `1` on any failure. |
 
 ### Daily routine
@@ -374,7 +374,3 @@ only in the agent instructions (the fake tool call and the made-up Patoka
 answer) cannot be unit-tested; a test checks that the instructions name every
 registered tool, and the evaluation reruns showed the behavior did not return.
 
-### Optional: Phoenix harness
-
-The template's Phoenix harness (`mcp-eval` skill, `.agents/skills/mcp-eval/`)
-can be added later for LLM-as-judge scoring outside wxO.
