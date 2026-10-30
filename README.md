@@ -1,11 +1,11 @@
 # LRL Reservoir Conditions — MCP Server
 
-An [MCP](https://modelcontextprotocol.io) server that gives SI/AI clients live
+An [MCP](https://modelcontextprotocol.io) server that gives SI clients live
 conditions for the 17 flood risk management lakes of the U.S. Army Corps of
 Engineers (USACE) Louisville District (LRL), from the public CWMS Data API.
 
 SI (Super Intelligence) is the federal term under EO 14434; AI (artificial
-intelligence) is the common public term. This repo uses both, as SI/AI.
+intelligence) is the common public term. This repo uses SI.
 
 Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.astral.sh/uv/).
 
@@ -16,7 +16,8 @@ Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.as
 USACE LRL District operates 17 reservoirs across Kentucky, Ohio, and Indiana for
 flood risk management. Each day the district publishes a **Daily Lake Report**
 showing pool elevation, deviation from the seasonal guide curve, storage
-utilization (Percent Util), and inflow/outflow for every lake.
+utilization (Percent Util), and inflow/outflow for every lake. However, the update
+may not occur on federal holidays or weekends.
 
 This server exposes five MCP tools. Four read live data; one is static
 reference data:
