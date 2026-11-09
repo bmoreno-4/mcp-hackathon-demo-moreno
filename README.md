@@ -13,13 +13,13 @@ Built with [FastMCP](https://github.com/jlowin/fastmcp) and [uv](https://docs.as
 
 ## What it does
 
-USACE LRL District operates 17 reservoirs across Kentucky, Ohio, and Indiana for
+The USACE LRL District operates 17 reservoirs across Kentucky, Ohio, and Indiana for
 flood risk management. Each day the district publishes a **Daily Lake Report**
 showing pool elevation, deviation from the seasonal guide curve, storage
 utilization (Percent Util), and inflow/outflow for every lake. However, the update
 may not occur on federal holidays or weekends.
 
-This server contains five MCP tools. Four read live data; one is static
+This server contains five MCP tools. Four read live data, and one provides static
 reference data:
 
 | Tool | Description |
@@ -38,7 +38,7 @@ before calling. `tests/test_models.py` checks every tool's real output against
 its model.
 
 It also provides one MCP prompt, `district_briefing` (optional basin), which
-runs a daily briefing: this checks this morning's daily report, summarizes the
+runs a daily briefing. The briefing checks this morning's daily report, summarizes the
 district, and pulls 3-day trends for the lakes using the most flood storage.
 watsonx Orchestrate does not show MCP prompts to agents, so the same workflow
 is in [`deploy/ibm/local-mcp-toolkit/agent_instructions.md`](deploy/ibm/local-mcp-toolkit/agent_instructions.md)
@@ -201,7 +201,7 @@ uv run ruff format --check . # format check
 All data comes from the public
 [CWMS Data API](https://cwms-data.usace.army.mil/cwms-data/) operated by USACE.
 The server requires `Accept: application/json;version=2` on every request (without
-it the API returns `501 Not Implemented`).
+it, the API returns `501 Not Implemented`).
 
 ### Elevation and guide curve
 
